@@ -15,6 +15,7 @@
     integrity="sha384-SZXxX4whJ79/gErwcOYf+zWLeJdY/qpuqC4cAa9rOGUstPomtqpuNWT9wdPEn2fk" crossorigin="anonymous">
   <script
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCW6Ekw5sZ0JUZfzpMeSteJ6_8aoQRwfws&libraries=places"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
   <link rel="stylesheet" href="/css/Plan.css">
   <link rel="stylesheet" href="/css/PlanPage_button.css">
   <link rel="stylesheet" href="/css/Plan_Day.css">
@@ -33,15 +34,16 @@
         <div class="trip-list-header-content">
           <!-- component -->
           <div class="trip-list-header-title-container">
-            <input type="text" class="trip-list-header-title edit-mode" value=123>
+            <input type="text" class="trip-list-header-title edit-mode" v-model="rawData.TripTitle">
           </div>
           <div class="trip-list-header-date">
-            <input type="date" value="2021-09-10"> - 2021年9月17日
+            <input type="date" v-model="StartDate"> - {{EndDate}}
           </div>
           <div class="trip-list-member">
             <a href="">
               <div class="member-img">
-                <img src="/image/user.jpg" alt="" title="Kevin">
+                <!-- 修改 -->
+                <img :src="rawData.UserImg" alt="" :title="rawData.UserName">
               </div>
             </a>
           </div>
@@ -231,6 +233,9 @@
     const App = {
       data() {
         return {
+          now: '',
+          StartDate: '',
+          EndDate:'',
           tripListHeight: '',
           edit: false,
           setReturn: false,
@@ -277,159 +282,22 @@
           // FirstId: 0,
           // LastId: 0,
           clickId: '',
-          rawData: {
-            "UserId": 1,
-            "TripId": 1,
-            "UserImg": 'https://res.cloudinary.com/ditncduk1/image/upload/v1631763156/user_pq6faw.jpg',
-            "TripTitle": "台北七天六夜",
-            "StartDate": "2021年9月10日",
-            "EndDate": "2021年9月16日",
-            "TotalDate": 2,
-            "TripContent": [
-              {
-                "Type": "Day",
-                "Id": 1,
-                "DayId": 1,
-                "Color": "#ff4477",
-                "Day": 1,
-                "Date": "9月10日",
-                "Weekday": "星期一",
-                "Sequence": 0,
-                "StartTime": "09:00"
-              },
-              {
-                "Type": "Place",
-                "Id": 2,
-                "DayId": 1,
-                "Color": "#ff4477",
-                "Day": 1,
-                "TripDetailsId": 1,
-                "Sequence": 1,
-                "PlaceName": "台北新光三越",
-                "StayTime": "1 小時 30 分",
-                "StartTime": "09:00",
-              },
-              {
-                "Type": "Place",
-                "Id": 3,
-                "DayId": 1,
-                "Color": "#ff4477",
-                "Day": 1,
-                "TripDetailsId": 2,
-                "Sequence": 2,
-                "PlaceName": "台中火車站",
-                "StayTime": "30 分",
-              },
-              {
-                "Type": "Day",
-                "Id": 4,
-                "DayId": 2,
-                "Color": "#3b86ff",
-                "Day": 2,
-                "Date": "9月11日",
-                "Weekday": "星期二",
-                "Sequence": 0,
-                "StartTime": "08:00"
-              },
-              {
-                "Type": "Place",
-                "Id": 5,
-                "DayId": 2,
-                "Color": "#3b86ff",
-                "Day": 2,
-                "TripDetailsId": 3,
-                "Sequence": 1,
-                "PlaceName": "Build School",
-                "StayTime": "30 分",
-                "StartTime": "08:00",
-              },
-              {
-                "Type": "Place",
-                "Id": 6,
-                "DayId": 2,
-                "Color": "#3b86ff",
-                "Day": 2,
-                "TripDetailsId": 4,
-                "Sequence": 2,
-                "PlaceName": "大稻埕碼頭廣場",
-                "StayTime": "10 分",
-                "StartTime": "09:20",
-              },
-              {
-                "Type": "Place",
-                "Id": 7,
-                "DayId": 2,
-                "Color": "#3b86ff",
-                "Day": 2,
-                "TripDetailsId": 5,
-                "Sequence": 3,
-                "PlaceName": "霞海城隍廟",
-                "StayTime": "30 分",
-                "StartTime": "10:20",
-              },
-              {
-                "Type": "Day",
-                "Id": 8,
-                "DayId": 3,
-                "Color": "#71b85f",
-                "Day": 3,
-                "Date": "9月12日",
-                "Weekday": "星期三",
-                "Sequence": 0,
-                "StartTime": "10:00"
-              },
-              {
-                "Type": "Day",
-                "Id": 9,
-                "DayId": 4,
-                "Color": "#815fb7",
-                "Day": 4,
-                "Date": "9月13日",
-                "Weekday": "星期四",
-                "Sequence": 0,
-                "StartTime": "06:00"
-              },
-              {
-                "Type": "Day",
-                "Id": 10,
-                "DayId": 5,
-                "Color": "#b6b75f",
-                "Day": 5,
-                "Date": "9月14日",
-                "Weekday": "星期五",
-                "Sequence": 0,
-                "StartTime": "07:00"
-              },
-              {
-                "Type": "Day",
-                "Id": 11,
-                "DayId": 6,
-                "Color": "#f4a94e",
-                "Day": 6,
-                "Date": "9月15日",
-                "Weekday": "星期六",
-                "Sequence": 0,
-                "StartTime": "12:00"
-              },
-              {
-                "Type": "Day",
-                "Id": 12,
-                "DayId": 7,
-                "Color": "#2fbcbc",
-                "Day": 7,
-                "Date": "9月16日",
-                "Weekday": "星期日",
-                "Sequence": 0,
-                "StartTime": "09:00"
-              }
-            ]
-          }
+          rawData: {}
         }
       },
       methods: {
+        getData(){
+          let url = "https://raw.githubusercontent.com/r04941090/FileStorage/master/Trip"
+          axios.get(url).then(res => {
+            this.rawData = res.data
+            let DateAry = this.rawData.EndDate.split('-')
+            this.StartDate = this.rawData.StartDate
+            this.EndDate = `${DateAry[0]}年${DateAry[1]}月${DateAry[2]}日`
+            this.calculateRoute(this.rawData.TripContent)
+          })
+        },
         getDeletePlace(place) {
           console.log(place);
-
         },
         clear() {
           this.directionsRenderer.forEach(item => {
@@ -1197,13 +1065,21 @@
       watch: {
         rawData: {
           handler: function (newValue) {
-            // console.log('watchRawData', newValue);
+            console.log('watchRawData', newValue);
           },
           deep: true
         },
         edit: {
           handler: function () {
             this.calcTripContainerHeight();
+          }
+        },
+        StartDate: {
+          handler: function(newValue){
+            let DateAry = newValue.split('-')
+            let newDate = new Date(DateAry[0], DateAry[1], DateAry[2])
+            let EndDate = new Date(newDate.setDate(newDate.getDate() + this.rawData.TotalDate - 1))
+            this.EndDate = `${EndDate.getFullYear()}年${EndDate.getMonth()}月${EndDate.getDate()}日`
           }
         }
       },
@@ -1218,9 +1094,10 @@
         // this.LastId = document.querySelectorAll('.trip-item').length;
         this.tripContainer = this.$refs.tripListDayContainer
         this.calcTripContainerHeight()
+        this.getData();
         this.InitMap();
         window.addEventListener('resize', this.TripListShow)
-        this.calculateRoute(this.rawData.TripContent)
+        
       },
       beforeDestroy() {
         window.removeEventListener("resize", this.TripListShow);
