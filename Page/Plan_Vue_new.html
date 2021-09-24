@@ -35,10 +35,12 @@
           <!-- component -->
           <div class="trip-list-header-title-container">
             <input type="text" class="trip-list-header-title edit-mode" v-model="rawData.TripTitle" v-if="edit">
-            <h1 class="trip-list-header-title" v-if="!edit">{{rawData.TripTitle}}</h1>
+            <div class="trip-list-header-title" v-if="!edit">{{rawData.TripTitle}}</div>
           </div>
           <div class="trip-list-header-date">
-            <input type="date" v-model="StartDate"> - {{EndDate}}
+            <input type="date" v-model="StartDate" v-if="edit">
+            <span v-if="!edit" style="margin-bottom: 2px; display: inline-block;">{{StartDateDisplay}}</span> -
+            {{EndDate}}
           </div>
           <div class="trip-list-member">
             <a href="">
@@ -67,11 +69,13 @@
       <div class="trip-list-day-container" ref="tripListDayContainer">
         <div class="trip-item" v-for="(TripContent, index) in rawData.TripContent" :key="TripContent.Id"
           :data-id="TripContent.Id" @mousedown="DragMouseDown">
-          <day :trip-content="TripContent" v-if="index == 0"></day>
+          <day :trip-content="TripContent" v-if="index == 0" @select-day="selectDay" :show-day="showSpecificRoute">
+          </day>
           <place-gps :trip-content="TripContent" v-else-if="TripContent.Type == 'Place'" @copy-data="copyPlace"
             @delete-place="getDeletePlace" :edit="edit">
           </place-gps>
-          <day-plus :trip-content="TripContent" v-else-if="TripContent.Type == 'Day'"></day-plus>
+          <day-plus :trip-content="TripContent" v-else-if="TripContent.Type == 'Day'" @select-day="selectDay"
+            :show-day="showSpecificRoute"></day-plus>
         </div>
         <div class="trip-item" :data-id="rawData.length + 1">
           <div class="add-venue">
@@ -144,16 +148,26 @@
   <script>
     const day = {
       template: `
-      <header class="trip-list-day-header d-flex">
-        <div class="text-white" :style="{background: tripContent.Color}" style="cursor: pointer">
-          第{{tripContent.Day}}天<span> : </span>{{tripContent.Weekday}}
+      <header class="trip-list-day-header">
+        <div class="text-white weekday" :style="{background: (showDay.content !== tripContent) && showDay.show  ? '#888' : tripContent.Color}" style="cursor: pointer" @click="selectDay">
+          <div class="d-inline-block eye" v-if="showDay.show">
+            <i class="far fa-eye" v-if="showDay.content == tripContent"></i>
+            <i class="far fa-eye-slash" v-else></i>
+          </div>
+          <span>第{{tripContent.Day}}天：{{tripContent.Weekday}}</span>
         </div>
-        <div>
+        <div class="trip-list-day-header-time">
           出發時間：
           <b class="edit-mode">{{tripContent.StartTime}}</b>
         </div>
       </header>`,
-      props: ['tripContent']
+      props: ['tripContent', 'showDay'],
+      emit: ['selectDay'],
+      methods: {
+        selectDay() {
+          this.$emit('selectDay', this.tripContent)
+        }
+      }
     }
     const placeGps = {
       template: `
@@ -184,7 +198,7 @@
               <div class="trip-list-day-venu-info-edit-func">刪除</div>
             </div>
             <div>
-              <i class="fas fa-file-alt" style="font-size: 16px; color: #666;" v-if="!edit"></i>
+              <i class="fas fa-file-alt" style="font-size: 20px; color: #666;" v-if="!edit"></i>
             </div>
           </div>
         </div>
@@ -214,47 +228,60 @@
           this.$emit('deletePlace', this.tripContent)
         }
       },
-
     }
+
     const dayPlus = {
+      data() {
+        return {
+          show: ''
+        }
+      },
       template: `
       <div class="add-venue" style="margin-top: 16px;">
         <span>+ 新增景點</span>
       </div>
-      <header class="trip-list-day-header d-flex">
-        <div class="text-white" style="cursor: pointer;" :style="{background: tripContent.Color}">
-          第{{tripContent.Day}}天<span> : </span>{{tripContent.Weekday}}
+      <header class="trip-list-day-header">
+        <div class="text-white weekday" style="cursor: pointer;" :style="{background: (showDay.content !== tripContent) && showDay.show ? '#888' : tripContent.Color}" @click="selectDay">
+          <div class="d-inline-block eye" v-if="showDay.show">
+            <i class="far fa-eye" v-if="showDay.content == tripContent"></i>
+            <i class="far fa-eye-slash" v-else></i>
+          </div>
+          <span>第{{tripContent.Day}}天 : {{tripContent.Weekday}}</span>
         </div>
-        <div>
+        <div class="trip-list-day-header-time">
           出發時間：
           <b class="edit-mode">{{tripContent.StartTime}}</b>
         </div>
       </header>`,
-      // template: `<p>{{tripContent.Day}}</p>`,
-      props: ['tripContent']
+      props: ['tripContent', 'showDay'],
+      emit: ['selectDay'],
+      methods: {
+        selectDay() {
+          this.$emit('selectDay', this.tripContent)
+        }
+      }
     }
 
     const App = {
       data() {
         return {
-          now: '',
+          showSpecificRoute: {
+            show: false,
+            content: {}
+          },
           StartDate: '',
-          EndDate:'',
+          EndDate: '',
+          StartDateDisplay: '',
+
           tripListHeight: '',
           edit: false,
           setReturn: false,
           showTripList: true,
           map: '',
-          markers: [],
           directionsService: '',
-          directionsRenderer: [],
-
-
+          directionsRenderersData: [],
+          markersData: [],
           placeCard: '',
-
-          // 判斷鼠標往上往下才能決定currentDirection
-          // 用e.clientY、clientY
-
 
           tripItems: [],
           tripContainer: '',
@@ -290,34 +317,59 @@
         }
       },
       methods: {
-        getData(){
+        getData() {
           let url = "https://raw.githubusercontent.com/r04941090/FileStorage/master/Trip"
           axios.get(url).then(res => {
             this.rawData = res.data
-            let DateAry = this.rawData.EndDate.split('-')
+            let StartDateAry = this.rawData.StartDate.split('-')
+            let EndDateAry = this.rawData.EndDate.split('-')
             this.StartDate = this.rawData.StartDate
-            this.EndDate = `${DateAry[0]}年${DateAry[1]}月${DateAry[2]}日`
+            this.StartDateDisplay = `${StartDateAry[0]}年${StartDateAry[1]}月${StartDateAry[2]}日`
+            console.log(this.StartDateDisplay);
+
+            this.EndDate = `${EndDateAry[0]}年${EndDateAry[1]}月${EndDateAry[2]}日`
             this.calculateRoute(this.rawData.TripContent)
           })
+        },
+        selectDay(select) {
+          if (this.rawData.TripContent.find(x => x.Day == select.Day && x.Type == 'Place') !== undefined) {
+            if (this.showSpecificRoute.content == '') {
+              this.showSpecificRoute.content = select
+              this.showSpecificRoute.show = true
+            }
+            else {
+              if (this.showSpecificRoute.content == select) {
+                this.showSpecificRoute.content = ''
+                this.showSpecificRoute.show = false
+              }
+              else {
+                this.showSpecificRoute.content = select
+                this.showSpecificRoute.show = true
+              }
+            }
+          }
+          console.log(this.rawData.TripContent);
+          this.ResetRoute(this.map);
+          // this.calculateRoute()
         },
         getDeletePlace(place) {
           console.log(place);
         },
-        clear() {
-          this.directionsRenderer.forEach(item => {
-            item.setMap(null)
-          })
-          this.markers.forEach(item => {
-            let label = {
-              text: "11",
-              color: 'black',
-              fontSize: '50px',
-              fontWeight: "900"
-            }
-            item.setLabel(null)
-            item.setVisible(false)
-          })
-        },
+        // clear() {
+        //   this.directionsRenderer.forEach(item => {
+        //     item.setMap(null)
+        //   })
+        //   this.markers.forEach(item => {
+        //     let label = {
+        //       text: "11",
+        //       color: 'black',
+        //       fontSize: '50px',
+        //       fontWeight: "900"
+        //     }
+        //     item.setLabel(null)
+        //     item.setVisible(false)
+        //   })
+        // },
         DragMouseDown(e) {
           this.clickTag = e.target.parentNode.parentNode
           this.tripItems = document.querySelectorAll('.trip-item');
@@ -327,7 +379,7 @@
           // console.dir(document.querySelector('.trip-list-header-info'));
           // console.dir(document.querySelector('.trip-list-header-day-container'));
           // console.dir(document.querySelector('.trip-list-day-container'));
-          
+
           // 點到drag-handle才有用
           if (e.target.classList[0] == "drag-handler") {
             this.clickTag.style.visibility = 'hidden'
@@ -362,10 +414,10 @@
             // offsetTop(為選定物件 "頂部" 到父層 "頂部" 的距離) + offsetHeight為選定物件到父層 "頂部" 的距離
             // SelectH = offsetTop - 上面兩塊的高度
             console.log(this.clickTag.offsetTop);
-            
+
             this.selectD = this.clickTag.offsetTop - this.$refs.tripListHeaderDayContainer.clientHeight - this.$refs.tripListHeaderInfo.clientHeight + this.selectL - this.tripContainer.scrollTop
             console.log('選定物件底部到父層頂部的距離', this.selectD);
-            
+
             this.totalD = this.tripContainer.offsetHeight; // trip-list-day-container的高度
             this.H = this.tripContainer.querySelector(`[data-id="${parseInt(this.currentId) + 1}"]`).offsetHeight
             this.clickId = dataID
@@ -409,6 +461,8 @@
             console.log(result);
             // return
             // 只交換有動到的部分
+            console.log(this.steps);
+
             this.steps.forEach(step => {
               let newIndex = result.findIndex(x => x.Id == step.new);
               let oldIndex = result.findIndex(x => x.Id == this.clickId)
@@ -417,7 +471,7 @@
               result[newIndex] = tempData1
               result[oldIndex] = tempData2
             })
-            // console.log(result);
+            console.log(JSON.parse(JSON.stringify(result)));
 
             // return
             // 更新Sequence
@@ -442,24 +496,7 @@
               Id = Id + 1
             })
             this.tripItems[this.tripItems.length - 1].dataset.id = Id;
-
-            // 移除marker、direction
-            if (this.markers.length !== 0) {
-              this.markers.forEach(marker => {
-                // marker.setIcon(null)
-                // marker.setLabel(null);
-                // marker.setMap(null)
-                marker.setVisible(false)
-              })
-              this.markers = []
-            }
-            if (this.directionsRenderer.length !== 0) {
-              this.directionsRenderer.forEach(item => {
-                item.setMap(null)
-              })
-            }
             this.calculateRoute(result);
-
             this.tripItems.forEach(trip => {
               trip.style.transitionDuration = '10ms'
               trip.style.transform = "translateY(0px)"
@@ -482,7 +519,91 @@
           })
           // this.$refs.tripListDayContainer.removeChild(this.placeCard)
         },
+        ResetRoute(map) {
+          if (this.showSpecificRoute.content.Day == undefined) {
+            if (this.markersData.length !== 0) {
+              this.markersData.forEach(markerData => {
+                markerData.marker.setVisible(true)
+              })
+            }
+            if (this.directionsRenderersData.length !== 0) {
+              this.directionsRenderersData.forEach(directionsRendererData => {
+                directionsRendererData.directionsRenderer.setMap(null)
+              })
+              this.directionsRenderersData.forEach(directionsRendererData => {
+                this.directionsService = new google.maps.DirectionsService();
+                this.directionsService.route({
+                  origin: {
+                    query: directionsRendererData.origin
+                  },
+                  destination: directionsRendererData.destination,
+                  waypoints: directionsRendererData.waypoint,
+                  travelMode: google.maps.TravelMode.DRIVING,
+                  provideRouteAlternatives: false
+                }, function (res, status) {
+                  directionsRendererData.directionsRenderer.setOptions({
+                    map: map
+                  })
+                  directionsRendererData.directionsRenderer.setDirections(res);
+                })
+              })
+            }
+          }
+          else {
+            if (this.markersData.length !== 0) {
+              this.markersData.forEach(markersData => {
+                if (markersData.DayId == this.showSpecificRoute.content.DayId) {
+                  markersData.marker.setVisible(true)
+                }
+                else {
+                  markersData.marker.setVisible(false)
+                }
+              })
+            }
+            if (this.directionsRenderersData.length !== 0) {
+              this.directionsRenderersData.forEach(directionsRendererData => {
+                directionsRendererData.directionsRenderer.setMap(null)
+              })
+              this.directionsRenderersData.forEach(directionsRendererData => {
+                if (directionsRendererData.DayId == this.showSpecificRoute.content.DayId) {
+                  this.directionsService.route({
+                    origin: {
+                      query: directionsRendererData.origin
+                    },
+                    destination: directionsRendererData.destination,
+                    waypoints: directionsRendererData.waypoint,
+                    travelMode: google.maps.TravelMode.DRIVING,
+                    provideRouteAlternatives: false
+                  }, function (res, status) {
+                    directionsRendererData.directionsRenderer.setOptions({
+                      map: map
+                    })
+                    directionsRendererData.directionsRenderer.setDirections(res);
+                  })
+                }
+                else {
+                  directionsRendererData.directionsRenderer.setMap(null)
+                }
+              })
+            }
+          }
+        },
         calculateRoute(result) {
+          // 移除marker、direction
+          if (this.markersData.length !== 0) {
+            this.markersData.forEach(markersData => {
+              // marker.setIcon(null)
+              // marker.setLabel(null);
+              // marker.setMap(null)
+              markersData.marker.setVisible(false)
+            })
+            this.markersData = []
+          }
+          if (this.directionsRenderersData.length !== 0) {
+            this.directionsRenderersData.forEach(directionsRendererData => {
+              directionsRendererData.directionsRenderer.setMap(null)
+            })
+          }
           let SortPlaceData = []
           let PlaceData = {
             DayId: '',
@@ -525,12 +646,12 @@
                 Address: [],
                 CarTime: []
               }
-              this.calculateAndDisplayRoute(start_location, end_location, WayPoints, item.Color, this.map, this.pinSymbol, this.markLabel).then(res => {
+              this.calculateAndDisplayRoute(start_location, end_location, WayPoints, item.Color, this.map, this.pinSymbol, this.markLabel, item.DayId).then(res => {
                 CalulateResult.DayId = item.DayId
                 res.routes[0].legs.forEach((result, index) => {
-                  CalulateResult.Address.push(result.start_address)
+                  CalulateResult.Address.push(result.start_address.slice(3, -1))
                   if (index == res.routes[0].legs.length - 1) {
-                    CalulateResult.Address.push(result.end_address)
+                    CalulateResult.Address.push(result.end_address.slice(3, -1))
                   }
                   CalulateResult.CarTime.push(result.duration.text)
                 })
@@ -541,17 +662,18 @@
                   if (index == 0) {
                     DayStartTime = result.filter(x => x.DayId == CalulateResult.DayId && x.Type == "Day")[0].StartTime
                   }
-                  let datetime = new Date(2021, 9, 19, DayStartTime.split(':')[0], DayStartTime.split(':')[1])
+                  let StartDateAry = this.rawData.StartDate.split('-')
+                  let datetime = new Date(StartDateAry[0], StartDateAry[1], StartDateAry[2], DayStartTime.split(':')[0], DayStartTime.split(':')[1])
                   let stay_hour = 0;
                   let stay_minute = 0;
-                  if (selected.StayTime.split(' ').length == 2) {
+                  if (selected.StayTime.split(' ').length == 1) {
                     // 沒有小時
                     stay_hour = 0
-                    stay_minute = parseInt(selected.StayTime.split(' ')[0])
+                    stay_minute = parseInt(selected.StayTime.split('分')[0])
                   }
                   else {
-                    stay_hour = parseInt(selected.StayTime.split(' ')[0])
-                    stay_minute = parseInt(selected.StayTime.split(' ')[2])
+                    stay_hour = parseInt(selected.StayTime.split(' ')[0].split('小時')[0])
+                    stay_minute = parseInt(selected.StayTime.split(' ')[1].split('分')[0])
                   }
                   let EndTime = new Date(datetime.getTime() + (stay_hour * 60 + stay_minute) * 60000)
                   selected.StartTime = this.changeDateFormat(datetime)
@@ -586,24 +708,25 @@
             else if (item.Places.length == 1) {
               // 只有一個地點
               let DayStartTime = result.filter(x => x.DayId == item.DayId && x.Type == "Day")[0].StartTime
-              let datetime = new Date(2021, 9, 19, DayStartTime.split(':')[0], DayStartTime.split(':')[1])
+              let StartDateAry = this.rawData.StartDate.split('-')
+              let datetime = new Date(StartDateAry[0], StartDateAry[1], StartDateAry[2], DayStartTime.split(':')[0], DayStartTime.split(':')[1])
               let selected = result.filter(x => x.DayId == item.DayId && x.Type == "Place")[0]
               let stay_hour = 0;
               let stay_minute = 0;
-              if (selected.StayTime.split(' ').length == 2) {
+              if (selected.StayTime.split(' ').length == 1) {
                 // 沒有小時
                 stay_hour = 0
-                stay_minute = parseInt(selected.StayTime.split(' ')[0])
+                stay_minute = parseInt(selected.StayTime.split('分')[0])
               }
               else {
-                stay_hour = parseInt(selected.StayTime.split(' ')[0])
-                stay_minute = parseInt(selected.StayTime.split(' ')[2])
+                stay_hour = parseInt(selected.StayTime.split(' ')[0].split('小時')[0])
+                stay_minute = parseInt(selected.StayTime.split(' ')[1].split('分')[0])
               }
-
               let EndTime = new Date(datetime.getTime() + ((stay_hour) * 60 + stay_minute) * 60000)
               selected.StartTime = this.changeDateFormat(datetime)
               selected.EndTime = this.changeDateFormat(EndTime)
-              this.findPlace(item.Places[0], this.markLabel, selected, item.Color).then(res => {
+              selected.Car = ''
+              this.findPlace(item.DayId, item.Places[0], this.markLabel, selected, item.Color).then(res => {
                 this.rawData.TripContent = JSON.parse(JSON.stringify(result))
               })
             }
@@ -612,9 +735,8 @@
         copyPlace(place) {
           console.log(place);
           let insertIndex = this.rawData.TripContent.findIndex(x => x.Id = place.Id)
-          // this.rawData.splice
         },
-        findPlace(Place, markLabel, selected, color) {
+        findPlace(DayId, Place, markLabel, selected, color) {
           return new Promise((resolve, reject) => {
             let request = {
               query: Place,
@@ -622,8 +744,10 @@
             }
             let PlacesService = new google.maps.places.PlacesService(this.map);
             PlacesService.findPlaceFromQuery(request, function (results, status) {
-              selected.Address = results[0].formatted_address
-              markLabel(results[0].geometry.location, color, "1", "900")
+              selected.Address = results[0].formatted_address.slice(3, -1)
+              console.log(results[0]);
+
+              markLabel(DayId, results[0].geometry.location, color, "1", "900")
               resolve('success')
             })
           })
@@ -637,8 +761,7 @@
           return `${result.hour}:${result.minute}`
         },
 
-        calculateAndDisplayRoute(origin, destination, waypoint, routeColor, map, pinSymbol, markLabel) {
-
+        calculateAndDisplayRoute(origin, destination, waypoint, routeColor, map, pinSymbol, markLabel, DayId) {
           this.directionsService = new google.maps.DirectionsService();
           // A service for computing directions between two or more places.
           let directionsRenderer = new google.maps.DirectionsRenderer({
@@ -652,8 +775,15 @@
               strokeWeight: 5
             },
           })
-
-          this.directionsRenderer.push(directionsRenderer)
+          let directionsRendererData = {
+            directionsRenderer: directionsRenderer,
+            DayId: DayId,
+            origin: origin,
+            destination: destination,
+            waypoint: waypoint,
+            routeColor: routeColor,
+          }
+          this.directionsRenderersData.push(directionsRendererData)
           return new Promise((resolve, reject) => {
             this.directionsService.route({
               origin: {
@@ -666,6 +796,7 @@
             }, function (res, status) {
 
               directionsRenderer.setDirections(res);
+              // draw marker
               let my_route = res.routes[0]
               let Places = []
               my_route.legs.forEach(item => {
@@ -680,18 +811,17 @@
                 else {
                   fontWeight = '400'
                 }
-                markLabel(Places[i], routeColor, (i + 1).toString(), fontWeight)
+                markLabel(DayId, Places[i], routeColor, (i + 1).toString(), fontWeight)
               }
               resolve(res)
             })
           })
         },
-        markLabel(Place, color, labelText, fontWeight) {
+        markLabel(DayId, Place, color, labelText, fontWeight) {
           let map = this.map
           let icon = this.pinSymbol(color)
           let position = JSON.parse(JSON.stringify(Place))
 
-          // let text = labelText
           let label = {
             text: labelText,
             color: 'black',
@@ -707,8 +837,11 @@
             optimized: true,
             icon: icon
           })
-          this.markers.push(marker)
-
+          let markerData = {
+            marker: marker,
+            DayId: DayId
+          }
+          this.markersData.push(markerData)
         },
         pinSymbol(color) {
           return {
@@ -1044,7 +1177,6 @@
               this.timeId = setInterval(this.scrollMove, 10)
             }
           }
-          console.log(result, this.scrollDirection);
           return result
         },
         InitMap() {
@@ -1062,8 +1194,8 @@
           }
         },
         calcTripContainerHeight() {
-          // console.log(`${this.$refs.tripListHeaderInfo.clientHeight + this.$refs.tripListHeaderDayContainer.clientHeight}px`);
-          this.tripContainer.style.height = `calc(100% - (${this.$refs.tripListHeaderInfo.clientHeight + this.$refs.tripListHeaderDayContainer.clientHeight}px)`
+          let H = this.$refs.tripListHeaderInfo.scrollHeight
+          this.tripContainer.style.height = `calc(100% - (${this.$refs.tripListHeaderInfo.scrollHeight + this.$refs.tripListHeaderDayContainer.clientHeight}px)`
         },
       },
       watch: {
@@ -1075,17 +1207,25 @@
         },
         edit: {
           handler: function () {
+            this.showSpecificRoute = {
+              show: false,
+              content: {}
+            }
             this.calcTripContainerHeight();
           }
         },
         StartDate: {
-          handler: function(newValue){
-            let DateAry = newValue.split('-')
-            let newDate = new Date(DateAry[0], DateAry[1], DateAry[2])
+          handler: function (newValue) {
+            let StartDateAry = newValue.split('-')
+            let newDate = new Date(StartDateAry[0], StartDateAry[1], StartDateAry[2])
             let EndDate = new Date(newDate.setDate(newDate.getDate() + this.rawData.TotalDate - 1))
+            this.StartDateDisplay = `${StartDateAry[0]}年${StartDateAry[1]}月${StartDateAry[2]}日`
             this.EndDate = `${EndDate.getFullYear()}年${EndDate.getMonth()}月${EndDate.getDate()}日`
           }
-        }
+        },
+        // showSpecificRoute: {
+        //   handler: 
+        // }
       },
       components: {
         day,
@@ -1097,11 +1237,12 @@
         // this.FirstId = 1
         // this.LastId = document.querySelectorAll('.trip-item').length;
         this.tripContainer = this.$refs.tripListDayContainer
-        this.calcTripContainerHeight()
+
         this.getData();
         this.InitMap();
         window.addEventListener('resize', this.TripListShow)
-        
+        this.calcTripContainerHeight()
+
       },
       beforeDestroy() {
         window.removeEventListener("resize", this.TripListShow);

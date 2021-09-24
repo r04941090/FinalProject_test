@@ -45,14 +45,26 @@ body {
 .trip-list-day-header{
   height: 56px;
   padding: 16px 8px;
-  
-  
+  display: flex;
+  align-items: center;
 }
-.trip-list-day-header > div{
+.trip-list-day-header .weekday{
+  display: flex;
+  align-items: center;
   font-size: 16px;
   padding: 1px 8px;
   box-sizing: border-box;
   border-radius: 4px;
+  font-weight: bold;
+}
+.trip-list-day-header .eye{
+  margin-right: 5px;
+  font-size: 10px;
+}
+.trip-list-day-header-time{
+  margin-left: 10px;
+  font-size: 14px;
+  color:#666;
 }
 .trip-list-day-venu-time{
   display: flex;
@@ -64,10 +76,11 @@ body {
   left: 13px;
   transform: translateY(-50%);
   width: 56px;
+  font-weight: bold;
 }
 .trip-list-day-venu-time-from, .trip-list-day-venu-time-to{
   font-size: 12px;
-  margin: 5px 0px;
+  margin: 2px 0px;
 }
 .trip-list-day-venu-number-mark{
   font-size: 24px;
@@ -95,9 +108,11 @@ body {
 }
 .trip-list-day-venu-info-time{
   font-size: 14px;
+  color: #666;
 }
 .trip-list-day-venu-info-detail{
   font-size: 16px;
+  padding-left: 5px;
 }
 .trip-list-day-venu-info-detail > div{
   margin: 5px 0px;
@@ -241,10 +256,11 @@ body {
 }
 
 .trip-list-header-info {
-  padding-top: 20px;
+  padding-top: 10px;
   display: flex;
   justify-content: space-around;
   box-sizing: border-box;
+  height: 120px;
 }
 .trip-list-header-back a{
   width: 24px;
@@ -266,6 +282,7 @@ body {
 .trip-list-header-title{
   border-width: 0px;
   font-size: 20px;
+  font-weight: bold;
 }
 .trip-list-header-title.edit-mode{
   border-bottom: 1px solid #000;
@@ -304,7 +321,7 @@ input:focus{
 .trip-list-header-edit{
   cursor: pointer;
   position: absolute;
-  top: 29px;
+  top: 22px;
   right: 16px;
   margin-top: 4px;
   transform: translateY(-50%);
