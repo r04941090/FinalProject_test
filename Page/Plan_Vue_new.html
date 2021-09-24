@@ -403,7 +403,7 @@
             // 深層複製
             let result = JSON.parse(JSON.stringify(this.rawData.TripContent))
             console.log(result);
-            return
+            // return
             // 只交換有動到的部分
             this.steps.forEach(step => {
               let newIndex = result.findIndex(x => x.Id == step.new);
