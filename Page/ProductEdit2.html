@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+    crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.3/css/all.css"
+    integrity="sha384-SZXxX4whJ79/gErwcOYf+zWLeJdY/qpuqC4cAa9rOGUstPomtqpuNWT9wdPEn2fk" crossorigin="anonymous">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/4.3.0/dropzone.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/4.3.0/dropzone.js"></script>
+  <script src="https://unpkg.com/vue@next"></script>
+  <link rel="stylesheet" href="/css/ProductEdit2.css">
+</head>
+
+<body>
+  <!-- journal-edit-banner -->
+  <div id="app">
+    <div class="position-relative" id="journal-edit-banner"
+      :style="{backgroundImage: journalDatas.journal_coverImage == '' ? `url(https://picsum.photos/1200/500/?random=1)` : `url(${journalDatas.journal_coverImage})` }">
+      <div class="container h-100 py-3">
+        <input type="file" class="cover-file" style="display:none" ref="coverFile" @change="GetCoverImg">
+        <div class="p-1 bg-white mb-2 changeCover" @click="CallCoverImg">
+          <i class="far fa-image"></i>
+          更改旅遊回憶封面
+        </div>
+        <div class="d-flex flex-column h-100">
+          <div class="fas fa-arrow-left text-white journal-edit-banner-prevPage"></div>
+          <div class="mt-auto top-0 bottom-0">
+            <div class="fs-6">標題</div>
+            <div class="d-flex">
+              <!-- journal-edit-title -->
+              <p id="journal-edit-title" class="fs-3 mb-0 fw-bold">{{journalDatas.journal_title}}</p>
+              <div class="journal-edit-publish-up ms-auto">
+                <!-- 用於儲存 -->
+                <p class="m-0 journal-edit-save text-white text-bold">已儲存</p>
+                <button type="button" class="btn btn-danger btn-sm px-3 py-1">發佈</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+      <div class="row align-items-start">
+        <div class="col-12 col-xl-9" id="journal">
+          <!-- 描述 -->
+          <div class="form-floating w-100 mt-3 mb-3">
+            <textarea class="form-control" placeholder="Leave a comment here" id="journal-edit-desc"></textarea>
+            <label for="journal-edit-desc">旅遊介紹</label>
+          </div>
+          <div v-for="(journal, index) in journalDatas.journal_content" :key="journal.Date + index">
+            <div class="day-card">
+              <span class="journal-day badge rounded-pill bg-danger text-white p-2">第{{journal.Date}}天</span>
+              <div class="journal-day-more fas fa-ellipsis-h" @click="ClickRevealDay"
+                :style="{color: journal.Tour.find(x => x.Reveal == false) ? 'black' : '#bbb'}"></div>
+              <div class="journal-day-more-text" style="display: none;" @click="RevealDay(journal, $event)"
+                :style="{color: journal.Tour.find(x => x.Reveal == false) ? 'red' : 'black'}">{{journal.Tour.find(x =>
+                x.Reveal == false) ? "隱藏" : "顯示"}}此天</div>
+            </div>
+            <div class="d-flex mt-3 journal-card" v-for="(place, index) in journal.Tour" :key="place.name + index"
+              :id=`content_${journal.Date}-${place.id}`>
+              <!-- 重構style！！！！ -->
+              <i class="fas fa-map-marker-alt fa-2x location-icon" :style="{color: place.Reveal ? '#bbb' : '#000'}"></i>
+              <div class="d-flex flex-column flex-grow-1 ms-2">
+                <div class="d-flex mb-3 justify-content-between position-relative">
+                  <p class="mb-0" :style="{color: place.Reveal ? '#bbb' : '#000'}">
+                    <span class="journal-time me-1">{{place.staytime}}</span>|
+                    <span class="journal-location ms-1">{{place.name}}</span>
+                  </p>
+                  <div class="journal-time-more fas fa-ellipsis-h" @click="ClickRevealPlace"
+                    :style="{color: place.Reveal ? '#bbb' : '#000'}"></div>
+                  <div class="journal-time-more-text" style="display: none"
+                    :style="{color: place.Reveal ? 'black' : 'red'}" @click="RevealPlace(place, $event)">{{place.Reveal
+                    ?
+                    "顯示" : "隱藏"}}此景點</div>
+                </div>
+                <!-- 圖片 -->
+                <div class="journal-edit-updateImg" v-if="!place.Reveal">
+                  <form class="dropzone needsclick" :id=`updateImg_${journal.Date}-${place.id}` action="/upload">
+                    <div class="dz-message needsclick">
+                      <span class="mt-4 d-inline-block">請點擊/拖拉上傳圖片，最多10張</span><br>
+                      <span class="note needsclick "></span>
+                    </div>
+                  </form>
+                </div>
+                <!-- 文字 -->
+                <div class="form-floating w-100 mt-3" v-if="!place.Reveal">
+                  <textarea class="form-control journal-description" placeholder="Leave a comment here"
+                    id="floatingTextarea" v-model="place.description"></textarea>
+                  <label for="floatingTextarea">輸入說明文字</label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-3 position-sticky top-0">
+          <div class="day-content mt-3" v-for="journal in journalDatas.journal_content" :key="journal.Date + index">
+            <div class="day-wrapper my-2">
+              <div class="day-nth">第{{journal.Date}}天</div>
+              <div class="divider mx-2">|</div>
+              <div class="attraction-list">
+                <div v-for="place in journal.Tour" :id=`list_${journal.Date}-${place.id}`
+                  @click="to(`content_${journal.Date}-${place.id}`)">{{place.name}}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="journal-edit-publish-bottom">
+      <p class="m-0">已儲存</p>
+      <button type="button" class="btn btn-danger btn-sm px-2 py-1">發佈</button>
+    </div>
+  </div>
+
+  <div id="preview-template" style="display: none;">
+    <div class="dz-preview dz-file-preview position-relative m-1">
+      <div class="update-img-border d｛z-image ">
+        <img data-dz-thumbnail="">
+      </div>
+      <div class="dz-details"></div>
+      <div class="dz-progress">
+        <span class="dz-upload" data-dz-uploadprogress=""></span>
+      </div>
+      <div class="dz-error-message">
+        <span data-dz-errormessage=""></span>
+      </div>
+      <div class="dz-success-mark">
+        <svg width="54px" height="54px" viewBox="0 0 54 54" version="1.1" xmlns="http://www.w3.org/2000/svg"
+          xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+          <title>Check</title>
+          <desc>Created with Sketch.</desc>
+          <defs></defs>
+          <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
+            <path
+              d="M23.5,31.8431458 L17.5852419,25.9283877 C16.0248253,24.3679711 13.4910294,24.366835 11.9289322,25.9289322 C10.3700136,27.4878508 10.3665912,30.0234455 11.9283877,31.5852419 L20.4147581,40.0716123 C20.5133999,40.1702541 20.6159315,40.2626649 20.7218615,40.3488435 C22.2835669,41.8725651 24.794234,41.8626202 26.3461564,40.3106978 L43.3106978,23.3461564 C44.8771021,21.7797521 44.8758057,19.2483887 43.3137085,17.6862915 C41.7547899,16.1273729 39.2176035,16.1255422 37.6538436,17.6893022 L23.5,31.8431458 Z M27,53 C41.3594035,53 53,41.3594035 53,27 C53,12.6405965 41.3594035,1 27,1 C12.6405965,1 1,12.6405965 1,27 C1,41.3594035 12.6405965,53 27,53 Z"
+              id="Oval-2" stroke-opacity="0.198794158" stroke="#747474" fill-opacity="0.816519475" fill="#FFFFFF"
+              sketch:type="MSShapeGroup"></path>
+          </g>
+        </svg>
+      </div>
+      <div class="dz-error-mark">
+        <svg width="54px" height="54px" viewBox="0 0 54 54" version="1.1" xmlns="http://www.w3.org/2000/svg"
+          xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+          <title>error</title>
+          <desc>Created with Sketch.</desc>
+          <defs></defs>
+          <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
+            <g id="Check-+-Oval-2" sketch:type="MSLayerGroup" stroke="#747474" stroke-opacity="0.198794158"
+              fill="#FFFFFF" fill-opacity="0.816519475">
+              <path
+                d="M32.6568542,29 L38.3106978,23.3461564 C39.8771021,21.7797521 39.8758057,19.2483887 38.3137085,17.6862915 C36.7547899,16.1273729 34.2176035,16.1255422 32.6538436,17.6893022 L27,23.3431458 L21.3461564,17.6893022 C19.7823965,16.1255422 17.2452101,16.1273729 15.6862915,17.6862915 C14.1241943,19.2483887 14.1228979,21.7797521 15.6893022,23.3461564 L21.3431458,29 L15.6893022,34.6538436 C14.1228979,36.2202479 14.1241943,38.7516113 15.6862915,40.3137085 C17.2452101,41.8726271 19.7823965,41.8744578 21.3461564,40.3106978 L27,34.6568542 L32.6538436,40.3106978 C34.2176035,41.8744578 36.7547899,41.8726271 38.3137085,40.3137085 C39.8758057,38.7516113 39.8771021,36.2202479 38.3106978,34.6538436 L32.6568542,29 Z M27,53 C41.3594035,53 53,41.3594035 53,27 C53,12.6405965 41.3594035,1 27,1 C12.6405965,1 1,12.6405965 1,27 C1,41.3594035 12.6405965,53 27,53 Z"
+                id="Oval-2" sketch:type="MSShapeGroup"></path>
+            </g>
+          </g>
+        </svg>
+      </div>
+      <!-- 刪除圖片 -->
+      <div class="fas fa-times position-absolute delete" data-dz-remove></div>
+    </div>
+  </div>
+  <!-- <script src="/js/ProductEdit2.js"></script> -->
+  <script>
+    const App = {
+      data() {
+        return {
+          journalDatas: {},
+          reader: new FileReader(),
+          test: []
+        }
+      },
+      methods: {
+        getData() {
+          let url = 'https://raw.githubusercontent.com/r04941090/FileStorage/master/JournalEdit'
+          axios.get(url).then(res => {
+            this.journalDatas = res.data
+            this.initialElement()
+          })
+        },
+        addClickEvent() {
+          window.addEventListener('click', (e) => {
+            // console.log('click');
+
+            if (e.target.classList.contains('journal-time-more')) {
+              document.querySelectorAll('.journal-day-more-text').forEach(item => {
+                item.style.display = 'none'
+              })
+            }
+            else if (e.target.classList.contains('journal-day-more')) {
+              document.querySelectorAll('.journal-time-more-text').forEach(item => {
+                item.style.display = 'none'
+              })
+            }
+            else {
+              // 點擊空白處
+              document.querySelectorAll('.journal-time-more-text').forEach(item => {
+                item.style.display = 'none'
+              })
+              document.querySelectorAll('.journal-day-more-text').forEach(item => {
+                item.style.display = 'none'
+              })
+            }
+          })
+        },
+        addScrollEvent() {
+          window.addEventListener('scroll', function () {
+            // https://medium.com/%E9%BA%A5%E5%85%8B%E7%9A%84%E5%8D%8A%E8%B7%AF%E5%87%BA%E5%AE%B6%E7%AD%86%E8%A8%98/%E8%AA%8D%E8%AD%98-intersection-observer-api-%E5%AF%A6%E4%BD%9C-lazy-loading-%E5%92%8C-infinite-scroll-c8d434ad218c
+            const observer = new IntersectionObserver(entries => {
+              entries.forEach(entry => {
+                const id = entry.target.getAttribute('id').split('_')[1]
+                console.log(entry.intersectionRatio);
+
+                if (entry.intersectionRatio > 0.8) {
+                  document.querySelector(`#list_${id}`).style.color = 'red'
+                }
+                else {
+                  document.querySelector(`#list_${id}`).style.color = ''
+                }
+              })
+            })
+            document.querySelectorAll('.journal-card').forEach(item => {
+              observer.observe(item)
+            });
+          })
+        },
+        CallCoverImg() {
+          console.log(this.$refs.coverFile);
+          this.$refs.coverFile.click();
+
+        },
+        GetCoverImg(e) {
+          console.log(e.target.files[0]);
+          this.reader.readAsDataURL(e.target.files[0])
+        },
+        CreateDropZone() {
+          Dropzone.autoDiscover = false; // key point
+          let dropzones = document.querySelectorAll('.dropzone');
+          let n = 0
+          console.log(dropzones);
+          
+          this.journalDatas.journal_content.forEach(places => {
+            places.Tour.forEach(place => {
+              n = n + 1
+              var dropzone = new Dropzone(`#${dropzones[n - 1].id}`, {
+                previewTemplate: document.querySelector('#preview-template').innerHTML,
+                parallelUploads: 2,
+                thumbnailHeight: 135,
+                thumbnailWidth: 135,
+                maxFilesize: 3,
+                filesizeBase: 1000,
+                maxFiles: 10,
+                thumbnail: (file, dataUrl) => {
+                  if (file.previewElement) {
+                    file.previewElement.classList.remove("dz-file-preview");
+                    var images = file.previewElement.querySelectorAll("[data-dz-thumbnail]");
+                    for (var i = 0; i < images.length; i++) {
+                      var thumbnailElement = images[i];
+                      thumbnailElement.alt = file.name;
+                      thumbnailElement.src = dataUrl;
+                      thumbnailElement.height = 135
+                      thumbnailElement.width = 135
+                      // https://stackoverflow.com/questions/30081416/dropzone-js-resize-image-to-fit-the-thumbnail-size
+                      // dataUrl為圖片的資料
+                    }
+                    setTimeout(function () { file.previewElement.classList.add("dz-image-preview"); }, 1);
+                  }
+                },
+                init: function () {
+                  let mockFile = { name: '123'};
+                  
+                  this.emit('addedfile', mockFile, 'https://picsum.photos/200/300')
+                  // this.emit("thumbnail", mockFile, 'https://picsum.photos/200/300')
+                  
+                  // this.emit("uploadFiles", mockFile, 'https://picsum.photos/200/300')
+                  this.on('addedfile', function (file) {
+                    // this.uploadFiles(file)
+                    let imageArray = []
+                    this.files.forEach(item => {
+                      let reader = new FileReader();
+                      // 需重新宣告一次
+                      reader.readAsDataURL(item)
+                      reader.onload = function (event) {
+                        imageArray.push(this.result)
+                        // console.log(this.result);
+                        place.place_image = imageArray
+                      }
+                    })
+                  })
+                  this.on('maxfilesexceeded', function () {
+                    this.removeFile(this.files[10]);
+                    alert('上傳圖片已超過10張')
+                  })
+                },
+              });
+              // Now fake the file upload, since GitHub does not handle file uploads
+              // and returns a 404
+
+              var minSteps = 6,
+                maxSteps = 60,
+                timeBetweenSteps = 100,
+                bytesPerStep = 100000;
+
+              dropzone.uploadFiles = function (files) {
+                var self = this;
+                console.log('asdsadasd', files);
+
+                for (var i = 0; i < files.length; i++) {
+                  // console.log(this);
+                  var file = files[i];
+                  // console.log(file);
+                  totalSteps = Math.round(Math.min(maxSteps, Math.max(minSteps, file.size / bytesPerStep)));
+
+                  for (var step = 0; step < totalSteps; step++) {
+                    var duration = timeBetweenSteps * (step + 1);
+                    setTimeout(function (file, totalSteps, step) {
+                      return function () {
+                        file.upload = {
+                          progress: 100 * (step + 1) / totalSteps,
+                          total: file.size,
+                          bytesSent: (step + 1) * file.size / totalSteps
+                        };
+                        self.emit('uploadprogress', file, file.upload.progress, file.upload.bytesSent);
+                        if (file.upload.progress == 100) {
+                          // console.log(file);
+                          file.status = Dropzone.SUCCESS;
+                          self.emit("success", file, 'success', null);
+                          self.emit("complete", file);
+                          self.processQueue();
+                        }
+                      };
+                    }(file, totalSteps, step), duration);
+                  }
+                }
+              }
+            })
+
+          })
+        },
+        ClickRevealPlace(e) {
+          if (e.target.nextSibling.style.display == 'block') {
+            e.target.nextSibling.style.display = 'none'
+          }
+          else {
+            e.target.nextSibling.style.display = 'block'
+          }
+        },
+        ClickRevealDay(e) {
+          if (e.target.nextSibling.style.display == 'block') {
+            e.target.nextSibling.style.display = 'none'
+          }
+          else {
+            e.target.nextSibling.style.display = 'block'
+          }
+        },
+        RevealPlace(place, e) {
+          place.Reveal = !place.Reveal
+          e.target.style.display = 'none'
+        },
+        RevealDay(journal, e) {
+          if (journal.Tour.find(x => x.Reveal == false)) {
+            // 代表有景點沒隱藏
+            journal.Tour.forEach(item => {
+              item.Reveal = true
+            })
+          }
+          else {
+            journal.Tour.forEach(item => {
+              item.Reveal = false
+            })
+          }
+        },
+        // test(place) {
+        //   console.log(place);
+
+        // },
+        to(toEL) {
+          // https://juejin.cn/post/6868968417769029640
+          // 右邊點擊，移動到特定位置
+          let select = document.querySelector(`#${toEL}`);
+          window.scrollTo({
+            top: select.offsetTop - 10,
+            behavior: 'smooth'
+          })
+        },
+        initialElement() {
+          window.onload = () => {
+            this.CreateDropZone()
+          }
+        },
+        UpdateCoverImg(e) {
+          this.journalDatas["journal_coverImage"] = this.reader.result
+        }
+      },
+      watch: {
+        journalDatas: {
+          handler: function () {
+            console.log('change');
+            console.log('%%%%%%%%%%%%%%%%%%%%%%', this.journalDatas);
+
+          },
+          deep: true,
+        },
+        test: {
+          handler: function () {
+            console.log(this.test);
+
+          },
+          deep: true,
+        }
+      },
+      mounted() {
+        this.getData()
+        this.addClickEvent()
+        this.addScrollEvent()
+        this.initialElement()
+        this.reader.addEventListener('load', this.UpdateCoverImg)
+      },
+    }
+    Vue.createApp(App).mount('#app')
+  </script>
+
+</body>
+
+</html>

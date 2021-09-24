@@ -1,0 +1,428 @@
+#map {
+  height: calc(100vh - 50px);
+  z-index: 2;
+}
+
+body {
+  height: calc(100vh - 50px);
+}
+
+.box {
+  /* height: 1000px; */
+  /* width: 100%; */
+}
+
+.trip-item {
+  /* border: 1px solid blue; */
+  user-select: none;
+  font-size: 12px;
+  transition-duration: 100ms;
+}
+.trip-list-venu-container{
+  background-color: #fff;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 20%);
+  overflow: hidden;
+  display: flex;
+  padding: 10px 0px;
+  position: relative;
+}
+.drag-handler{
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  cursor: move;
+  background: url(/image/Move.png) no-repeat;
+  background-position: center left 5px;
+  background-size: 16px;
+  z-index: 5;
+}
+.trip-list-day-header{
+  height: 56px;
+  padding: 16px 8px;
+  
+  
+}
+.trip-list-day-header > div{
+  font-size: 16px;
+  padding: 1px 8px;
+  box-sizing: border-box;
+  border-radius: 4px;
+}
+.trip-list-day-venu-time{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  top: 50%;
+  left: 13px;
+  transform: translateY(-50%);
+  width: 56px;
+}
+.trip-list-day-venu-time-from, .trip-list-day-venu-time-to{
+  font-size: 12px;
+  margin: 5px 0px;
+}
+.trip-list-day-venu-number-mark{
+  font-size: 24px;
+  position: relative;
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.trip-list-day-venu-number-mark .trip-list-day-venu-number{
+  position: absolute;
+  bottom: 8px;
+  font-size: 12px;
+  color: #fff;
+
+
+}
+.trip-list-day-venu-info{
+  margin-left: 70px;
+  position: relative;
+  flex-grow: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.trip-list-day-venu-info-detail{
+  font-size: 16px;
+}
+.trip-list-day-venu-info-detail > div{
+  margin: 5px 0px;
+}
+.trip-list-day-venu-info-address{
+  width: 190px;
+  font-size: 14px;
+  color: #888;
+  overflow:hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+
+}
+.trip-list-day-venu-info-edit{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 99;
+  cursor: pointer;
+  margin-right: 10px;
+}
+.trip-list-day-venu-info-edit .copy-tool, .delete-tool{
+  padding: 6px;
+  border-radius: 20px;
+  background: #888;
+  color: #fff;
+  font-size: 12px;
+}
+.trip-list-day-venu-info-edit > div{
+  margin: 0px 5px;
+}
+.trip-list-day-venu-info-edit-func{
+  position: absolute;
+  font-size: 12px;
+  top: -20px;
+  width: 40px;
+  display: none;
+}
+
+
+.copy-tool:hover ~ .trip-list-day-venu-info-edit-func,
+.delete-tool:hover ~ .trip-list-day-venu-info-edit-func{
+  display: block;
+}
+
+.gps{
+  padding: 8px 16px;
+  background: #eee;
+  display: flex;
+  align-items: center;
+  height: 46px;
+}
+.gps-content{
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+.gps-mode-car{
+  margin-left: 25px;
+  height: 30px;
+  width: 62px;
+  border-left: 1px solid #aaa;
+  padding-left: 24px;
+}
+.gps-time{
+  margin-left: 10px;
+  font-size: 14px;
+  color: #666;
+}
+.gps-go i{
+  font-size: 22px;
+  color: #3b86ff;
+  padding-top: 2px;
+  display: block;
+}
+.add-venue{
+  color: #999;
+  font-size: 16px;
+  cursor: pointer;
+  line-height: 43px;
+  height: 43px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 20%);
+  font-weight: bold;
+  text-align: center;
+
+}
+.item-place {
+  height: 80px;
+  border: 1px solid red;
+}
+
+.item-route {
+  height: 20px;
+  border: 1px solid green;
+}
+
+.place-card {
+  box-shadow: 0 2px 8px rgb(0 0 0 / 50%);
+  position: fixed;
+}
+
+.temp-header {
+  width: 100%;
+  height: 50px;
+  background-color: #000;
+}
+
+.outside {
+  background-color: #ddd;
+  width: 100%;
+  height: 100%;
+}
+
+.trip-list {
+  position: absolute;
+  z-index: 99;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  /* 小尺寸下為0 */
+  bottom: 0;
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 20%);
+  overflow: hidden;
+}
+
+.trip-tools-footer {
+  position: absolute;
+  bottom: 0;
+  z-index: 99;
+  height: 50px;
+  background-color: #fff;
+  width: 100%;
+  border-top: 2px solid #000;
+  display: flex;
+  justify-content: space-between;
+  padding: 0px 10px;
+}
+
+.trip-list-header-info {
+  /* background-color: #888; */
+  border-bottom: 1px solid #000;
+  padding-top: 10px;
+  display: flex;
+  justify-content: space-around;
+}
+.trip-list-header-back a{
+  width: 24px;
+  height: 24px;
+  background: url(/image/upPage.png);
+  background-size: 100%;
+  display: block;
+  margin-left: 8px;
+  margin-top: 2px;
+}
+.trip-list-header-content{
+  
+  width: 100%;
+}
+.trip-list-header-title-container{
+  margin: 0;
+  width: calc(100% - 140px);
+}
+.trip-list-header-title{
+  border-width: 0px;
+}
+.trip-list-header-title.edit-mode{
+  border-bottom: 1px solid #000;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+.trip-list-header-date{
+  margin: 8px 0px;
+  color: #666;
+  font-size: 14px;
+}
+.trip-list-header-date input{
+  color: #222;
+  border: none;
+  border-bottom: 1px solid #222;
+  border-radius: 0;
+}
+input:focus{
+  outline: none;
+}
+.trip-list-member .member-img{
+  width: 32px;
+  height: 32px;
+  background-color: #aaa;
+  border-radius: 50%;
+  overflow: hidden;
+  display: inline-block;
+}
+.trip-list-member .member-img img{
+  object-fit: cover;
+  width: 32px;
+  height: 32px;
+}
+.trip-list-header-edit{
+  cursor: pointer;
+  position: absolute;
+  top: 28px;
+  right: 16px;
+  margin-top: 4px;
+  transform: translateY(-50%);
+  color: #ee3c77;
+  font-size: 16px;
+  text-align: right;
+  user-select: none;
+
+}
+.trip-list-header-title{
+  font-size: 20px;
+  width: calc(100% - 90px);
+  font-weight: bold;
+  box-sizing: border-box;
+  border-bottom: 2px solid #000;
+  word-wrap: break-word;
+}
+.trip-list-header-back{
+  width: 48px;
+}
+.trip-list-header-day-container {
+  background-color: #fa0;
+  height: 48px;
+}
+
+.trip-tools-block {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 8px 0px;
+}
+
+.trip-tools-icon {
+  font-size: 20px;
+}
+
+.trip-tools-content {
+  margin-top: 3px;
+  font-size: 12px;
+}
+
+.trip-list-day-container {
+  height: calc(100% - 195px);
+  overflow-y: scroll;
+}
+
+.comments-minimized {
+  display: none;
+}
+
+.tool-button-wrapper {
+  display: none;
+}
+
+@media screen and (min-width: 768px) {
+  .trip-list {
+    position: fixed;
+    height: calc(100% - 88px);
+    bottom: 16px;
+    left: 16px;
+    width: 350px;
+    top: 72px;
+    border-radius: 0px;
+  }
+
+  .trip-tools-footer {
+    display: none;
+  }
+
+  .trip-list-day-container {
+    height: calc(100% - 165px);
+  }
+
+  .comments-minimized {
+    width: 48px;
+    height: 48px;
+    background-color: #ee3c77;
+    position: fixed;
+    bottom: 24px;
+    right: 56px;
+    cursor: pointer;
+    border-radius: 80px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+    font-size: 18px;
+    z-index: 99;
+  }
+
+  .comments-minimized-count {
+    background-color: #fff;
+    display: inline-block;
+    min-width: 18px;
+    font-size: 12px;
+    border-radius: 24px;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    color: #ee3c77;
+    text-align: center;
+    font-weight: bold;
+  }
+
+  .tool-button-wrapper {
+    display: flex;
+    z-index: 99;
+    position: absolute;
+    right: 16px;
+    top: 16px;
+  }
+
+  .tool-button {
+    cursor: pointer;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    box-shadow: 0 2px 8px rgb(0 0 0 / 20%);
+    background-color: #fff;
+    text-align: center;
+    font-size: 16px;
+    padding: 6px 8px;
+    margin-left: 8px;
+    height: 40px;
+    border-radius: 20px;
+    border: 0px;
+  }
+}

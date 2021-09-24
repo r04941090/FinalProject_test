@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width= , initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <script>
+    let data = [
+    {
+      "Type": "Day",
+      "DayId": 1,
+      "Day": 1,
+      "Sequence": 0,
+      "StartTime": "09:00"
+    },
+    {
+      "Type": "Place",
+      "DayId": 1,
+      "Day": 1,
+      "TripDetailsId": 2,
+      "Sequence": 2,
+      "PlaceName": "台北車站",
+      "StayTime": "30",
+      "Address": "台北市大同區",
+      "StartTime": "11:30"
+    },
+    {
+      "Type": "Day",
+      "DayId": 2,
+      "Day": 2,
+      "Sequence": 0,
+      "StartTime": "08:00"
+    },
+    {
+      "Type": "Place",
+      "DayId": 2,
+      "Day": 2,
+      "TripDetailsId": 3,
+      "Sequence": 1,
+      "PlaceName": "Build School",
+      "StayTime": "30",
+      "Address": "台北市大安區",
+      "StartTime": "08:00",
+      "Car": "50"
+    },
+    {
+      "Type": "Place",
+      "DayId": 1,
+      "Day": 1,
+      "TripDetailsId": 1,
+      "Sequence": 1,
+      "PlaceName": "南港車站",
+      "StayTime": "90",
+      "Address": "台北市南港區",
+      "StartTime": "09:00",
+      "Car": "60"
+    },
+    {
+      "Type": "Place",
+      "DayId": 2,
+      "Day": 2,
+      "TripDetailsId": 4,
+      "Sequence": 2,
+      "PlaceName": "大稻埕碼頭",
+      "StayTime": "10",
+      "Address": "台北市大同區",
+      "StartTime": "09:20",
+      "Car": "50"
+    },
+    {
+      "Type": "Place",
+      "DayId": 2,
+      "Day": 2,
+      "TripDetailsId": 5,
+      "Sequence": 3,
+      "PlaceName": "霞海城隍廟",
+      "StayTime": "30",
+      "Address": "台北市中山區",
+      "StartTime": "10:20"
+    },
+    {
+      "Type": "Day",
+      "DayId": 3,
+      "Day": 3,
+      "Sequence": 0,
+      "StartTime": "10:00"
+    }
+    ];
+    let Day = 0;
+    let DayId;
+    let Sequence = 0
+    function Rearrange(){
+      data.forEach(item => {
+        if (item.Type == "Day"){
+          Day = item.Day
+          DayId = item.DayId
+          Sequence = 0
+        }
+        else{
+          item.Day = Day
+          item.DayId = DayId
+          Sequence = Sequence + 1
+          item.Sequence = Sequence
+        }
+      })
+    }
+    function CalculateTime(Start, End){
+
+    }
+    window.onload = function(){
+      Rearrange();
+      console.log(data);
+      
+    }
+  </script>
+</body>
+</html>

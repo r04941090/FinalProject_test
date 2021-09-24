@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+    crossorigin="anonymous"></script>
+  <title>Document</title>
+  <style>
+    #source-container {
+      height: 500px;
+      width: 300px;
+      border: 1px solid red;
+      margin: 50px;
+      padding: 10px;
+      overflow: auto;
+    }
+
+    #target-container {
+      height: 300px;
+      width: 300px;
+      border: 1px solid red;
+      margin: 50px;
+      padding: 10px;
+    }
+
+    .drag-source {
+      width: 100%;
+      height: 80px;
+      cursor: move;
+      /* border-radius: 100px; */
+    }
+    .dragging {
+      opacity: .25;
+    }
+
+    .hover {
+      background-color: rgba(0, 170, 255, .3);
+    }
+
+    .showBorder_b {
+      border-bottom: 2px solid red;
+    }
+
+    .showBorder_t {
+      border-top: 2px solid red;
+    }
+
+    [draggable="true"] {
+      user-select: none;
+      -moz-user-select: none;
+      -webkit-user-select: none;
+      -ms-user-select: none;
+    }
+    .test{
+      width: 200px;
+      height: 200px;
+    }
+    .test2{
+      width: 100px;
+      height: 50px;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- ref：https://pjchender.blogspot.com/2017/08/html5-drag-and-drop-api.html  -->
+  <!-- https://www.muji.dev/2020/02/28/web-dnd-1/ -->
+  <div>
+    <button class="test2">test</button>
+  </div>
+  <div class="box d-flex">
+    
+    <div id="source-container" data-role="drag-drop-container">
+      <div draggable="true" class="p-2" id="source1" data-id="1">
+        <div class="drag-source source1 border">
+          <input type="text" placeholder="景點別名">
+        </div>
+      </div>
+      <div draggable="true" class="p-2" id="source2" data-id="2">
+        <div class="drag-source source2 border">2</div>
+      </div>
+      <div draggable="true" class="p-2" id="source3" data-id="3">
+        <div class="drag-source source3 border">3</div>
+      </div>
+      <div draggable="true" class="p-2" id="source3" data-id="3">
+        <div class="drag-source source3 border">4</div>
+      </div>
+      <div draggable="true" class="p-2" id="source3" data-id="3">
+        <div class="drag-source source3 border">5</div>
+      </div>
+      <div draggable="true" class="p-2" id="source3" data-id="3">
+        <div class="drag-source source3 border">6</div>
+      </div>
+      <div draggable="true" class="p-2" id="source3" data-id="3">
+        <div class="drag-source source3 border">7</div>
+      </div>
+      <div draggable="true" class="p-2" id="source3" data-id="3">
+        <div class="drag-source source3 border">8</div>
+      </div>
+      <div draggable="true" class="p-2" id="source3" data-id="3">
+        <div class="drag-source source3 border">9</div>
+      </div>
+    </div>
+  </div>
+  <div class="test border">AAA</div>
+  <script>
+    let test = document.querySelector('.test2');
+    
+    let sourceContainerId = ''
+    let currentDrag, currentDrop, dragSources, dropTarget
+    window.onload = function () {
+      dragSources = document.querySelectorAll('[draggable="true"]');
+      // 註冊所有的元件
+      dragSources.forEach(dragSource => {
+        dragSource.addEventListener('dragstart', dragStart)
+        dragSource.addEventListener('dragend', dragEnd)
+      })
+      test.addEventListener('click', function(e){
+        console.log(e);
+        
+        console.dir(e.target.parentNode);
+        
+      })
+      dropTarget = document.querySelector('[data-role="drag-drop-container"]');
+      dropTarget.addEventListener('dragenter', cancelDefault)
+      dropTarget.addEventListener('dragover', dragOver)
+      dropTarget.addEventListener('dragleave', cancelDefault)
+      dropTarget.addEventListener('drop', dropped)
+      document.querySelector('.test').addEventListener('mousedown', function(e){
+        // https://medium.com/@shizukuichi/mouse-event-%E5%B0%8F%E7%AD%86%E8%A8%98-feb5dd866b0
+        console.log(e);
+        document.querySelector('.test').addEventListener('mousemove', function(e){
+          console.log(e);
+          
+        });
+        
+      });
+      
+    }
+    // drag：在 drag source 被拖曳時會持續被觸發。
+    // dragover：當拖曳的 drag source 在 drop target 上方時會持續被觸發。
+
+    function dragStart(e) {
+      this.classList.add('dragging')
+      sourceContainerId = this.parentElement.id;
+      currentDrag = e.target
+      console.log(currentDrag);
+      
+      e.dataTransfer.setData('text/plain', e.target.id)
+    }
+
+    function dragEnd() {
+      this.classList.remove('dragging')
+    }
+
+    function dragOver(e) {
+      // 要加，不然會報錯
+      cancelDefault(e);
+      console.log('1');
+      
+      // 先將class清空
+      dragSources.forEach(dragSource => {
+        dragSource.classList.remove('showBorder_b')
+        dragSource.classList.remove('showBorder_t')
+      })
+
+      // 判斷鼠標在的位置
+      if (currentDrag == e.target || currentDrag == e.target.parentElement) { }
+      else {
+        if (e.target.draggable) {
+          currentDrop = e.target
+          addBorder()
+        }
+        // 鼠標在內層
+        if (e.target.parentElement.draggable) {
+          currentDrop = e.target.parentElement
+          console.dir(currentDrop)
+          addBorder()
+        }
+      }
+    }
+
+    function dropped(e) {
+      cancelDefault(e);
+      let id = e.dataTransfer.getData('text/plain')
+
+      // 如果滑到空白處
+      if (e.target === dropTarget) {
+        dropTarget.appendChild(document.querySelector('#' + id))
+      }
+      // 如果滑到非空白處
+      else {
+        if (currentDrop){
+          console.log(currentDrop);
+          let dropId = currentDrop.dataset.id
+          let dragId = currentDrag.dataset.id
+          // 判斷移動方向
+          if (dropId > dragId) {
+          // 往下移動
+            dropTarget.insertBefore(document.querySelector('#' + id), currentDrop.nextSibling)
+            // https://stackoverflow.com/questions/4793604/how-to-insert-an-element-after-another-element-in-javascript-without-using-a-lib
+          }
+          else {
+            // 往上移動
+            dropTarget.insertBefore(document.querySelector('#' + id), currentDrop)
+          }
+        }
+      }
+      // 將border class清空
+      dragSources.forEach(dragSource => {
+        dragSource.classList.remove('showBorder_b')
+        dragSource.classList.remove('showBorder_t')
+      })
+
+      // 重設一次data-id
+      dragSources = document.querySelectorAll('[draggable="true"]');
+      dragSources.forEach((dragSource, index) => {
+        console.log(dragSource.dataset.id);
+        
+        dragSource.dataset.id = index + 1
+      })
+    }
+
+    function cancelDefault(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      return false
+    }
+
+    function addBorder() {
+      let dropId = currentDrop.dataset.id
+      let dragId = currentDrag.dataset.id
+      if (dropId > dragId) {
+        // 往下移動
+        currentDrop.classList.add('showBorder_b')
+      }
+      else {
+        currentDrop.classList.add('showBorder_t')
+        console.log('t');
+        
+      }
+    }
+  </script>
+</body>
+
+</html>

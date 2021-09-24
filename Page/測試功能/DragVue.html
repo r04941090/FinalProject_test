@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="https://unpkg.com/vue@next"></script>
+  <!-- CDNJS :: Sortable (https://cdnjs.com/) -->
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.js"></script> -->
+  <!-- <script src="/js/Sortable.js"></script> -->
+  <!-- CDNJS :: Vue.Draggable (https://cdnjs.com/) -->
+  <!-- <script src="//cdnjs.cloudflare.com/ajax/libs/Vue.Draggable/4.0.0/vuedraggable.umd.min.js"></script> -->
+  <!-- <script src="/js/vuedraggable.js"></script> -->
+  <style>
+
+  </style>
+</head>
+
+<body>
+
+
+  <div id="app">
+    <draggable>
+    </draggable>
+  </div>
+
+  </div>
+
+  <script type="module">
+    // import * from '/js/Sortable.js'
+    import draggable from '/js/vuedraggable.js'
+    const App = {
+      data() {
+        return {
+          myArray: ['1', '2']
+        }
+      },
+      components: {
+        draggable
+      } 
+    }
+    Vue.createApp(App).mount('#app')
+  </script>
+</body>
+
+</html>

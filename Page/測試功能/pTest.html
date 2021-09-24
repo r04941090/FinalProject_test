@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+  <style>
+    /* p{
+      white-space: pre;
+    } */
+  </style>
+</head>
+<body>
+  <p class="content"></p>
+  <script>
+    let url = "https://raw.githubusercontent.com/r04941090/FileStorage/master/ProductJson"
+    window.onload = function(){
+      let p = document.querySelector('.content');
+      axios.get(url).then(res => {
+        console.log(res);
+        p.innerText = res.data.Journal_Content[0].Tour[0].Description
+        console.log(res.data.Journal_Content[0].Tour[0].Description);
+      })
+    }
+  </script>
+</body>
+</html>

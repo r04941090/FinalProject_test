@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+    crossorigin="anonymous"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.3/css/all.css"
+    integrity="sha384-SZXxX4whJ79/gErwcOYf+zWLeJdY/qpuqC4cAa9rOGUstPomtqpuNWT9wdPEn2fk" crossorigin="anonymous">
+  <link rel="stylesheet" href="/css/Blog.css">
+  <title>Document</title>
+</head>
+
+<body>
+  <div class="temp-header"></div>
+  <div class="position-relative">
+    <div class="blog-banner">
+    </div>
+    <div class="d-flex flex-column align-items-center position-absolute user-details">
+      <div class="user-icon mb-1"></div>
+      <p class="user-name m-0 fs-4">Kevin</p>
+      <p class="user-id fs-6">@apomi0516</p>
+      <!-- 自己的部落格不會有 -->
+      <!-- <button class="btn btn-outline-danger btn-sm">追蹤</button> -->
+    </div>
+  </div>
+  <div class="container blog-content-container">
+    <div class="blog-content m-auto">
+      <!-- 改成模板！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！ -->
+      <ul class="blog-content-list d-flex border-bottom ps-0 m-0">
+        <li class="me-2 h-100 listChange p-2">
+          <!-- <span class="blog-content-intro-number"></span> -->
+          <span class="blog-content-title">簡介</span>
+        </li>
+        <!-- <li class="mx-3 p-2">
+          <span class="blog-content-product-number"></span>
+          商品
+        </li> -->
+        <li class="mx-2 p-2">
+          <span class="blog-content-memory-number">1</span>
+          <span class="blog-content-title">旅遊回憶</span>
+        </li>
+        <li class="mx-2 p-2">
+          <span class="blog-content-tour-number">1</span>
+          <span class="blog-content-title">行程</span>
+        </li>
+        <li class="mx-2 p-2">
+          <span class="blog-content-place-number">2</span>
+          <span class="blog-content-title">景點收藏</span>
+        </li>
+        <li class="mx-2 p-2">
+          <span class="blog-content-like-number">1</span>
+          <span class="blog-content-title">讚</span>
+        </li>
+        <li class="mx-2 p-2">
+          <span class="blog-content-fans-number">3</span>
+          <span class="blog-content-title">粉絲</span>
+        </li>
+        <li class="mx-2 p-2">
+          <span class="blog-content-follow-number">0</span>
+          <span class="blog-content-title">追蹤中</span>
+        </li>
+      </ul>
+
+      <!-- card template -->
+      <!-- <p>card template</p> -->
+      <!-- <div class="row my-3 blog-card">
+        <div class="col-4 col-xl-3 position-relative pe-0">
+          <img src="https://picsum.photos/300/250/?random=1" class="w-100 h-100 rounded">
+          <p class="m-0 position-absolute text-white blog-card-day">
+            1 天
+          </p>
+        </div>
+        <div class="col-8 col-xl-9 d-flex flex-column justify-content-between">
+          <div class="blog-card-content flex-grow-1 d-flex flex-column">
+            <div class="blog-card-title">
+              宅宅勇闖新加坡
+            </div>
+            <div class="blog-card-intro mt-2">
+              Lorem ipsum dolor sit, amet consectetur adipisicing elit. Voluptate quis non aspernatur ut beatae nobis, ratione reiciendis at a enim eius fugiat amet dolore cum optio maxime atque facere vero!Lorem ipsum dolor sit, amet consectetur adipisicing elit. Voluptate quis non aspernatur ut beatae nobis, ratione reiciendis at a enim eius fugiat amet dolore cum optio maxime atque facere vero!
+            </div>
+          </div>
+          <div class="blog-card-author d-flex align-self-start">
+            <div class="blog-card-author-img me-2" style="background-image: url(/image/blog-card-author.jpg);"></div>
+            <div class="blog-card-author-name">Elva Poon</div>
+          </div>
+          <div class="d-flex align-items-end">
+            <p class="m-0 blog-card-other">
+              <span class="blog-card-other me-1">Oct 18, 2019 - Oct 23, 2019</span>
+              <span class="blog-card-other-interval">|</span>
+              <span class="blog-card-other-info">
+                <span class="blog-card-other-info-popular ms-1">167</span>人氣, 
+                <span class="blog-card-other-info-like">2</span>讚
+              </span>
+            </p>
+            <i class="far fa-heart ms-auto blog-card-love"></i>
+          </div>
+        </div>
+      </div> -->
+      <!-- <hr> -->
+
+      <!-- card template -->
+      <template id="cardTemplate">
+        <div class="row my-3 blog-card">
+          <div class="col-4 col-xl-3 position-relative">
+            <img src="https://picsum.photos/300/250/?random=1" class="w-100 h-100 rounded">
+            <p class="m-0 position-absolute text-white blog-card-day">
+              1 天
+            </p>
+          </div>
+          <div class="col-8 col-xl-9 d-flex flex-column justify-content-between">
+            <div class="blog-card-content border flex-grow-1 d-flex flex-column">
+              <div class="blog-card-title">
+                宅宅勇闖新加坡
+              </div>
+              <div class="blog-card-intro mt-2">
+                Lorem ipsum dolor sit, amet consectetur adipisicing elit. Voluptate quis non aspernatur ut beatae nobis,
+                ratione reiciendis at a enim eius fugiat amet dolore cum optio maxime atque facere vero!Lorem ipsum
+                dolor sit, amet consectetur adipisicing elit. Voluptate quis non aspernatur ut beatae nobis, ratione
+                reiciendis at a enim eius fugiat amet dolore cum optio maxime atque facere vero!
+              </div>
+            </div>
+            <div class="blog-card-author  d-flex align-self-start">
+              <!--  -->
+              <div class="blog-card-author-img me-2" style="background-image: url(/image/blog-card-author.jpg);"></div>
+              <div class="blog-card-author-name">Elva Poon</div>
+            </div>
+            <div class="d-flex align-items-end border">
+              <p class="m-0 blog-card-other">
+                <span class="blog-card-other">Oct 18, 2019 - Oct 23, 2019</span>
+                <span class="blog-card-other-interval">|</span>
+                <span class="blog-card-other-like">167人氣, 2讚</span>
+              </p>
+              <i class="far fa-heart ms-auto blog-card-love"></i>
+            </div>
+          </div>
+        </div>
+      </template>
+
+      <!-- fans template -->
+      <!-- <p>fans template</p> -->
+      <!-- 商品 -->
+      <div class="blog-content-intro" style="display: block;">
+        <!-- <div class="d-flex py-2">
+          <div>商品</div>
+          <div class="more ms-auto" id="productMore">更多</div>
+        </div>
+        <div class="row my-3 blog-card">
+          <div class="col-4 col-xl-3 position-relative pe-0">
+            <img src="https://picsum.photos/300/250/?random=1" class="w-100 h-100 rounded">
+            <p class="m-0 position-absolute text-white blog-card-day"></p>
+          </div>
+          <div class="col-8 col-xl-9 d-flex flex-column justify-content-between">
+            <div class="blog-card-content flex-grow-1 d-flex flex-column">
+              <div class="blog-card-title">
+                台北 | 袖珍博物館門票
+              </div>
+              <div class="blog-card-intro mt-2"></div>
+            </div>
+            <div class="blog-card-author d-flex align-self-start">
+              <div class="blog-card-author-img me-2" style="background-image: url();"></div>
+              <div class="blog-card-author-name"></div>
+            </div>
+            <div class="d-flex align-items-end">
+              <p class="m-0 blog-card-other">
+                <span class="blog-card-other"></span>
+                <span class="blog-card-other-interval"></span>
+                <span class="blog-card-other-info">
+                  <span class="blog-card-other-info-popular">167</span>人氣, 
+                  <span class="blog-card-other-info-like">2</span>讚
+                </span>
+              </p>
+              <i class="far fa-heart ms-auto blog-card-love"></i>
+            </div>
+          </div>
+        </div>
+        <hr> -->
+        <!-- 行程 -->
+        <div class="d-flex py-2 mt-3">
+          <div>行程</div>
+          <div class="more ms-auto" id="tourMore">更多</div>
+        </div>
+        <div class="row my-3 blog-card">
+          <div class="col-4 col-xl-3 position-relative pe-0">
+            <img src="https://picsum.photos/300/250/?random=2" class="w-100 h-100 rounded">
+            <p class="m-0 position-absolute text-white blog-card-day">
+              3 天
+            </p>
+          </div>
+          <div class="col-8 col-xl-9 d-flex flex-column justify-content-between">
+            <div class="blog-card-content flex-grow-1 d-flex flex-column">
+              <div class="blog-card-title">
+                絶景✨富良野2泊3日のんびり旅
+              </div>
+              <div class="blog-card-intro mt-2">
+                [第1天] 旭川機場 > Furano Wine House > カンパーナ六花亭 > 森林精靈露台 > Furano Cheese Factory > 富良野農夫市集 > Furano Hotel
+                [第2天] Furano Hotel > 富田農場 > Hitsujinooka
+              </div>
+            </div>
+            <div class="blog-card-author d-flex align-self-start">
+              <div class="blog-card-author-img me-2" style="background-image: url();"></div>
+              <div class="blog-card-author-name"></div>
+            </div>
+            <div class="d-flex align-items-end">
+              <p class="m-0 blog-card-other">
+                <span class="blog-card-other">Jul 5, 2021 - Jul 7, 2021</span>
+                <span class="blog-card-other-interval">|</span>
+                <span class="blog-card-other-info">
+                  <span class="blog-card-other-info-popular">8</span>人氣,
+                  <span class="blog-card-other-info-like">0</span>讚
+                </span>
+              </p>
+              <i class="far fa-heart ms-auto blog-card-love"></i>
+            </div>
+          </div>
+        </div>
+        <hr>
+        <!-- 景點收藏 -->
+        <div class="d-flex py-2">
+          <div>景點收藏</div>
+          <div class="more ms-auto" id="tourMore">更多</div>
+        </div>
+        <div class="row my-3 blog-card">
+          <div class="col-4 col-xl-3 position-relative pe-0">
+            <img src="https://picsum.photos/300/250/?random=7" class="w-100 h-100 rounded">
+            <p class="m-0 position-absolute text-white blog-card-day"></p>
+          </div>
+          <div class="col-8 col-xl-9 d-flex flex-column justify-content-between">
+            <div class="blog-card-content flex-grow-1 d-flex flex-column">
+              <div class="blog-card-title">
+                歐拉玩日本·金澤景點
+              </div>
+              <div class="blog-card-intro mt-2"></div>
+            </div>
+            <div class="blog-card-author d-flex align-self-start">
+              <div class="blog-card-author-img me-2"></div>
+              <div class="blog-card-author-name"></div>
+            </div>
+            <div class="d-flex align-items-end">
+              <p class="m-0 blog-card-other">
+                <span class="blog-card-other">Oct 18, 2019</span>
+                <span class="blog-card-other-interval"></span>
+                <span class="blog-card-other-info">
+                  <span class="blog-card-other-info-popular">78</span>人氣,
+                  <span class="blog-card-other-info-like">7</span>讚
+                </span>
+              </p>
+              <i class="far fa-heart ms-auto blog-card-love"></i>
+            </div>
+          </div>
+        </div>
+        <div class="row my-3 blog-card">
+          <div class="col-4 col-xl-3 position-relative pe-0">
+            <img src="https://picsum.photos/300/250/?random=77" class="w-100 h-100 rounded">
+            <p class="m-0 position-absolute text-white blog-card-day"></p>
+          </div>
+          <div class="col-8 col-xl-9 d-flex flex-column justify-content-between">
+            <div class="blog-card-content flex-grow-1 d-flex flex-column">
+              <div class="blog-card-title">
+                富山 看這篇就對了！
+              </div>
+              <div class="blog-card-intro mt-2"></div>
+            </div>
+            <div class="blog-card-author d-flex align-self-start">
+              <div class="blog-card-author-img me-2"></div>
+              <div class="blog-card-author-name"></div>
+            </div>
+            <div class="d-flex align-items-end">
+              <p class="m-0 blog-card-other">
+                <span class="blog-card-other">Oct 18, 2019</span>
+                <span class="blog-card-other-interval"></span>
+                <span class="blog-card-other-info">
+                  <span class="blog-card-other-info-popular">28</span>人氣,
+                  <span class="blog-card-other-info-like">2</span>讚
+                </span>
+              </p>
+              <i class="far fa-heart ms-auto blog-card-love"></i>
+            </div>
+          </div>
+        </div>
+        <hr>
+        <!-- 旅遊回憶 -->
+        <div class="d-flex py-2">
+          <div>旅遊回憶</div>
+          <div class="more ms-auto" id="memoryMore">更多</div>
+        </div>
+        <div class="row my-3 blog-card">
+          <div class="col-4 col-xl-3 position-relative pe-0">
+            <img src="https://picsum.photos/300/250/?random=3" class="w-100 h-100 rounded">
+            <p class="m-0 position-absolute text-white blog-card-day">
+            </p>
+          </div>
+          <div class="col-8 col-xl-9 d-flex flex-column justify-content-between">
+            <div class="blog-card-content flex-grow-1 d-flex flex-column">
+              <div class="blog-card-title">
+                宅宅勇闖新加坡
+              </div>
+              <div class="blog-card-intro mt-2">
+                這週團隊到新加坡參展, 在台灣的我們看到照片...實在是覺得奇葩...為何很多點都有一個宅宅在那裡寫程式, 明明美景當前...我們真是服了他
+                <br>ps. Funliday 工程師真的很辛苦阿, 我們少少人但每天要服務好幾萬個使用者, 有機會幫我們多多推廣
+              </div>
+            </div>
+            <div class="blog-card-author d-flex align-self-start">
+              <!--  -->
+              <div class="blog-card-author-img me-2"></div>
+              <div class="blog-card-author-name"></div>
+            </div>
+            <div class="d-flex align-items-end">
+              <p class="m-0 blog-card-other">
+                <span class="blog-card-other">Oct 18, 2019</span>
+                <span class="blog-card-other-interval">|</span>
+                <span class="blog-card-other-info">
+                  <span class="blog-card-other-info-popular">167</span>人氣,
+                  <span class="blog-card-other-info-like">2</span>讚
+                </span>
+              </p>
+              <i class="far fa-heart ms-auto blog-card-love"></i>
+            </div>
+          </div>
+        </div>
+        <hr>
+      </div>
+      <div class="blog-content-product" style="display: none;"></div>
+      <div class="blog-content-memory" style="display: none;">
+        <div class="row my-3 blog-card">
+          <div class="col-4 col-xl-3 position-relative pe-0">
+            <img src="https://picsum.photos/300/250/?random=3" class="w-100 h-100 rounded">
+            <p class="m-0 position-absolute text-white blog-card-day">
+            </p>
+          </div>
+          <div class="col-8 col-xl-9 d-flex flex-column justify-content-between">
+            <div class="blog-card-content flex-grow-1 d-flex flex-column">
+              <div class="blog-card-title">
+                宅宅勇闖新加坡
+              </div>
+              <div class="blog-card-intro mt-2">
+                這週團隊到新加坡參展, 在台灣的我們看到照片...實在是覺得奇葩...為何很多點都有一個宅宅在那裡寫程式, 明明美景當前...我們真是服了他
+                <br>ps. Funliday 工程師真的很辛苦阿, 我們少少人但每天要服務好幾萬個使用者, 有機會幫我們多多推廣
+              </div>
+            </div>
+            <div class="blog-card-author d-flex align-self-start">
+              <!--  -->
+              <div class="blog-card-author-img me-2"></div>
+              <div class="blog-card-author-name"></div>
+            </div>
+            <div class="d-flex align-items-end">
+              <p class="m-0 blog-card-other">
+                <span class="blog-card-other">Oct 18, 2019</span>
+                <span class="blog-card-other-interval">|</span>
+                <span class="blog-card-other-info">
+                  <span class="blog-card-other-info-popular">167</span>人氣,
+                  <span class="blog-card-other-info-like">2</span>讚
+                </span>
+              </p>
+              <i class="far fa-heart ms-auto blog-card-love"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="blog-content-tour" style="display: none;">
+        <div class="row my-3 blog-card">
+          <div class="col-4 col-xl-3 position-relative pe-0">
+            <img src="https://picsum.photos/300/250/?random=2" class="w-100 h-100 rounded">
+            <p class="m-0 position-absolute text-white blog-card-day">
+              3 天
+            </p>
+          </div>
+          <div class="col-8 col-xl-9 d-flex flex-column justify-content-between">
+            <div class="blog-card-content flex-grow-1 d-flex flex-column">
+              <div class="blog-card-title">
+                絶景✨富良野2泊3日のんびり旅
+              </div>
+              <div class="blog-card-intro mt-2">
+                [第1天] 旭川機場 > Furano Wine House > カンパーナ六花亭 > 森林精靈露台 > Furano Cheese Factory > 富良野農夫市集 > Furano Hotel
+                [第2天] Furano Hotel > 富田農場 > Hitsujinooka
+              </div>
+            </div>
+            <div class="blog-card-author d-flex align-self-start">
+              <div class="blog-card-author-img me-2" style="background-image: url();"></div>
+              <div class="blog-card-author-name"></div>
+            </div>
+            <div class="d-flex align-items-end">
+              <p class="m-0 blog-card-other">
+                <span class="blog-card-other">Jul 5, 2021 - Jul 7, 2021</span>
+                <span class="blog-card-other-interval">|</span>
+                <span class="blog-card-other-info">
+                  <span class="blog-card-other-info-popular">8</span>人氣,
+                  <span class="blog-card-other-info-like">0</span>讚
+                </span>
+              </p>
+              <i class="far fa-heart ms-auto blog-card-love"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="blog-content-place" style="display: none;">
+        <div class="row my-3 blog-card">
+          <div class="col-4 col-xl-3 position-relative pe-0">
+            <img src="https://picsum.photos/300/250/?random=7" class="w-100 h-100 rounded">
+            <p class="m-0 position-absolute text-white blog-card-day"></p>
+          </div>
+          <div class="col-8 col-xl-9 d-flex flex-column justify-content-between">
+            <div class="blog-card-content flex-grow-1 d-flex flex-column">
+              <div class="blog-card-title">
+                歐拉玩日本·金澤景點
+              </div>
+              <div class="blog-card-intro mt-2"></div>
+            </div>
+            <div class="blog-card-author d-flex align-self-start">
+              <div class="blog-card-author-img me-2"></div>
+              <div class="blog-card-author-name"></div>
+            </div>
+            <div class="d-flex align-items-end">
+              <p class="m-0 blog-card-other">
+                <span class="blog-card-other">Oct 18, 2019</span>
+                <span class="blog-card-other-interval"></span>
+                <span class="blog-card-other-info">
+                  <span class="blog-card-other-info-popular">78</span>人氣,
+                  <span class="blog-card-other-info-like">7</span>讚
+                </span>
+              </p>
+              <i class="far fa-heart ms-auto blog-card-love"></i>
+            </div>
+          </div>
+        </div>
+        <div class="row my-3 blog-card">
+          <div class="col-4 col-xl-3 position-relative pe-0">
+            <img src="https://picsum.photos/300/250/?random=77" class="w-100 h-100 rounded">
+            <p class="m-0 position-absolute text-white blog-card-day"></p>
+          </div>
+          <div class="col-8 col-xl-9 d-flex flex-column justify-content-between">
+            <div class="blog-card-content flex-grow-1 d-flex flex-column">
+              <div class="blog-card-title">
+                富山 看這篇就對了！
+              </div>
+              <div class="blog-card-intro mt-2"></div>
+            </div>
+            <div class="blog-card-author d-flex align-self-start">
+              <div class="blog-card-author-img me-2"></div>
+              <div class="blog-card-author-name"></div>
+            </div>
+            <div class="d-flex align-items-end">
+              <p class="m-0 blog-card-other">
+                <span class="blog-card-other">Oct 18, 2019</span>
+                <span class="blog-card-other-interval"></span>
+                <span class="blog-card-other-info">
+                  <span class="blog-card-other-info-popular">28</span>人氣,
+                  <span class="blog-card-other-info-like">2</span>讚
+                </span>
+              </p>
+              <i class="far fa-heart ms-auto blog-card-love"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="blog-content-like" style="display: none;">
+        <div class="row my-3 blog-card">
+          <div class="col-4 col-xl-3 position-relative pe-0">
+            <img src="https://picsum.photos/300/250/?random=1" class="w-100 h-100 rounded">
+            <p class="m-0 position-absolute text-white blog-card-day">
+              1 天
+            </p>
+          </div>
+          <div class="col-8 col-xl-9 d-flex flex-column justify-content-between">
+            <div class="blog-card-content flex-grow-1 d-flex flex-column">
+              <div class="blog-card-title">
+                2019.10 泰北自駕遊
+              </div>
+              <div class="blog-card-intro mt-2">
+                bangkok -> Phu Tub Berk -> 素可泰 -> 清邁-> 金三角 -> 清萊 -> pai village -> 清邁
+              </div>
+            </div>
+            <div class="blog-card-author d-flex align-self-start">
+              <div class="blog-card-author-img me-2" style="background-image: url(/image/blog-card-author.jpg);"></div>
+              <div class="blog-card-author-name">Elva Poon</div>
+            </div>
+            <div class="d-flex align-items-end">
+              <p class="m-0 blog-card-other">
+                <span class="blog-card-other">Oct 18, 2019 - Oct 23, 2019</span>
+                <span class="blog-card-other-interval">|</span>
+                <span class="blog-card-other-info">
+                  <span class="blog-card-other-info-popular">167</span>人氣,
+                  <span class="blog-card-other-info-like">2</span>讚
+                </span>
+              </p>
+              <i class="far fa-heart ms-auto blog-card-love"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="blog-content-fans" style="display: none;">
+        <div class="d-flex align-items-center p-2 personal-list">
+          <div class="author-content d-flex align-items-center">
+            <div class="author-content-img">
+              <img src="/image/user_4.jpg" alt="" class="h-100">
+            </div>
+            <div class="author-content-name ms-2">Penny</div>
+          </div>
+          <div class="author-track ms-auto">追蹤</div>
+        </div>
+        <div class="d-flex align-items-center p-2 personal-list">
+          <div class="author-content d-flex align-items-center">
+            <div class="author-content-img">
+              <img src="/image/user_2.jpg" alt="" class="h-100">
+            </div>
+            <div class="author-content-name ms-2">Marry</div>
+          </div>
+          <div class="author-track ms-auto">追蹤</div>
+        </div>
+        <div class="d-flex align-items-center p-2 personal-list">
+          <div class="author-content d-flex align-items-center">
+            <div class="author-content-img">
+              <img src="/image/user_3.jpg" alt="" class="h-100">
+            </div>
+            <div class="author-content-name ms-2">Lily</div>
+          </div>
+          <div class="author-track ms-auto">追蹤</div>
+        </div>
+      </div>
+      <div class="blog-content-follow" style="display: none;">
+        <div class="empty-content">
+          <div class="empty-status" style="margin-top: 80px; background-image: url(/image/NoPeople.png);" ></div>
+          <span>你尚未追蹤任何人</span>
+        </div>
+        <div class="recommend-follow-list">
+          <div class="headline">推薦追蹤</div>
+          <div>
+            <div class="d-flex align-items-center p-2 personal-list">
+              <div class="author-content d-flex align-items-center">
+                <div class="author-content-img">
+                  <img src="/image/user_5.jpg" alt="" class="h-100">
+                </div>
+                <div class="author-content-name ms-2">CaCa 去哪裡</div>
+              </div>
+              <div class="author-track ms-auto">追蹤</div>
+            </div>
+            <div class="d-flex align-items-center p-2 personal-list">
+              <div class="author-content d-flex align-items-center">
+                <div class="author-content-img">
+                  <img src="/image/user_6.jpg" alt="" class="h-100">
+                </div>
+                <div class="author-content-name ms-2">Claire</div>
+              </div>
+              <div class="author-track ms-auto">追蹤</div>
+            </div>
+            <div class="d-flex align-items-center p-2 personal-list">
+              <div class="author-content d-flex align-items-center">
+                <div class="author-content-img">
+                  <img src="/image/user_7.jpg" alt="" class="h-100">
+                </div>
+                <div class="author-content-name ms-2">CJ夫人愛度假</div>
+              </div>
+              <div class="author-track ms-auto">追蹤</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="/js/Blog.js"></script>
+</body>
+
+</html>

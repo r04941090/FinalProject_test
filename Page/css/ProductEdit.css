@@ -1,0 +1,163 @@
+#journal-edit-banner {
+  height: 300px;
+  background-size: cover;
+  background-position: center;
+}
+
+.day-wrapper {
+  display: none;
+}
+
+.journal-edit-updateImg {
+  cursor: pointer;
+  height: 150px;
+  background-color: #eee;
+}
+
+.journal-day-more,
+.journal-time-more {
+  cursor: pointer;
+  /* background-image: url(/image/more.png);
+  background-size: cover;
+  padding: 0px 16px; */
+  height: 20px;
+  width: 20px;
+  text-align: center;
+  line-height: 20px;
+  font-size: 20px;
+  
+}
+
+.journal-day-more-text,
+.journal-time-more-text {
+  top: 0;
+  right: 0;
+  cursor: pointer;
+  position: absolute;
+  box-shadow: 0 4px 8px 0 rgb(0 0 0 / 50%);
+  padding: 8px 16px;
+  box-sizing: border-box;
+  border-radius: 5px;
+  z-index: 99;
+  background-color: #fff;
+}
+
+.changeCover {
+  cursor: pointer;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 180px;
+  text-align: center;
+  border-radius: 5px;
+}
+
+.journal-edit-publish-up {
+  display: none;
+}
+
+.journal-edit-publish-bottom {
+  position: fixed;
+  bottom: 0;
+  background-color: #fff;
+  width: 100%;
+  z-index: 2;
+  box-shadow: 0 -2px 4px 0 rgb(0 0 0 / 10%);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  height: 56px;
+}
+
+#journal-edit-desc {
+  height: 200px;
+}
+
+.journal-description {
+  height: 200px !important;
+}
+
+.journal-edit-banner-prevPage {
+  cursor: pointer;
+}
+
+.attraction-list>div {
+  cursor: pointer;
+  color: #000;
+}
+
+footer {
+  height: 200px;
+}
+
+.active {
+  color: red;
+}
+
+.dropzone {
+  width: 100%;
+  background: white;
+  border-radius: 5px;
+  border: 2px dashed #aaa;
+  border-image: none;
+  max-width: 1000px;
+  max-height: 200px;
+  margin-left: auto;
+  margin-right: auto;
+  overflow-y: auto;
+  color: #888;
+  padding: 0;
+}
+.update-img-border{
+  border-radius: 3px;
+  overflow: hidden;
+}
+.delete {
+  width: 25px;
+  height: 25px;
+  top: 5px;
+  right: 5px;
+  cursor: pointer !important;
+  z-index: 100;
+  border: 1px solid red;
+  border-radius: 50px;
+  text-align: center;
+  line-height: 25px;
+  color: #fff;
+  background-color: red;
+
+}
+
+
+@media screen and (min-width: 768px) {
+  .journal-edit-publish-bottom {
+    display: none;
+  }
+
+  .changeCover {
+    border-radius: 5px;
+    top: calc(50% - 25px);
+    right: calc(50% - 90px);
+    margin: auto;
+    display: block;
+  }
+
+  .journal-edit-publish-up {
+    width: 150px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+  }
+}
+
+@media screen and (min-width: 1200px) {
+  .day-wrapper {
+    display: flex;
+  }
+
+  .journal-edit-publish-bottom {
+    display: none;
+  }
+}

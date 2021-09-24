@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <script>
+    const lolUrl = "https://ddragon.leagueoflegends.com/cdn/10.22.1/data/zh_TW/champion.json";
+    // https://raw.githubusercontent.com/apprunner/FileStorage/master/LoL.json
+        let lolArray = [];
+
+        let plainArray = [];
+
+        window.onload = async () => {
+
+            lolArray = await fetch(lolUrl).then(r => r.json());
+
+            lolArray.forEach((item, index) => {
+                plainArray.push({ Name: item.Name, Url: item.url, Life: item.ability.life, Magic: item.ability.magic, Attack: item.ability.attack, AttackDistance: item.ability["attack-distance"]  });
+            });
+        }
+  </script>
+</body>
+</html>

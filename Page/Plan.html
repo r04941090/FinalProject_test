@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+    crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.3/css/all.css"
+    integrity="sha384-SZXxX4whJ79/gErwcOYf+zWLeJdY/qpuqC4cAa9rOGUstPomtqpuNWT9wdPEn2fk" crossorigin="anonymous">
+  <script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCW6Ekw5sZ0JUZfzpMeSteJ6_8aoQRwfws&libraries=places"></script>
+  <link rel="stylesheet" href="/css/Plan.css">
+</head>
+
+<body>
+  <div class="temp-header">
+    <button class="stop">stop</button>
+    <button class="start">start</button>
+  </div>
+  <div class="outside position-relative">
+    <div id="map" style="display: block;"></div>
+    <div class="trip-list border" style="display: block;">
+      <div class="trip-list-header-info">
+
+      </div>
+      <div class="trip-list-header-day-container">
+      </div>
+      <div class="trip-list-day-container">
+        <div class="box border w-100">
+          <div class="item-group" data-id=0>
+            <div class="item-place">place1</div>
+            <div class="item-route">route1</div>
+          </div>
+          <div class="item-group" data-id=1>
+            <div class="item-place">place2</div>
+            <div class="item-route">route2</div>
+          </div>
+          <div class="item-group" data-id=2>
+            <div class="item-place">place3</div>
+            <div class="item-route">route3</div>
+          </div>
+          <div class="item-group" data-id=3>
+            <div class="item-place">place4</div>
+            <div class="item-route">route4</div>
+          </div>
+          <div class="item-group" data-id=4>
+            <div class="item-place">place5</div>
+            <div class="item-route">route5</div>
+          </div>
+          <div class="item-group" data-id=5>
+            <div class="item-place">place6</div>
+            <div class="item-route">route6</div>
+          </div>
+          <div class="item-group" data-id=6>
+            <div class="item-place">place7</div>
+            <div class="item-route">route7</div>
+          </div>
+          <div class="item-group" data-id=7>
+            <div class="item-place">place8</div>
+            <div class="item-route">route8</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="comments-minimized">
+      <i class="far fa-comment-alt"></i>
+      <div class="comments-minimized-count">
+        6
+      </div>
+    </div>
+    <div class="tool-button-wrapper">
+      <div class="tool-button">
+        <i class="far fa-copy trip-tools-icon mx-2"></i>
+        <div>複製行程</div>
+      </div>
+      <div class="tool-button">
+        <i class="far fa-share-square trip-tools-icon mx-2"></i>
+        <div>分享</div>
+      </div>
+      <div class="tool-button">
+        <i class="fas fa-sign-in-alt trip-tools-icon mx-2"></i>
+        <div>嵌入地圖</div>
+      </div>
+    </div>
+    <div class="trip-tools-footer">
+      <div class="trip-tools-block">
+        <i class="far fa-copy trip-tools-icon"></i>
+        <span class="trip-tools-content">複製行程</span>
+      </div>
+      <div class="trip-tools-block">
+        <i class="far fa-share-square trip-tools-icon"></i>
+        <span class="trip-tools-content">分享行程</span>
+      </div>
+      <div class="trip-tools-block">
+        <i class="far fa-comment-alt trip-tools-icon"></i>
+        <span class="trip-tools-content">留言</span>
+      </div>
+      <div class="trip-tools-block">
+        <i class="fas fa-map-marked-alt trip-tools-icon"></i>
+        <span class="trip-tools-content">顯示地圖</span>
+      </div>
+    </div>
+  </div>
+  <template id="Card">
+    <div class="place-card"
+      style="font-size: 12px; transform: translateY(0px); background-color: #fff; transition-duration: 10ms">
+      <div class="item-place border-0"></div>
+      <div class="item-route border-0"></div>
+    </div>
+  </template>
+  <script>
+    let mapEL, tripList
+    let tripToolsBlocks
+    let direction, beforeDirection, itemGroups, clickTag, last, placeCard, body
+    let y = 0;
+    let clientY = 0
+    let n = 1
+    let moveArray = []
+    let ChangeD = 1
+    let clickTagMove = 0
+    let box
+    let bottomTripList
+    let scrollbarP = 0
+    let cardMove = true
+    let timeID = 0
+    window.onload = function () {
+      document.querySelector('.stop').addEventListener('click', scrollStop);
+      document.querySelector('.start').addEventListener('click', AAA);
+      mapEl = document.querySelector('#map');
+      tripList = document.querySelector('.trip-list');
+      box = document.querySelector('.box');
+      tripListDayContainer = document.querySelector('.trip-list-day-container');
+
+      // map = new google.maps.Map(mapEl, {
+      //   zoom: 15,
+      //   center: { lat: 25.0336752, lng: 121.5648831 },
+      // })
+      tripToolsBlocks = document.querySelectorAll('.trip-tools-block');
+      tripToolsBlocks.forEach(tripToolsBlock => {
+        tripToolsBlock.addEventListener('click', function () {
+          if (tripToolsBlock.getElementsByTagName('span')[0].innerText == '顯示地圖') {
+            console.log('show');
+            if (tripList.style.display == 'block') {
+              tripList.style.display = 'none'
+              mapEL.style.display = 'block'
+            }
+            else {
+              tripList.style.display = 'block'
+              mapEL.style.display = 'none'
+            }
+          }
+        })
+      })
+      itemGroups = document.querySelectorAll('.item-group');
+      body = document.querySelector('body')
+      itemGroups.forEach(itemGroup => {
+        itemGroup.addEventListener('mousedown', function (e) {
+          clickTag = e.target.parentNode
+          console.dir(e.target.parentNode);
+
+          clickTag.style.transform = `translateY(${clickTagMove}px)`;
+          clickTag.style.visibility = 'hidden'
+          clickTag.style.opacity = 0;
+          let template = document.querySelector('#Card');
+          let cloneNode = template.content.cloneNode(true)
+          placeCard = cloneNode.querySelector('.place-card')
+          box.appendChild(cloneNode);
+          // https://emn178.pixnet.net/blog/post/95297028
+          let top = e.target.parentNode.offsetTop + 72 - placeCard.parentNode.parentNode.scrollTop + 'px';
+          // 要加上目前scroll bar的高度
+          // console.log(top);
+          // console.dir(box);
+          // console.log(tripListDayContainer.getBoundingClientRect());
+          // console.log(tripListDayContainer.getBoundingClientRect().bottom);
+          bottomTripList = tripListDayContainer.getBoundingClientRect().bottom
+          // https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect
+          let left = e.target.parentNode.offsetLeft + 16 + 'px'
+          let width = e.target.parentNode.clientWidth + 'px'
+          let dataID = e.target.parentNode.dataset.id
+          // 將目前點選的元件資訊放入template中
+          placeCard.style.top = top
+          placeCard.style.left = left
+          placeCard.style.width = width
+          placeCard.dataset.id = dataID
+          placeCard.style['z-index'] = 99
+          placeCard.querySelector('.item-place').innerText = e.target.parentNode.querySelector('.item-place').innerText
+          placeCard.querySelector('.item-route').innerText = e.target.parentNode.querySelector('.item-route').innerText
+          body.style.cursor = 'move'
+          // box.appendChild(cloneNode);
+          body.addEventListener('mouseup', UpdateCard)
+          body.addEventListener('mousemove', move)
+        })
+      })
+    }
+    function UpdateCard() {
+      console.log(timeID);
+      window.clearInterval(timeID)
+      timeID = 0
+      body.removeEventListener('mouseup', UpdateCard)
+      body.removeEventListener('mousemove', move)
+      y = 0;
+      clientY = 0
+      n = 1
+      moveArray = []
+      ChangeD = 1
+      beforeDirection
+      last = 0
+      clickTagMove = 0
+      direction = ''
+      scrollbarP = 0
+
+
+
+
+      clickTag.style.visibility = 'visible'
+      clickTag.style.opacity = 1;
+      body.style.cursor = 'default'
+      box.innerHTML = ''
+      // 重新排序
+      let itemGroups_sort = Object.values(itemGroups).sort((a, b) => a.dataset.id - b.dataset.id)
+      itemGroups_sort.forEach(itemGroup => {
+        itemGroup.style = ''
+        box.appendChild(itemGroup)
+      })
+      itemGroups = document.querySelectorAll('.item-group');
+      // placeCard.removeEventListener('mouseup', UpdateCard)
+      // placeCard.removeEventListener('mousemove', move)
+      box.removeChild(placeCard)
+    }
+    function AAA() {
+      setScrollbar()
+    }
+    function setScrollbar() {
+      console.log('helpppppppppppppppppppppppppppppppppppppppppp');
+
+      timeID = window.setInterval(scrollStart, 10);
+      console.log(timeID);
+
+    }
+    function scrollStart() {
+      scrollbarP = scrollbarP + 1
+      console.log(scrollbarP);
+      tripListDayContainer.scroll(0, scrollbarP)
+      console.log(scrollbarP);
+      
+    }
+    function scrollStop() {
+      console.log('stop');
+
+      clearInterval(timeID)
+    }
+    function move(e) {
+      console.log('move');
+
+      let aa = parseInt(placeCard.style.top.split('px')[0]) + y + 100
+      console.log((placeCard.style.top.split('px')[0]), y);
+      // 選取物件頂端到最上面的距離
+      console.log(aa);
+      // 監測鼠標位置
+      if (clientY !== 0) {
+        if (clientY > e.clientY) {
+          direction = 'up'
+          y = y - (clientY - e.clientY)
+        }
+        else if (clientY < e.clientY) {
+          direction = 'down'
+          y = y + (e.clientY - clientY)
+          if (aa > bottomTripList) {
+            // 當拖拉的物件超過父層高度，則需要讓scroll bar開始移動
+            if (timeID == 0) {
+              setScrollbar()
+            }
+            cardMove = true
+          }
+          else {
+            cardMove = true
+            scrollStop()
+          }
+        }
+        else {
+          direction = 'same'
+          if (aa > bottomTripList) {
+            // 當拖拉的物件超過父層高度，則需要讓scroll bar開始移動
+            scrollbarP = scrollbarP + (e.clientY - clientY)
+            console.log(scrollbarP);
+            console.log('over');
+            tripListDayContainer.scroll(0, scrollbarP)
+            cardMove = true
+            direction = 'down'
+          }
+          else {
+            cardMove = true
+            scrollStop()
+          }
+        }
+      }
+      // 記錄前一次數值用於下次比較
+      clientY = e.clientY
+
+
+      console.log('e.clientY', e.clientY);
+
+      if (direction == 'up') {
+        if (cardMove) {
+          placeCard.style.transform = `translateY(${y}px)`
+        }
+        if (y < -(40 + 100 * (n - 1))) {
+          let index = parseInt(placeCard.dataset.id) - parseInt(n)
+          let tempId = itemGroups[index].dataset.id
+          let tempContent = itemGroups[index].innerHTML
+          itemGroups[index].dataset.id = clickTag.dataset.id
+
+          itemGroups[index].innerHTML = itemGroups[index].innerHTML
+          clickTag.dataset.id = tempId
+          itemGroups[index].innerHTML = tempContent
+          itemGroups[index].style.transform = 'translateY(100px)';
+          clickTagMove = clickTagMove - 100
+          clickTag.style.transform = `translateY(${clickTagMove}px)`;
+          last = index
+          moveArray.push(index)
+          n = n + 1
+          beforeDirection = 'up'
+        }
+        else {
+          if (beforeDirection == 'down' && moveArray.length > 0) {
+            if (y < -(40 * (2 * n - 2) * (-1))) {
+              let index = moveArray.pop()
+              let tempId = itemGroups[index].dataset.id
+              let tempContent = itemGroups[index].innerHTML
+              itemGroups[index].dataset.id = clickTag.dataset.id
+
+              itemGroups[index].innerHTML = itemGroups[index].innerHTML
+              clickTag.dataset.id = tempId
+              itemGroups[index].innerHTML = tempContent
+
+              itemGroups[index].style.transform = 'translateY(0px)';
+              clickTagMove = clickTagMove - 100
+              clickTag.style.transform = `translateY(${clickTagMove}px)`;
+              last = index
+              n = n - 1
+            }
+          }
+        }
+      }
+      else if (direction == 'down') {
+        if (cardMove) {
+          // 代表只有Scroll bar在移動
+          placeCard.style.transform = `translateY(${y}px)`
+        }
+        if (y > (40 + 100 * (n - 1))) {
+          let index = parseInt(placeCard.dataset.id) + parseInt(n)
+          itemGroups[index].style.transform = 'translateY(-100px)';
+          let tempId = itemGroups[index].dataset.id
+          let tempContent = itemGroups[index].innerHTML
+          itemGroups[index].dataset.id = clickTag.dataset.id
+          itemGroups[index].innerHTML = ''
+          itemGroups[index].innerHTML = itemGroups[index].innerHTML
+          clickTag.dataset.id = tempId
+          itemGroups[index].innerHTML = ''
+          itemGroups[index].innerHTML = tempContent
+
+          clickTagMove = clickTagMove + 100
+          clickTag.style.transform = `translateY(${clickTagMove}px)`;
+          last = index
+          moveArray.push(index)
+          n = n + 1
+          beforeDirection = 'down'
+        }
+        else {
+          if (beforeDirection == 'up' && moveArray.length > 0) {
+            if (y > 40 * (2 * n - 2) * (-1)) {
+              let index = moveArray.pop()
+              let tempId = itemGroups[index].dataset.id
+              let tempContent = itemGroups[index].innerHTML
+              itemGroups[index].dataset.id = clickTag.dataset.id
+
+              itemGroups[index].innerHTML = itemGroups[index].innerHTML
+              clickTag.dataset.id = tempId
+              itemGroups[index].innerHTML = tempContent
+
+              itemGroups[index].style.transform = 'translateY(0px)';
+              clickTagMove = clickTagMove + 100
+              clickTag.style.transform = `translateY(${clickTagMove}px)`;
+              last = index
+              n = n - 1
+            }
+          }
+        }
+      }
+      else { }
+    }
+  </script>
+</body>
+
+</html>

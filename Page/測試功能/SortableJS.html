@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+  <title>Document</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.3/css/all.css"
+    integrity="sha384-SZXxX4whJ79/gErwcOYf+zWLeJdY/qpuqC4cAa9rOGUstPomtqpuNWT9wdPEn2fk" crossorigin="anonymous">
+  <style>
+    .blue-background-class {
+      background-color: #0af;
+    }
+
+    .user-drag {
+      -webkit-user-drag: none;
+    }
+
+    .list-group-item {
+      cursor: move;
+    }
+    .sortable-chosen{
+      color: white;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div id="simple-list" class="row">
+      <h4 class="col-12">Simple list example</h4>
+      <div id="example1" class="list-group col">
+        <div class="list-group-item d-flex align-items-center">
+          <i class="fas fa-arrows-alt"></i>
+          <div class="time d-flex flex-column mx-2 align-items-center">
+            <div class="start-time">11:00</div>
+            <i class="fas fa-map-marker"></i>
+            <div class="end-time">13:00</div>
+          </div>
+          <div class="space-content">
+            <div class="staytime">2小時</div>
+            <div class="space">東大門夜市</div>
+            <div class="address">台北市大同區</div>
+          </div>
+          <div class="copy">
+            <i class="far fa-copy"></i>
+          </div>
+          <div class="delete">
+            <i class="fas fa-trash-alt"></i>
+          </div>
+        </div>
+        <div class="list-group-item bb">Item 2</div>
+        <div class="list-group-item cc">Item 3</div>
+        <div class="list-group-item dd">Item 4</div>
+        <div class="list-group-item ee">Item 5</div>
+        <div class="list-group-item ff">Item 6</div>
+      </div>
+    </div>
+  </div>
+  <script>
+    window.onload = function () {
+      window.addEventListener('click', function (e) {
+        if (e.target.nodeName !== 'INPUT') {
+          console.log(e.target.nodeName);
+          new Sortable(example1, {
+            animation: 200,
+            ghostClass: 'blue-background-class',
+            chosenClass: "sortable-chosen",
+            onMove: function (e) {
+              console.log(e);
+            }
+          });
+        }
+      })
+    }
+  </script>
+</body>
+
+</html>
