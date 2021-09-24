@@ -34,7 +34,8 @@
         <div class="trip-list-header-content">
           <!-- component -->
           <div class="trip-list-header-title-container">
-            <input type="text" class="trip-list-header-title edit-mode" v-model="rawData.TripTitle">
+            <input type="text" class="trip-list-header-title edit-mode" v-model="rawData.TripTitle" v-if="edit">
+            <h1 class="trip-list-header-title" v-if="!edit">{{rawData.TripTitle}}</h1>
           </div>
           <div class="trip-list-header-date">
             <input type="date" v-model="StartDate"> - {{EndDate}}
@@ -68,7 +69,7 @@
           :data-id="TripContent.Id" @mousedown="DragMouseDown">
           <day :trip-content="TripContent" v-if="index == 0"></day>
           <place-gps :trip-content="TripContent" v-else-if="TripContent.Type == 'Place'" @copy-data="copyPlace"
-            @delete-place="getDeletePlace">
+            @delete-place="getDeletePlace" :edit="edit">
           </place-gps>
           <day-plus :trip-content="TripContent" v-else-if="TripContent.Type == 'Day'"></day-plus>
         </div>
@@ -156,8 +157,8 @@
     }
     const placeGps = {
       template: `
-      <div class="trip-list-venu-container">
-        <div class="drag-handler"></div>
+      <div class="trip-list-venu-container" :class="{'edit': edit}">
+        <div class="drag-handler" v-if="edit"></div>
         <div class="trip-list-day-venu-time">
           <span class="trip-list-day-venu-time-from">{{tripContent.StartTime}}</span>
           <span class="fas fa-map-marker trip-list-day-venu-number-mark" :style="{color: tripContent.Color}">
@@ -168,19 +169,22 @@
         <div class="trip-list-day-venu-info">
           <div class="trip-list-day-venu-info-detail">
             <div class="trip-list-day-venu-info-time" @click=Show>
-              <i class="fas fa-clock" style= "color: #888;"></i>
+              <i class="fas fa-clock" style= "color: #888;" v-if="!edit"></i>
               {{tripContent.StayTime}}</div>
             <div class="trip-list-day-venu-info-name">{{tripContent.PlaceName}}</div>
-            <div class="trip-list-day-venu-info-address border">{{tripContent.Address}}</div>
+            <div class="trip-list-day-venu-info-address">{{tripContent.Address}}</div>
           </div>
           <div class="trip-list-day-venu-info-edit">
-            <div class="position-relative">
+            <div class="position-relative" v-if="edit">
               <i class="far fa-copy copy-tool" @click="$emit('copyData', tripContent)"></i>
               <div class="trip-list-day-venu-info-edit-func">複製</div>
             </div>
-            <div class="position-relative" @click="deletePlace">
+            <div class="position-relative" @click="deletePlace" v-if="edit">
               <i class="fas fa-trash delete-tool"></i>
               <div class="trip-list-day-venu-info-edit-func">刪除</div>
+            </div>
+            <div>
+              <i class="fas fa-file-alt" style="font-size: 16px; color: #666;" v-if="!edit"></i>
             </div>
           </div>
         </div>
@@ -202,7 +206,7 @@
         </div>
       </div>`,
       // template: `<p>{{tripContent.Day}}</p>`,
-      props: ['tripContent'],
+      props: ['tripContent', 'edit'],
       emits: ['copyData', 'deletePlace'],
       methods: {
         Show() { },

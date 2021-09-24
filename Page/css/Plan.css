@@ -23,8 +23,12 @@ body {
   box-shadow: 0 2px 8px rgb(0 0 0 / 20%);
   overflow: hidden;
   display: flex;
-  padding: 10px 0px;
   position: relative;
+  cursor: pointer;
+}
+.trip-list-venu-container.edit{
+  padding: 10px 0px;
+  cursor: none;
 }
 .drag-handler{
   position: absolute;
@@ -88,6 +92,9 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+.trip-list-day-venu-info-time{
+  font-size: 14px;
 }
 .trip-list-day-venu-info-detail{
   font-size: 16px;
@@ -234,9 +241,10 @@ body {
 }
 
 .trip-list-header-info {
-  padding-top: 10px;
+  padding-top: 20px;
   display: flex;
   justify-content: space-around;
+  box-sizing: border-box;
 }
 .trip-list-header-back a{
   width: 24px;
@@ -257,6 +265,7 @@ body {
 }
 .trip-list-header-title{
   border-width: 0px;
+  font-size: 20px;
 }
 .trip-list-header-title.edit-mode{
   border-bottom: 1px solid #000;
@@ -295,7 +304,7 @@ input:focus{
 .trip-list-header-edit{
   cursor: pointer;
   position: absolute;
-  top: 28px;
+  top: 29px;
   right: 16px;
   margin-top: 4px;
   transform: translateY(-50%);
@@ -305,14 +314,7 @@ input:focus{
   user-select: none;
 
 }
-.trip-list-header-title{
-  font-size: 20px;
-  width: calc(100% - 90px);
-  font-weight: bold;
-  box-sizing: border-box;
-  border-bottom: 2px solid #000;
-  word-wrap: break-word;
-}
+
 .trip-list-header-back{
   width: 48px;
 }
