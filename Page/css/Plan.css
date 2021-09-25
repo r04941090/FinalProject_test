@@ -26,6 +26,9 @@ body {
   position: relative;
   cursor: pointer;
 }
+.trip-list-venu-container:hover {
+  box-shadow: 0 2px 8px rgb(0 0 0 / 50%);
+}
 .trip-list-venu-container.edit{
   padding: 10px 0px;
   cursor: none;
@@ -61,10 +64,18 @@ body {
   margin-right: 5px;
   font-size: 10px;
 }
+.form-select:focus{
+  box-shadow: none;
+  border-color: #ee3c77;
+}
 .trip-list-day-header-time{
   margin-left: 10px;
   font-size: 14px;
   color:#666;
+}
+.trip-list-day-header-time .edit-mode{
+  border-bottom: 2px solid #666;
+  cursor: pointer;
 }
 .trip-list-day-venu-time{
   display: flex;

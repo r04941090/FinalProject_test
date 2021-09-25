@@ -69,16 +69,18 @@
       <div class="trip-list-day-container" ref="tripListDayContainer">
         <div class="trip-item" v-for="(TripContent, index) in rawData.TripContent" :key="TripContent.Id"
           :data-id="TripContent.Id" @mousedown="DragMouseDown">
-          <day :trip-content="TripContent" v-if="index == 0" @select-day="selectDay" :show-day="showSpecificRoute">
+          <day :trip-content="TripContent" v-if="index == 0" @select-day="selectDay" :show-day="showSpecificRoute"
+            :edit="edit" @select-time="selectTime">
           </day>
           <place-gps :trip-content="TripContent" v-else-if="TripContent.Type == 'Place'" @copy-data="copyPlace"
             @delete-place="getDeletePlace" :edit="edit">
           </place-gps>
           <day-plus :trip-content="TripContent" v-else-if="TripContent.Type == 'Day'" @select-day="selectDay"
-            :show-day="showSpecificRoute"></day-plus>
+            :show-day="showSpecificRoute" @select-time="selectTime" :edit="edit"></day-plus>
         </div>
         <div class="trip-item" :data-id="rawData.length + 1">
           <div class="add-venue">
+            {{selectDayTime}}
             <span>+ 新增景點</span>
           </div>
         </div>
@@ -122,6 +124,35 @@
         <span class="trip-tools-content">顯示地圖</span>
       </div>
     </div>
+    <div class="modal fade" id="Time" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered d-flex justify-centent-center" style="max-width: 300px">
+        <div class="modal-content">
+          <div class="modal-body edit-time-box">
+            <div class="start-time" style="font-size: 20px; font-weight: bold; margin-bottom: 20px;">出發時間：</div>
+            <div class="d-flex justify-content-center">
+              <select class="form-select mx-1" aria-label="Default select example" v-model="selectDayTime.Type">
+                <option value="上午">上午</option>
+                <option value="下午">下午</option>
+              </select>
+              <select class="form-select" v-model="selectDayTime.hour">
+                <option :value="hour" v-for="hour in hours">{{hour}}</option>
+              </select>
+              <div class="mx-2 d-flex align-items-center">
+                <span>:</span>
+              </div>
+              <select class="form-select" v-model="selectDayTime.minute">
+                <option :value="minute" v-for="minute in minutes">{{minute}}</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-footer" style="border: none;">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+            <button type="button" class="btn btn-primary" style="background: #ee3c77; border: none;"
+              data-bs-dismiss="modal" @click="updateDayStartTime">完成</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
   <template id="Card">
     <div class="place-card"
@@ -158,14 +189,18 @@
         </div>
         <div class="trip-list-day-header-time">
           出發時間：
-          <b class="edit-mode">{{tripContent.StartTime}}</b>
+          <b class="edit-mode" data-bs-toggle="modal" data-bs-target="#Time" v-if="edit" @click="selectTime">{{tripContent.StartTime}}</b>
+          <b v-else >{{tripContent.StartTime}}</b>
         </div>
       </header>`,
-      props: ['tripContent', 'showDay'],
-      emit: ['selectDay'],
+      props: ['tripContent', 'showDay', 'edit'],
+      emit: ['selectDay', 'selectTime'],
       methods: {
         selectDay() {
           this.$emit('selectDay', this.tripContent)
+        },
+        selectTime() {
+          this.$emit('selectTime', this.tripContent)
         }
       }
     }
@@ -250,14 +285,19 @@
         </div>
         <div class="trip-list-day-header-time">
           出發時間：
-          <b class="edit-mode">{{tripContent.StartTime}}</b>
+          <b class="edit-mode" data-bs-toggle="modal" data-bs-target="#Time" v-if="edit" @click="selectTime">{{tripContent.StartTime}}</b>
+          <b v-else>{{tripContent.StartTime}}</b>
         </div>
       </header>`,
-      props: ['tripContent', 'showDay'],
-      emit: ['selectDay'],
+      props: ['tripContent', 'showDay', 'edit'],
+      emit: ['selectDay', 'selectTime'],
       methods: {
         selectDay() {
           this.$emit('selectDay', this.tripContent)
+        },
+        selectTime() {
+          console.log(this.tripContent.StartTime);
+          this.$emit('selectTime', this.tripContent)
         }
       }
     }
@@ -265,9 +305,18 @@
     const App = {
       data() {
         return {
+          hours: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+          minutes: ['00', '05', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55'],
           showSpecificRoute: {
             show: false,
             content: {}
+          },
+          selectStartTime: '',
+          selectDayTime: {
+            Type: '',
+            DayId: '',
+            hour: '',
+            minute: ''
           },
           StartDate: '',
           EndDate: '',
@@ -331,6 +380,45 @@
             this.calculateRoute(this.rawData.TripContent)
           })
         },
+        updateDayStartTime() {
+          if (this.selectDayTime.Type == '下午') {
+            this.selectDayTime.hour = this.selectDayTime.hour + 12
+          }
+          let selectIndex = this.rawData.TripContent.findIndex(x => x.DayId == this.selectDayTime.DayId && x.Type == 'Day')
+          let origin_hour = parseInt(this.rawData.TripContent[selectIndex].StartTime.split(':')[0])
+          let origin_minute = parseInt(this.rawData.TripContent[selectIndex].StartTime.split(':')[1])
+          let diff = (this.selectDayTime.hour * 60 + parseInt(this.selectDayTime.minute)) - (origin_hour * 60 + origin_minute)
+          this.rawData.TripContent.forEach(item => {
+            if (item.DayId == this.selectDayTime.DayId) {
+              let start_hour = parseInt(item.StartTime.split(':')[0])
+              let start_minute = parseInt(item.StartTime.split(':')[1])
+              let start_totalMinute = ((start_hour * 60) + start_minute) + diff
+              item.StartTime = `${(Math.floor(start_totalMinute / 60)).toString().padStart(2, '0')}:${(start_totalMinute % 60).toString().padStart(2, '0')}`
+              if (item.Type == 'Place') {
+                // 只有Type為Place才有EndTime
+                let end_hour = parseInt(item.EndTime.split(':')[0])
+                let end_minute = parseInt(item.EndTime.split(':')[1])
+                let end_totalMinute = ((end_hour * 60) + end_minute) + diff
+                item.EndTime = `${(Math.floor(end_totalMinute / 60)).toString().padStart(2, '0')}:${(end_totalMinute % 60).toString().padStart(2, '0')}`
+              }
+            }
+          })
+        },
+        selectTime(select) {
+          this.selectStartTime = select
+          let selectTime = select.StartTime.split(':')
+          let hour = selectTime[0]
+          let minute = selectTime[1]
+          if (parseInt(hour) - 12 < 0) {
+            this.selectDayTime.Type = '上午'
+          }
+          else {
+            this.selectDayTime.Type = '下午'
+          }
+          this.selectDayTime.DayId = select.DayId
+          this.selectDayTime.hour = parseInt(hour)
+          this.selectDayTime.minute = minute.toString()
+        },
         selectDay(select) {
           if (this.rawData.TripContent.find(x => x.Day == select.Day && x.Type == 'Place') !== undefined) {
             if (this.showSpecificRoute.content == '') {
@@ -347,29 +435,12 @@
                 this.showSpecificRoute.show = true
               }
             }
+            this.ResetRoute(this.map);
           }
-          console.log(this.rawData.TripContent);
-          this.ResetRoute(this.map);
-          // this.calculateRoute()
         },
         getDeletePlace(place) {
           console.log(place);
         },
-        // clear() {
-        //   this.directionsRenderer.forEach(item => {
-        //     item.setMap(null)
-        //   })
-        //   this.markers.forEach(item => {
-        //     let label = {
-        //       text: "11",
-        //       color: 'black',
-        //       fontSize: '50px',
-        //       fontWeight: "900"
-        //     }
-        //     item.setLabel(null)
-        //     item.setVisible(false)
-        //   })
-        // },
         DragMouseDown(e) {
           this.clickTag = e.target.parentNode.parentNode
           this.tripItems = document.querySelectorAll('.trip-item');
@@ -1222,10 +1293,7 @@
             this.StartDateDisplay = `${StartDateAry[0]}年${StartDateAry[1]}月${StartDateAry[2]}日`
             this.EndDate = `${EndDate.getFullYear()}年${EndDate.getMonth()}月${EndDate.getDate()}日`
           }
-        },
-        // showSpecificRoute: {
-        //   handler: 
-        // }
+        }
       },
       components: {
         day,
