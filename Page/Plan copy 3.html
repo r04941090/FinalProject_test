@@ -17,6 +17,7 @@
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCW6Ekw5sZ0JUZfzpMeSteJ6_8aoQRwfws&libraries=places"></script>
   <link rel="stylesheet" href="/css/Plan.css">
   <script src="https://unpkg.com/vue@next"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
   <link rel="stylesheet" href="/css/Plan_Day.css">
 </head>
 
@@ -35,7 +36,7 @@
           <!-- <div>testsd</div> -->
           <div class="trip-list-header-day-component" ref="tripListHeaderDayComponent">
             <!-- <p>lore</p> -->
-            <div class="day-item d-inline-block" v-for="tripContent in selectDayToDisplay" :key="tripContent.Day"
+            <div class="day-item d-inline-block" v-for="tripContent in rawDataOnlyDay" :key="tripContent.Day"
               :data-id="tripContent.Day" @click="changeSelect(tripContent)">
               <day-cell :trip-data="tripContent" @mousedown="DayDragMouseDown" :select-day="selectDay"
                 @delete-data="getDeleteData" :edit="edit"></day-cell>
@@ -162,161 +163,186 @@
           scrollInterval: 0, // scroll bar移動距離
           currentId: '', // 目前選定的ID
           clickId: '',
-          rawData: {
-            "UserId": 1,
-            "TripId": 1,
-            "TripTitle": "台北兩天一夜",
-            "StartDate": "2021年9月10日",
-            "TotalDate": 2,
-            "TripContent": [
-              {
-                "Type": "Day",
-                "Id": 1,
-                "DayId": 1,
-                "Color": "#ff4477",
-                "Day": 1,
-                "Date": "9月10日",
-                "Weekday": "星期一",
-                "Sequence": 0,
-                "StartTime": "09:00"
-              },
-              {
-                "Type": "Place",
-                "Id": 2,
-                "DayId": 1,
-                "Color": "#ff4477",
-                "Day": 1,
-                "TripDetailsId": 1,
-                "Sequence": 1,
-                "PlaceName": "台北新光三越",
-                "StayTime": "1 小時 30 分",
-                "StartTime": "09:00",
-              },
-              {
-                "Type": "Place",
-                "Id": 3,
-                "DayId": 1,
-                "Color": "#ff4477",
-                "Day": 1,
-                "TripDetailsId": 2,
-                "Sequence": 2,
-                "PlaceName": "台中火車站",
-                "StayTime": "30 分",
-              },
-              {
-                "Type": "Day",
-                "Id": 4,
-                "DayId": 2,
-                "Color": "#3b86ff",
-                "Day": 2,
-                "Date": "9月11日",
-                "Weekday": "星期二",
-                "Sequence": 0,
-                "StartTime": "08:00"
-              },
-              {
-                "Type": "Place",
-                "Id": 5,
-                "DayId": 2,
-                "Color": "#3b86ff",
-                "Day": 2,
-                "TripDetailsId": 3,
-                "Sequence": 1,
-                "PlaceName": "Build School",
-                "StayTime": "30 分",
-                "StartTime": "08:00",
-              },
-              {
-                "Type": "Place",
-                "Id": 6,
-                "DayId": 2,
-                "Color": "#3b86ff",
-                "Day": 2,
-                "TripDetailsId": 4,
-                "Sequence": 2,
-                "PlaceName": "大稻埕碼頭廣場",
-                "StayTime": "10 分",
-                "StartTime": "09:20",
-              },
-              {
-                "Type": "Place",
-                "Id": 7,
-                "DayId": 2,
-                "Color": "#3b86ff",
-                "Day": 2,
-                "TripDetailsId": 5,
-                "Sequence": 3,
-                "PlaceName": "霞海城隍廟",
-                "StayTime": "30 分",
-                "StartTime": "10:20",
-              },
-              {
-                "Type": "Day",
-                "Id": 8,
-                "DayId": 3,
-                "Color": "#71b85f",
-                "Day": 3,
-                "Date": "9月12日",
-                "Weekday": "星期三",
-                "Sequence": 0,
-                "StartTime": "10:00"
-              },
-              {
-                "Type": "Day",
-                "Id": 9,
-                "DayId": 4,
-                "Color": "#815fb7",
-                "Day": 4,
-                "Date": "9月13日",
-                "Weekday": "星期四",
-                "Sequence": 0,
-                "StartTime": "06:00"
-              },
-              {
-                "Type": "Day",
-                "Id": 10,
-                "DayId": 5,
-                "Color": "#b6b75f",
-                "Day": 5,
-                "Date": "9月14日",
-                "Weekday": "星期五",
-                "Sequence": 0,
-                "StartTime": "07:00"
-              },
-              {
-                "Type": "Day",
-                "Id": 11,
-                "DayId": 6,
-                "Color": "#f4a94e",
-                "Day": 6,
-                "Date": "9月15日",
-                "Weekday": "星期六",
-                "Sequence": 0,
-                "StartTime": "12:00"
-              },
-              {
-                "Type": "Day",
-                "Id": 12,
-                "DayId": 7,
-                "Color": "#2fbcbc",
-                "Day": 7,
-                "Date": "9月16日",
-                "Weekday": "星期日",
-                "Sequence": 0,
-                "StartTime": "09:00"
-              }
-            ]
-          }
+          rawDataOnlyDay: [],
+          rawData: {}
+          // rawData: {
+          //   "UserId": 1,
+          //   "TripId": 1,
+          //   "TripTitle": "台北兩天一夜",
+          //   "StartDate": "2021年9月10日",
+          //   "TotalDate": 2,
+          //   "TripContent": [
+          //     {
+          //       "Type": "Day",
+          //       "Id": 1,
+          //       "DayId": 1,
+          //       "Color": "#ff4477",
+          //       "Day": 1,
+          //       "Date": "9月10日",
+          //       "Weekday": "星期一",
+          //       "Sequence": 0,
+          //       "StartTime": "09:00"
+          //     },
+          //     {
+          //       "Type": "Place",
+          //       "Id": 2,
+          //       "DayId": 1,
+          //       "Color": "#ff4477",
+          //       "Day": 1,
+          //       "TripDetailsId": 1,
+          //       "Sequence": 1,
+          //       "PlaceName": "台北新光三越",
+          //       "StayTime": "1 小時 30 分",
+          //       "StartTime": "09:00",
+          //     },
+          //     {
+          //       "Type": "Place",
+          //       "Id": 3,
+          //       "DayId": 1,
+          //       "Color": "#ff4477",
+          //       "Day": 1,
+          //       "TripDetailsId": 2,
+          //       "Sequence": 2,
+          //       "PlaceName": "台中火車站",
+          //       "StayTime": "30 分",
+          //     },
+          //     {
+          //       "Type": "Day",
+          //       "Id": 4,
+          //       "DayId": 2,
+          //       "Color": "#3b86ff",
+          //       "Day": 2,
+          //       "Date": "9月11日",
+          //       "Weekday": "星期二",
+          //       "Sequence": 0,
+          //       "StartTime": "08:00"
+          //     },
+          //     {
+          //       "Type": "Place",
+          //       "Id": 5,
+          //       "DayId": 2,
+          //       "Color": "#3b86ff",
+          //       "Day": 2,
+          //       "TripDetailsId": 3,
+          //       "Sequence": 1,
+          //       "PlaceName": "Build School",
+          //       "StayTime": "30 分",
+          //       "StartTime": "08:00",
+          //     },
+          //     {
+          //       "Type": "Place",
+          //       "Id": 6,
+          //       "DayId": 2,
+          //       "Color": "#3b86ff",
+          //       "Day": 2,
+          //       "TripDetailsId": 4,
+          //       "Sequence": 2,
+          //       "PlaceName": "大稻埕碼頭廣場",
+          //       "StayTime": "10 分",
+          //       "StartTime": "09:20",
+          //     },
+          //     {
+          //       "Type": "Place",
+          //       "Id": 7,
+          //       "DayId": 2,
+          //       "Color": "#3b86ff",
+          //       "Day": 2,
+          //       "TripDetailsId": 5,
+          //       "Sequence": 3,
+          //       "PlaceName": "霞海城隍廟",
+          //       "StayTime": "30 分",
+          //       "StartTime": "10:20",
+          //     },
+          //     {
+          //       "Type": "Day",
+          //       "Id": 8,
+          //       "DayId": 3,
+          //       "Color": "#71b85f",
+          //       "Day": 3,
+          //       "Date": "9月12日",
+          //       "Weekday": "星期三",
+          //       "Sequence": 0,
+          //       "StartTime": "10:00"
+          //     },
+          //     {
+          //       "Type": "Day",
+          //       "Id": 9,
+          //       "DayId": 4,
+          //       "Color": "#815fb7",
+          //       "Day": 4,
+          //       "Date": "9月13日",
+          //       "Weekday": "星期四",
+          //       "Sequence": 0,
+          //       "StartTime": "06:00"
+          //     },
+          //     {
+          //       "Type": "Day",
+          //       "Id": 10,
+          //       "DayId": 5,
+          //       "Color": "#b6b75f",
+          //       "Day": 5,
+          //       "Date": "9月14日",
+          //       "Weekday": "星期五",
+          //       "Sequence": 0,
+          //       "StartTime": "07:00"
+          //     },
+          //     {
+          //       "Type": "Day",
+          //       "Id": 11,
+          //       "DayId": 6,
+          //       "Color": "#f4a94e",
+          //       "Day": 6,
+          //       "Date": "9月15日",
+          //       "Weekday": "星期六",
+          //       "Sequence": 0,
+          //       "StartTime": "12:00"
+          //     },
+          //     {
+          //       "Type": "Day",
+          //       "Id": 12,
+          //       "DayId": 7,
+          //       "Color": "#2fbcbc",
+          //       "Day": 7,
+          //       "Date": "9月16日",
+          //       "Weekday": "星期日",
+          //       "Sequence": 0,
+          //       "StartTime": "09:00"
+          //     }
+          //   ]
+          // }
         }
       },
-      computed: {
-        selectDayToDisplay() {
-          // https://book.vue.tw/CH1/1-6-conditions-and-flow-control.html
-          // 用compute的方式預做篩選
-          return this.rawData.TripContent.filter(x => x.Type == 'Day')
-        }
-      },
+      // computed: {
+      //   // https://segmentfault.com/q/1010000007796827
+      //   selectDayToDisplay() {
+      //     // https://book.vue.tw/CH1/1-6-conditions-and-flow-control.html
+      //     // 用compute的方式預做篩選
+      //     console.log(this.rawData);
+      //     console.log(this.rawData == {});
+          
+      //     // if (this.rawData.TripContent.length == 0){
+      //     //   return
+      //     // }
+      //     return this.rawData.TripContent.filter(x => x.Type == 'Day')
+      //   }
+      // },
       methods: {
+        getData() {
+          let url = "https://raw.githubusercontent.com/r04941090/FileStorage/master/Trip"
+          axios.get(url).then(res => {
+            this.rawData = res.data
+            console.log(this.rawData);
+            this.rawDataOnlyDay = this.rawData.TripContent.filter(x => x.Type == 'Day')
+            let StartDateAry = this.rawData.StartDate.split('-')
+            let EndDateAry = this.rawData.EndDate.split('-')
+            this.StartDate = this.rawData.StartDate
+            this.StartDateDisplay = `${StartDateAry[0]}年${StartDateAry[1]}月${StartDateAry[2]}日`
+            console.log(this.StartDateDisplay);
+
+            this.EndDate = `${EndDateAry[0]}年${EndDateAry[1]}月${EndDateAry[2]}日`
+            // this.calculateRoute(this.rawData.TripContent)
+          })
+        },
         getDeleteData(item) {
           // get delete data
           console.log('Delete', item);
@@ -346,9 +372,9 @@
           if (e.target.classList[0] == "drag-handler") {
             this.clickTag.style.visibility = 'hidden'
             this.clickTag.style.opacity = 0;
-            console.dir(document.querySelector('.trip-list-header-info'))
-            console.dir(document.querySelector('.trip-list').offsetTop)
-            console.log(document.querySelector('.trip-list-header-info').offsetHeight);
+            // console.dir(document.querySelector('.trip-list-header-info'))
+            // console.dir(document.querySelector('.trip-list').offsetTop)
+            // console.log(document.querySelector('.trip-list-header-info').offsetHeight);
             
             // 建立漂浮卡片
             let template = document.querySelector('#dayCard');
@@ -414,10 +440,11 @@
 
           // https://www.gushiciku.cn/pl/p9ck/zh-tw
           if (this.steps.length !== 0) {
+            console.log(this.steps);
+            
             let dayItem_sort = Object.values(this.dayItems).sort((a, b) => a.dataset.id - b.dataset.id)
             let addDay = document.querySelector('.add-day');
 
-            // box.innerHTML = ''
             dayItem_sort.forEach(item => {
               this.$refs.tripListHeaderDayComponent.insertBefore(item, addDay)
               item.style = ''
@@ -447,11 +474,8 @@
             // 更新Sequence
             let Day, DayId, Sequence, Color
             let Id = (document.querySelectorAll('.day-item')[0].dataset.id) * 20;
-            let rawStartDate = this.rawData.StartDate
-            let year = rawStartDate.split('年')[0]
-            let month = rawStartDate.split('年')[1].split('月')[0]
-            let day = rawStartDate.split('月')[1].split('日')[0]
-            let StartDate = new Date(year, month, day)
+            let rawStartDateArray = this.rawData.StartDate.split('-')
+            let StartDate = new Date(rawStartDateArray[0], rawStartDateArray[1], rawStartDateArray[2])
 
             result.forEach(item => {
               if (item.Type == "Day") {
@@ -472,8 +496,8 @@
               item.Id = Id
               Id = Id + 1
             })
-            // return
-            console.log(JSON.parse(JSON.stringify(result)));
+            this.rawData.TripContent = result
+            this.rawDataOnlyDay = this.rawData.TripContent.filter(x => x.Type == 'Day')
             // return
             // 移除marker、direction
             // if (this.markers.length !== 0) {
@@ -758,6 +782,12 @@
       },
       components: {
         dayCell
+      },
+      // created() {
+      //   this.getData()
+      // },
+      mounted() {
+        this.getData()
       },
     }
     Vue.createApp(App).mount('#app');
