@@ -32,8 +32,8 @@
     </div>
     <div class="outside position-relative">
       <div id="map" ref="map"></div>
-      <div class="trip-list" v-show="showTripList" ref="tripList">
-        <div class="Loading-container" :style="{backgroundColor: Loading ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0)', zIndex: Loading ? '1000' : '-1'}">
+      <div class="trip-list" v-show="showTripList" ref="tripList" v-show="page == 'TripList'">
+        <!-- <div class="Loading-container" :style="{backgroundColor: Loading ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0)'}">
           <div :class="{'sk-fading-circle': Loading}">
             <span class="Loading">載入中 ...</span>
             <div class="sk-fading-circle1 sk-child"></div>
@@ -49,8 +49,8 @@
             <div class="sk-fading-circle11 sk-child"></div>
             <div class="sk-fading-circle12 sk-child"></div>
           </div>
-        </div>
-        <div class="Loading-container" style="background-color: #fff;" v-if="initialLoading">
+        </div> -->
+        <!-- <div class="Loading-container" style="background-color: #fff;" v-if="initialLoading">
           <div class="sk-fading-circle">
             <span class="Loading">載入中 ...</span>
             <div class="sk-fading-circle1 sk-child-first"></div>
@@ -66,7 +66,7 @@
             <div class="sk-fading-circle11 sk-child-first"></div>
             <div class="sk-fading-circle12 sk-child-first"></div>
           </div>
-        </div>
+        </div> -->
         <div class="trip-list-header-info" ref="tripListHeaderInfo">
           <div class="trip-list-header-back">
             <a href=""></a>
@@ -116,10 +116,11 @@
               @delete-place="getDeletePlace" :edit="edit">
             </place-gps>
             <day-plus :trip-content="TripContent" v-else-if="TripContent.Type == 'Day'" @select-day="selectDay"
-              :show-day="showSpecificRoute" @select-time="selectTime" :edit="edit" @add-place="changePage"></day-plus>
+              :show-day="showSpecificRoute" @select-time="selectTime" :edit="edit"></day-plus>
           </div>
           <div class="trip-item" :data-id="rawData.length + 1">
-            <div class="add-venue" @click="changePage">
+            <div class="add-venue">
+              {{selectDayTime}}
               <span>+ 新增景點</span>
             </div>
           </div>
@@ -127,15 +128,15 @@
       </div>
       <div class="create-venu-box" v-show="page == 'CreateBox'">
         <div class="create-venu-tab" >
-          <div class="trip-list-header-back create-venu-tab-back" @click="changePage">
+          <div class="trip-list-header-back d-flex align-items-center h-100 justify-content-center m-0">
             <a href="" class="m-0"></a>
           </div>
           <div class="create-venu-tab-search" @click="updateSelectTab('search')" :style="{'borderBottom': selectTab == 'search' ? '4px solid #ee3c77 ' : 'none'}">
-            <i class="fas fa-search" :style="{'color': selectTab == 'search' ? '#ee3c77' : '#666'}"></i>
+            <i class="fas fa-search" :style="{'color': selectTab == 'search' ? '#ee3c77' : '#000'}"></i>
             <span>搜尋</span>
           </div>
           <div class="create-venu-tab-collection" @click="updateSelectTab('collection')" :style="{'borderBottom': selectTab == 'collection' ? '4px solid #ee3c77 ' : 'none'}">
-            <i class="fas fa-map-marker-alt" :style="{'color': selectTab == 'collection' ? '#ee3c77' : '#666'}"></i>
+            <i class="fas fa-map-marker-alt" :style="{'color': selectTab == 'collection' ? '#ee3c77' : '#000'}"></i>
             <span>景點收藏</span>
           </div>
         </div>
@@ -235,7 +236,7 @@
     const day = {
       template: `
       <header class="trip-list-day-header">
-        <div class="text-white weekday" :style="{background: (showDay.content !== tripContent) && showDay.show  ? '#888' : tripContent.Color}" style="cursor: pointer" @click="selectDay" >
+        <div class="text-white weekday" :style="{background: (showDay.content !== tripContent) && showDay.show  ? '#888' : tripContent.Color}" style="cursor: pointer" @click="selectDay">
           <div class="d-inline-block eye" v-if="showDay.show">
             <i class="far fa-eye" v-if="showDay.content == tripContent"></i>
             <i class="far fa-eye-slash" v-else></i>
@@ -327,7 +328,7 @@
         }
       },
       template: `
-      <div class="add-venue" style="margin-top: 16px;" @click="$emit('AddPlace')">
+      <div class="add-venue" style="margin-top: 16px;">
         <span>+ 新增景點</span>
       </div>
       <header class="trip-list-day-header">
@@ -345,7 +346,7 @@
         </div>
       </header>`,
       props: ['tripContent', 'showDay', 'edit'],
-      emit: ['selectDay', 'selectTime', 'AddPlace'],
+      emit: ['selectDay', 'selectTime'],
       methods: {
         selectDay() {
           this.$emit('selectDay', this.tripContent)
@@ -439,6 +440,7 @@
           this.initialLoading = true
           let url = "https://raw.githubusercontent.com/r04941090/FileStorage/master/Trip"
           axios.get(url).then(res => {
+            
             this.rawData = res.data
             let StartDateAry = this.rawData.StartDate.split('-')
             let EndDateAry = this.rawData.EndDate.split('-')
@@ -448,6 +450,7 @@
 
             this.EndDate = `${EndDateAry[0]}年${EndDateAry[1]}月${EndDateAry[2]}日`
             this.calculateRoute(this.rawData.TripContent)
+            
           })
         },
         updateDayStartTime() {
@@ -844,7 +847,9 @@
                   }
                 })
                 this.rawData.TripContent = JSON.parse(JSON.stringify(result))
+                // 移除Loading
                 this.initialLoading = false
+                
               })
             }
             else if (item.Places.length == 1) {
@@ -870,7 +875,6 @@
               selected.Car = ''
               this.findPlace(item.DayId, item.Places[0], this.markLabel, selected, item.Color).then(res => {
                 this.rawData.TripContent = JSON.parse(JSON.stringify(result))
-                this.initialLoading = false
               })
             }
           })

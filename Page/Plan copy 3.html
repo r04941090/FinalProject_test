@@ -41,14 +41,11 @@
               <day-cell :trip-data="tripContent" @mousedown="DayDragMouseDown" :select-day="selectDay"
                 @delete-data="getDeleteData" :edit="edit"></day-cell>
             </div>
-            <div class="day-cell add-day" v-if="edit">
+            <div class="day-cell add-day" v-if="edit" @click="AddDay">
               <div class="day-cell-content">
-                <a><br>+</a>
+                <span><br>+</span>
               </div>
             </div>
-            <!-- <div class="add-day ">
-              <i class="fas fa-plus d-inline-block"></i>
-            </div> -->
           </div>
           <div class="page-controller">
             <a class="previous" @click="previous"></a>
@@ -360,6 +357,12 @@
           this.ScrollOption.left = scrollObj.scrollLeft
           this.ScrollOption.left = this.ScrollOption.left + 50
           this.$refs.tripListHeaderDayComponent.scroll(this.ScrollOption)
+        },
+        AddDay(){
+          console.log(this.rawData);
+          
+          // let newTotalDate = this.rawData.TotalDate + 1
+          // 送出TripId、TotalDay -> 修改Trip表格中的TotalDate、增加一欄到TripDay中
         },
         changeSelect(selectDay) {
           this.selectDay = selectDay

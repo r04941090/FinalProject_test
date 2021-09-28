@@ -91,10 +91,11 @@ html {
   box-shadow: 0 5px 10px rgb(0 0 0 / 20%);
   border-radius: 15px;
 }
-.day-cell.add-day a{
+.day-cell.add-day span{
   display: block;
   width: 20px;
   height: 20px;
+  font-weight: bold;
 }
 .page-controller{
   position: absolute;

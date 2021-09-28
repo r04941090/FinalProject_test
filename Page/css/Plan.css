@@ -11,6 +11,35 @@ body {
   /* height: 1000px; */
   /* width: 100%; */
 }
+.create-venu-tab{
+  height: 48px;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 20%);
+  background: #fff;
+  display: flex;
+  user-select: none;
+}
+.create-venu-tab-back{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  height: 100%;
+  width: 100%;
+}
+.create-venu-tab-search, .create-venu-tab-collection{
+  /* border: 1px solid #777; */
+  height: 100%;
+  padding-top: 5px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
+  flex-grow: 1;
+  border-left: 1px solid #eee;
+  box-sizing: border-box;
+  cursor: pointer;
+  color: #666;
+}
 
 .trip-item {
   /* border: 1px solid blue; */
@@ -207,9 +236,12 @@ body {
   height: 43px;
   background: #fff;
   box-shadow: 0 2px 8px rgb(0 0 0 / 20%);
-  font-weight: bold;
+  font-weight: 900;
   text-align: center;
-
+}
+.add-venue:hover{
+  color: #000;
+  font-weight: 900;
 }
 .item-place {
   height: 80px;
@@ -238,7 +270,7 @@ body {
   height: 100%;
 }
 
-.trip-list {
+.trip-list, .create-venu-box{
   position: absolute;
   z-index: 99;
   width: 100%;
@@ -382,14 +414,14 @@ input:focus{
 }
 
 @media screen and (min-width: 768px) {
-  .trip-list {
+  .trip-list, .create-venu-box{
     position: fixed;
     height: calc(100% - 88px);
     bottom: 16px;
     left: 16px;
     width: 350px;
     top: 72px;
-    border-radius: 0px;
+    border-radius: 5px;
   }
 
   .trip-tools-footer {
