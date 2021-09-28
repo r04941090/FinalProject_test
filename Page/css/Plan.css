@@ -423,7 +423,12 @@ input:focus{
     top: 72px;
     border-radius: 5px;
   }
-
+  .searchBox{
+    width: 330px;
+    padding: 8px 0px 8px 30px;
+    margin:20px 10px;
+    
+  }
   .trip-tools-footer {
     display: none;
   }
