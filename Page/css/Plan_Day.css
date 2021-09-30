@@ -4,7 +4,7 @@ html {
 .trip-list-header-day-container{
   background-color: #fff;
   height: 50px;
-  box-shadow: 0 4px 4px rgb(0 0 0 / 20%);
+  /* box-shadow: 0 4px 4px rgb(0 0 0 / 20%); */
   border-top: 1px solid #ccc
   
 
@@ -31,7 +31,7 @@ html {
   display: inline-block;
   font-size: 0;
   z-index: 99;
-  
+  box-shadow: 0 4px 4px rgb(0 0 0 / 20%);
 }
 .trip-list-header-day-component::-webkit-scrollbar{
   display: none;
@@ -103,6 +103,7 @@ html {
   top: 0;
   left: 0;
   height: 100%;
+  box-shadow: rgb(0 0 0 / 20%) 0px 4px 4px;
 }
 .day-number{
   font-weight: 300;

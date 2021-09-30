@@ -274,30 +274,31 @@
                   }
                 },
                 init: function () {
-                  let mockFile = { name: '123'};
-                  
-                  this.emit('addedfile', mockFile, 'https://picsum.photos/200/300')
-                  // this.emit("thumbnail", mockFile, 'https://picsum.photos/200/300')
-                  
-                  // this.emit("uploadFiles", mockFile, 'https://picsum.photos/200/300')
-                  this.on('addedfile', function (file) {
-                    // this.uploadFiles(file)
-                    let imageArray = []
-                    this.files.forEach(item => {
-                      let reader = new FileReader();
-                      // 需重新宣告一次
-                      reader.readAsDataURL(item)
-                      reader.onload = function (event) {
-                        imageArray.push(this.result)
-                        // console.log(this.result);
-                        place.place_image = imageArray
-                      }
-                    })
-                  })
                   this.on('maxfilesexceeded', function () {
                     this.removeFile(this.files[10]);
                     alert('上傳圖片已超過10張')
                   })
+                  // let mockFile = { name: '123'};
+                  
+                  // this.emit('addedfile', mockFile, 'https://picsum.photos/200/300')
+                  // // this.emit("thumbnail", mockFile, 'https://picsum.photos/200/300')
+                  
+                  // // this.emit("uploadFiles", mockFile, 'https://picsum.photos/200/300')
+                  // this.on('addedfile', function (file) {
+                  //   // this.uploadFiles(file)
+                  //   let imageArray = []
+                  //   this.files.forEach(item => {
+                  //     let reader = new FileReader();
+                  //     // 需重新宣告一次
+                  //     reader.readAsDataURL(item)
+                  //     reader.onload = function (event) {
+                  //       imageArray.push(this.result)
+                  //       // console.log(this.result);
+                  //       place.place_image = imageArray
+                  //     }
+                  //   })
+                  // })
+                  
                 },
               });
               // Now fake the file upload, since GitHub does not handle file uploads

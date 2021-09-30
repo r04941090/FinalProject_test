@@ -133,8 +133,8 @@
         <div class="trip-list-day-container" ref="tripListDayContainer">
           <div class="trip-item" v-for="(TripContent, index) in rawData.TripContent" :key="TripContent.Id"
             :data-id="TripContent.Id" @mousedown="DragMouseDown">
-            <day :trip-content="TripContent" v-if="index == 0" @select-day="selectDayMethod" :show-day="showSpecificRoute"
-              :edit="edit" @select-time="selectTime">
+            <day :trip-content="TripContent" v-if="index == 0" @select-day="selectDayMethod"
+              :show-day="showSpecificRoute" :edit="edit" @select-time="selectTime">
             </day>
             <place-gps :trip-content="TripContent" v-else-if="TripContent.Type == 'Place'" @copy-data="copyPlace"
               @delete-place="getDeletePlace" :edit="edit" @select-place="ShowPlacePage">
@@ -206,7 +206,7 @@
           <i class="far fa-comment-alt trip-tools-icon"></i>
           <span class="trip-tools-content">留言</span>
         </div>
-        <div class="trip-tools-block border" @click="showTripList=!showTripList">
+        <div class="trip-tools-block" @click="showTripList=!showTripList">
           <i class="fas fa-map-marked-alt trip-tools-icon"></i>
           <span class="trip-tools-content">顯示地圖</span>
         </div>
@@ -525,7 +525,7 @@
         selectDay() {
           this.$emit('selectDay', this.tripContent)
           console.log(this.tripContent);
-          
+
         },
         selectTime() {
           this.$emit('selectTime', this.tripContent)
@@ -750,6 +750,25 @@
             console.log(this.StartDate, this.EndDate);
 
             this.calculateRoute(this.rawData.TripContent)
+          }).catch(error => {
+            console.log('error');
+            axios.get(url).then(res => {
+              console.log(res);
+
+              this.rawData = res.data
+              this.rawDataOnlyDay = this.rawData.TripContent.filter(x => x.Type == 'Day')
+              let StartDateAry = this.rawData.StartDate.split('-')
+              let EndDateAry = this.rawData.EndDate.split('-')
+              this.StartDate = this.rawData.StartDate
+              this.StartDateDisplay = `${StartDateAry[0]}年${StartDateAry[1]}月${StartDateAry[2]}日`
+              console.log(this.StartDateDisplay);
+              console.log(this.rawData);
+
+              this.EndDate = `${EndDateAry[0]}年${EndDateAry[1]}月${EndDateAry[2]}日`
+              console.log(this.StartDate, this.EndDate);
+
+              this.calculateRoute(this.rawData.TripContent)
+            })
           })
         },
         ClosePlaceDetail(AAA) {
@@ -799,7 +818,7 @@
         },
         selectDayMethod(select) {
           console.log(select);
-          
+
           if (this.rawData.TripContent.find(x => x.Day == select.Day && x.Type == 'Place') !== undefined) {
             if (this.showSpecificRoute.content == '') {
               this.showSpecificRoute.content = select
@@ -1287,8 +1306,6 @@
             fontSize: '12px',
             fontWeight: fontWeight
           }
-          const image =
-            "https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png";
           let marker = new google.maps.Marker({
             position: position,
             label: label,
@@ -1811,7 +1828,8 @@
             this.rawData.TripContent = result
             this.rawDataOnlyDay = this.rawData.TripContent.filter(x => x.Type == 'Day')
             console.log(this.rawDataOnlyDay);
-
+            console.log(this.markers);
+            
             // return
             // 移除marker、direction
             // if (this.markers.length !== 0) {
@@ -1845,11 +1863,7 @@
               item.style = ''
             })
           }
-
-          // dayItem.forEach(item => {
-          //   item.style = ''
-          // })
-          // this.$refs.box.removeChild(this.placeCard)
+          this.getData();
         },
         updateDayMove(e) {
           this.checkDayDirection(e)
