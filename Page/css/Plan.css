@@ -412,7 +412,18 @@ input:focus{
 .tool-button-wrapper {
   display: none;
 }
-
+.close-place-card{
+  height: 45px;
+  display: flex;
+  align-items: center;
+  position: absolute;
+  left: 398px;
+  width: 25px;
+  color: #ee3c77;
+  justify-content: center;
+  background-color: #fff;
+  cursor: pointer;
+}
 @media screen and (min-width: 768px) {
   .trip-list, .create-venu-box{
     position: fixed;
@@ -422,6 +433,12 @@ input:focus{
     width: 350px;
     top: 72px;
     border-radius: 5px;
+  }
+  .card{
+    left: 380px !important;
+    z-index: 1000;
+    overflow: visible !important;
+    
   }
   .searchBox{
     width: 330px;

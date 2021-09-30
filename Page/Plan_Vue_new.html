@@ -20,6 +20,11 @@
   <link rel="stylesheet" href="/css/PlanPage_button.css">
   <link rel="stylesheet" href="/css/Loading.css">
   <link rel="stylesheet" href="/css/Plan_Day.css">
+
+  <link rel="stylesheet" href="/css/map.css">
+  <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.css" />
+  <script src="https://unpkg.com/swiper/swiper-bundle.js"></script>
+
   <script src="https://unpkg.com/vue@next"></script>
 </head>
 
@@ -33,7 +38,8 @@
     <div class="outside position-relative">
       <div id="map" ref="map"></div>
       <div class="trip-list" v-show="showTripList" ref="tripList">
-        <div class="Loading-container" :style="{backgroundColor: Loading ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0)', zIndex: Loading ? '1000' : '-1'}">
+        <div class="Loading-container"
+          :style="{backgroundColor: Loading ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0)', zIndex: Loading ? '1000' : '-1'}">
           <div :class="{'sk-fading-circle': Loading}">
             <span class="Loading" style="color:#fff;">載入中 ...</span>
             <div class="sk-fading-circle1 sk-child"></div>
@@ -103,7 +109,8 @@
             </div>
           </div>
         </div>
-        <div class="trip-list-header-day-container" :style="{'height': tripListHeight}" ref="tripListHeaderDayContainer"  :class="{'edit-mode': edit}">
+        <div class="trip-list-header-day-container" :style="{'height': tripListHeight}" ref="tripListHeaderDayContainer"
+          :class="{'edit-mode': edit}">
           <div class="dayBox" ref="dayBox">
             <div class="trip-list-header-day-component" ref="tripListHeaderDayComponent">
               <div class="day-item d-inline-block" v-for="tripContent in rawDataOnlyDay" :key="tripContent.Day"
@@ -126,13 +133,13 @@
         <div class="trip-list-day-container" ref="tripListDayContainer">
           <div class="trip-item" v-for="(TripContent, index) in rawData.TripContent" :key="TripContent.Id"
             :data-id="TripContent.Id" @mousedown="DragMouseDown">
-            <day :trip-content="TripContent" v-if="index == 0" @select-day="selectDay" :show-day="showSpecificRoute"
+            <day :trip-content="TripContent" v-if="index == 0" @select-day="selectDayMethod" :show-day="showSpecificRoute"
               :edit="edit" @select-time="selectTime">
             </day>
             <place-gps :trip-content="TripContent" v-else-if="TripContent.Type == 'Place'" @copy-data="copyPlace"
-              @delete-place="getDeletePlace" :edit="edit">
+              @delete-place="getDeletePlace" :edit="edit" @select-place="ShowPlacePage">
             </place-gps>
-            <day-plus :trip-content="TripContent" v-else-if="TripContent.Type == 'Day'" @select-day="selectDay"
+            <day-plus :trip-content="TripContent" v-else-if="TripContent.Type == 'Day'" @select-day="selectDayMethod"
               :show-day="showSpecificRoute" @select-time="selectTime" :edit="edit" @add-place="changePage"></day-plus>
           </div>
           <div class="trip-item" :data-id="rawData.length + 1">
@@ -143,24 +150,27 @@
         </div>
       </div>
       <div class="create-venu-box" v-show="page == 'CreateBox'">
-        <div class="create-venu-tab" >
+        <div class="create-venu-tab">
           <div class="trip-list-header-back create-venu-tab-back" @click="changePage">
             <a href="" class="m-0"></a>
           </div>
-          <div class="create-venu-tab-search" @click="updateSelectTab('search')" :style="{'borderBottom': selectTab == 'search' ? '4px solid #ee3c77 ' : 'none'}">
+          <div class="create-venu-tab-search" @click="updateSelectTab('search')"
+            :style="{'borderBottom': selectTab == 'search' ? '4px solid #ee3c77 ' : 'none'}">
             <i class="fas fa-search" :style="{'color': selectTab == 'search' ? '#ee3c77' : '#666'}"></i>
             <span>搜尋</span>
           </div>
-          <div class="create-venu-tab-collection" @click="updateSelectTab('collection')" :style="{'borderBottom': selectTab == 'collection' ? '4px solid #ee3c77 ' : 'none'}">
+          <div class="create-venu-tab-collection" @click="updateSelectTab('collection')"
+            :style="{'borderBottom': selectTab == 'collection' ? '4px solid #ee3c77 ' : 'none'}">
             <i class="fas fa-map-marker-alt" :style="{'color': selectTab == 'collection' ? '#ee3c77' : '#666'}"></i>
             <span>景點收藏</span>
           </div>
         </div>
         <label for="" style="position: relative;" v-if="selectTab == 'search'">
-          <i class="fas fa-map-marker-alt" style="position: absolute; top: 33px; left: 18px; color: #666; font-size: 18px;"></i>
+          <i class="fas fa-map-marker-alt"
+            style="position: absolute; top: 33px; left: 18px; color: #666; font-size: 18px;"></i>
           <input type="text" ref="searchBox" placeholder="請輸入景點關鍵字" class="searchBox">
         </label>
-        
+
       </div>
       <div class="comments-minimized">
         <i class="far fa-comment-alt"></i>
@@ -168,6 +178,7 @@
           6
         </div>
       </div>
+      <place-detail @close="ShowPlaceDetail = false" v-show="ShowPlaceDetail"></place-detail>
       <div class="tool-button-wrapper">
         <div class="tool-button">
           <i class="far fa-copy trip-tools-icon mx-2"></i>
@@ -256,6 +267,221 @@
     <div class="day-card"></div>
   </template>
   <script>
+    const placeDetail = {
+      data() {
+        return {
+          selectTab: ''
+        }
+      },
+      methods: {
+        updateSelectTab(select) {
+          this.selectTab = select
+        },
+        Close() {
+          this.$emit('close')
+        }
+      },
+      emits: ['close'],
+      template: `<section class="card">
+                <div class="close-place-card" @click="Close">
+                  <i class="fas fa-times" ></i>
+                </div>
+                <div class="create-venu-tab">
+                  <div class="create-venu-tab-search" @click="updateSelectTab('search')"
+                :style="{'borderBottom': selectTab == 'search' ? '4px solid #ee3c77 ' : 'none'}">
+                  <i class="fas fa-map-marker-alt" :style="{'color': selectTab == 'search' ? '#ee3c77' : '#666'}"></i>
+                  <span>搜尋</span>
+                </div>
+                <div class="create-venu-tab-collection" @click="updateSelectTab('note')"
+                  :style="{'borderBottom': selectTab == 'note' ? '4px solid #ee3c77 ' : 'none'}">
+                  <i class="far fa-clipboard" :style="{'color': selectTab == 'note' ? '#ee3c77' : '#666'}"></i>
+                  <span>文字筆記</span>
+                </div>
+                </div>
+                  <div class="scroll-box mt-2">
+                    <h1 class="name">@Model.result.name</h1>
+                    <div class="location-photo w-100">
+                      <div style="--swiper-navigation-color: #fff; --swiper-pagination-color: #fff" class="swiper mySwiper2">
+                        <div class="swiper-wrapper">
+                          <div class="swiper-slide">
+                            <img src="@item.Url" />
+                          </div>
+                        </div>
+                      </div>
+                      <div thumbsSlider="" class="swiper mySwiper">
+                        <div class="swiper-wrapper">
+                          <div class="swiper-slide">
+                            <img src="@item.Url" />
+                          </div>
+                        </div>
+                        <div class="swiper-button-next" style="color:white;"></div>
+                        <div class="swiper-button-prev" style="color:white;"></div>
+                      </div>
+                    </div>
+                    <div class="location-info">
+                      <div class="location-info-suggest">
+                        <i class="fas fa-clock"></i>
+                        <p class="mb-auto ms-1">建議停留 1 小時 30 分鐘</p>
+                      </div>
+                      <ul>
+                        <li class="d-flex align-items-center">
+                          <i class="fas fa-map-marker-alt"></i>
+                          <p class="mb-auto ms-1">@Model.result.formatted_address</p>
+                        </li>
+                        <li class="d-flex align-items-center">
+                          <i class="fas fa-store"></i>
+                          @if (Model.result.opening_hours.open_now)
+                          {
+                          <p class="mb-auto ms-1">開放中</p>
+                          }
+                          else
+                          {
+                          <p class="mb-auto ms-1">關閉中</p>
+                          }
+                          <p class="mb-auto mx-1">11:00 - 21:30</p>
+                          <i class="fas fa-sort-down" id="timeShow"></i>
+                        </li>
+                        <!--api抓到今天的日期移至在最上面 到時用template建------------------>
+                        <ul id="timeList">
+                          @foreach (var item in Model.result.opening_hours.weekday_text)
+                          {
+                          <li class="d-flex align-items-center">
+                            <p class="mb-auto ms-1">@item</p>
+                          </li>
+                          }
+
+                          @*<li class="d-flex align-items-center">
+                            <p class="mb-auto ms-1">星期一</p>
+                            <p class="mb-auto mx-1">11:00 - 21:30</p>
+                          </li>*@
+
+                        </ul>
+                        <!--api抓到今天的日期移至在最上面 到時用template建------------------------------------------------- -->
+                        <li class="d-flex align-items-center">
+                          <i class="fas fa-globe-americas"></i>
+                          <a href="@Model.result.website" class="mb-auto ms-1">@Model.result.website</a>
+                        </li>
+                        <li class="d-flex align-items-center">
+                          <i class="fas fa-phone-alt"></i>
+                          <p class="mb-auto ms-1">+88635892352</p>
+                        </li>
+                      </ul>
+                    </div>
+                    <div class="relations w-100">
+                      <div class="relations-content">
+                        <h2>評論</h2>
+                        <div class="relations-content-wrap" style="padding-top:0;">
+                          <a href="">
+                            <div class="comment-progress">
+
+                              <div class="progress">
+                                <div class="progress-bar" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0"
+                                  aria-valuemax="100"></div>
+                              </div>
+                              <div class="progress">
+                                <div class="progress-bar" role="progressbar" style="width: 75%" aria-valuenow="75" aria-valuemin="0"
+                                  aria-valuemax="100"></div>
+                              </div>
+                              <div class="progress">
+                                <div class="progress-bar" role="progressbar" style="width: 50%" aria-valuenow="50" aria-valuemin="0"
+                                  aria-valuemax="100"></div>
+                              </div>
+                              <div class="progress">
+                                <div class="progress-bar" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0"
+                                  aria-valuemax="100"></div>
+                              </div>
+                              <div class="progress">
+                                <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                                </div>
+                              </div>
+                            </div>
+                            <div class="relations-image review">
+                              <span id="review-score">@Model.result.rating</span>
+                              <ul class="d-flex text-decoration-none review-star">
+
+                                @for (var i = 0; i < rating; i++) { <li>
+                                  <i class="fas fa-star"></i>
+                                  </li>
+                                  }
+                                  @for (var j = 0; j < (5 - rating); j++) { <li>
+                                    <i class="fas fa-star" style="color:lightgrey;"></i>
+                                    </li>
+
+                                    }
+                              </ul>
+                              <span id="review-amount">@Model.result.reviews.Length 個評論</span>
+                            </div>
+                          </a>
+                          @foreach (var item in Model.result.reviews)
+                          {
+                          <div class="relations-footer review-footer mt-3">
+                            <a href="">
+                              <img src="@item.profile_photo_url" alt="">
+                            </a>
+                            <p>@item.text</p>
+                          </div>
+                          }
+
+                        </div>
+                      </div>
+                    </div>
+                    <div class="relations w-100">
+                      <div class="relations-content">
+                        <h2>旅遊回憶</h2>
+                        <div class="relations-content-wrap">
+                          <a href="">
+                            <div class="relations-text">
+                              <h3>其實新竹很好玩｜不知道新竹要去哪裡的看這裡</h3>
+                              <p>
+                                新竹每到了秋冬就是柿子的季節～看到好多人來到這裡與一整片金黃色的柿子合照，害我也想來，來到新竹不知道要去哪的話～選擇這裡就對了💯💖-💙FB：https://www.facebook.com/iamclaireyoung
+                                💜IG：https://www.instagram.com/_claireyoung/
+                              </p>
+                            </div>
+                            <div class="relations-image">
+                              <img src="~/Assets/images/map/orange.png" alt="">
+                            </div>
+                          </a>
+                          <div class="relations-footer">
+                            <a href="">
+                              <img src="~/Assets/images/map/person1.jpg" alt="">
+                              <span>Claire</span>
+                            </a>
+                            <span class="px-1"> | </span>
+                            <span>2020/11/03</span>
+                          </div>
+                        </div>
+
+                        <div class="relations-content-wrap">
+                          <a href="">
+                            <div class="relations-text">
+                              <h3>其實新竹很好玩｜不知道新竹要去哪裡的看這裡</h3>
+                              <p>
+                                新竹每到了秋冬就是柿子的季節～看到好多人來到這裡與一整片金黃色的柿子合照，害我也想來，來到新竹不知道要去哪的話～選擇這裡就對了💯💖-💙FB：https://www.facebook.com/iamclaireyoung
+                                💜IG：https://www.instagram.com/_claireyoung/
+                              </p>
+                            </div>
+                            <div class="relations-image">
+                              <img src="~/Assets/images/map/Travel-Destinations.jpg" alt="">
+                            </div>
+                          </a>
+                          <div class="relations-footer">
+                            <a href="">
+                              <img src="~/Assets/images/map/person2.jpg" alt="">
+                              <span>Claire</span>
+                            </a>
+                            <span class="px-1"> | </span>
+                            <span>2020/11/03</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="button-group">
+                      <button class="button ms-auto" id="button-collect">加入收藏</button>
+                      <button class="button ms-auto" id="button-addtrip">加入行程</button>
+                    </div>
+                  </div>
+              </section>`
+    }
     const dayCell = {
       props: ['tripData', 'selectDay', 'edit'],
       emits: ['deleteData'],
@@ -270,7 +496,7 @@
             </div>
           </div>
         </div>`,
-        // <span>DayId: {{tripData.DayId}}</span>
+      // <span>DayId: {{tripData.DayId}}</span>
       methods: {
         deleteData() {
           this.$emit('deleteData', this.tripData)
@@ -294,10 +520,12 @@
         </div>
       </header>`,
       props: ['tripContent', 'showDay', 'edit'],
-      emit: ['selectDay', 'selectTime'],
+      emits: ['selectDay', 'selectTime'],
       methods: {
         selectDay() {
           this.$emit('selectDay', this.tripContent)
+          console.log(this.tripContent);
+          
         },
         selectTime() {
           this.$emit('selectTime', this.tripContent)
@@ -308,7 +536,7 @@
       template: `
       <div class="trip-list-venu-container" :class="{'edit': edit}">
         <div class="drag-handler" v-if="edit"></div>
-        <div class="trip-list-day-venu-time">
+        <div class="trip-list-day-venu-time" @click="ShowPlace(tripContent.PlaceName)">
           <span class="trip-list-day-venu-time-from">{{tripContent.StartTime}}</span>
           <span class="fas fa-map-marker trip-list-day-venu-number-mark" :style="{color: tripContent.Color}">
             <span class="trip-list-day-venu-number">{{tripContent.Sequence}}</span>
@@ -316,7 +544,7 @@
           <span class="trip-list-day-venu-time-to">{{tripContent.EndTime}}</span>
         </div>
         <div class="trip-list-day-venu-info">
-          <div class="trip-list-day-venu-info-detail">
+          <div class="trip-list-day-venu-info-detail" @click="ShowPlace(tripContent.PlaceName)">
             <div class="trip-list-day-venu-info-time" @click=Show>
               <i class="fas fa-clock" style= "color: #888;" v-if="!edit"></i>
               {{tripContent.StayTime}}</div>
@@ -332,7 +560,7 @@
               <i class="fas fa-trash delete-tool"></i>
               <div class="trip-list-day-venu-info-edit-func">刪除</div>
             </div>
-            <div>
+            <div @click="ShowPlace(tripContent.PlaceName)">
               <i class="fas fa-file-alt" style="font-size: 20px; color: #666;" v-if="!edit"></i>
             </div>
           </div>
@@ -356,11 +584,14 @@
       </div>`,
       // template: `<p>{{tripContent.Day}}</p>`,
       props: ['tripContent', 'edit'],
-      emits: ['copyData', 'deletePlace'],
+      emits: ['copyData', 'deletePlace', 'selectPlace'],
       methods: {
         Show() { },
         deletePlace() {
           this.$emit('deletePlace', this.tripContent)
+        },
+        ShowPlace(Place) {
+          this.$emit('selectPlace', Place)
         }
       },
     }
@@ -390,7 +621,7 @@
         </div>
       </header>`,
       props: ['tripContent', 'showDay', 'edit'],
-      emit: ['selectDay', 'selectTime', 'AddPlace'],
+      emits: ['selectDay', 'selectTime', 'AddPlace'],
       methods: {
         selectDay() {
           this.$emit('selectDay', this.tripContent)
@@ -405,11 +636,12 @@
     const App = {
       data() {
         return {
-          searchBox:'',
+          ShowPlaceDetail: false,
+          searchBox: '',
           selectTab: '',
           page: 'TripList',
           initialLoading: false,
-          Loading: false, 
+          Loading: false,
           hours: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
           minutes: ['00', '05', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55'],
           showSpecificRoute: {
@@ -447,10 +679,10 @@
             behavior: 'smooth'
           },
           x: 0,
-          interval_x: '', 
-          clientX: 0, 
-          selectRight: 0, 
-          selectLeft: 0, 
+          interval_x: '',
+          clientX: 0,
+          selectRight: 0,
+          selectLeft: 0,
 
           tripItems: [],
           tripContainer: '',
@@ -484,24 +716,27 @@
         }
       },
       methods: {
-        updateSelectTab(select){
+        updateSelectTab(select) {
           console.log(select);
           this.selectTab = select;
         },
-        changePage(){
-          if (this.page == 'TripList'){
+        changePage() {
+          if (this.page == 'TripList') {
             this.page = 'CreateBox'
             this.selectTab = 'search'
           }
-          else{
+          else {
             this.page = 'TripList'
           }
         },
-        
+
         getData() {
           this.initialLoading = true
           let url = "https://raw.githubusercontent.com/r04941090/FileStorage/master/Trip"
-          axios.get(url).then(res => {
+          let url2 = "https://localhost:44392/api/PlanApi/GetTripDetail/44"
+          axios.get(url2).then(res => {
+            console.log(res);
+
             this.rawData = res.data
             this.rawDataOnlyDay = this.rawData.TripContent.filter(x => x.Type == 'Day')
             let StartDateAry = this.rawData.StartDate.split('-')
@@ -509,10 +744,19 @@
             this.StartDate = this.rawData.StartDate
             this.StartDateDisplay = `${StartDateAry[0]}年${StartDateAry[1]}月${StartDateAry[2]}日`
             console.log(this.StartDateDisplay);
+            console.log(this.rawData);
 
             this.EndDate = `${EndDateAry[0]}年${EndDateAry[1]}月${EndDateAry[2]}日`
+            console.log(this.StartDate, this.EndDate);
+
             this.calculateRoute(this.rawData.TripContent)
           })
+        },
+        ClosePlaceDetail(AAA) {
+          this.ShowPlaceDetail = false
+        },
+        ShowPlacePage(Place) {
+          this.ShowPlaceDetail = true;
         },
         updateDayStartTime() {
           if (this.selectDayTime.Type == '下午') {
@@ -553,7 +797,9 @@
           this.selectDayTime.hour = parseInt(hour)
           this.selectDayTime.minute = minute.toString()
         },
-        selectDay(select) {
+        selectDayMethod(select) {
+          console.log(select);
+          
           if (this.rawData.TripContent.find(x => x.Day == select.Day && x.Type == 'Place') !== undefined) {
             if (this.showSpecificRoute.content == '') {
               this.showSpecificRoute.content = select
@@ -872,10 +1118,11 @@
                   let datetime = new Date(StartDateAry[0], StartDateAry[1], StartDateAry[2], DayStartTime.split(':')[0], DayStartTime.split(':')[1])
                   let stay_hour = 0;
                   let stay_minute = 0;
-                  if (selected.StayTime.split(' ').length == 1) {
+                  if (selected.StayTime.split(' ')[0].split('小時')[0] == 0) {
+                    console.log(selected.StayTime);
                     // 沒有小時
                     stay_hour = 0
-                    stay_minute = parseInt(selected.StayTime.split('分')[0])
+                    stay_minute = parseInt(selected.StayTime.split(' ')[1].split('分')[0])
                   }
                   else {
                     stay_hour = parseInt(selected.StayTime.split(' ')[0].split('小時')[0])
@@ -884,6 +1131,8 @@
                   let EndTime = new Date(datetime.getTime() + (stay_hour * 60 + stay_minute) * 60000)
                   selected.StartTime = this.changeDateFormat(datetime)
                   selected.EndTime = this.changeDateFormat(EndTime)
+                  console.log(selected.StartTime, selected.EndTime);
+
                   if (CalulateResult.CarTime.length == index) {
                     // 最後一個景點
                     selected.Car = ''
@@ -921,7 +1170,7 @@
               let selected = result.filter(x => x.DayId == item.DayId && x.Type == "Place")[0]
               let stay_hour = 0;
               let stay_minute = 0;
-              if (selected.StayTime.split(' ').length == 1) {
+              if (selected.StayTime.split(' ')[0].split('小時')[0] == 0) {
                 // 沒有小時
                 stay_hour = 0
                 stay_minute = parseInt(selected.StayTime.split('分')[0])
@@ -1407,9 +1656,9 @@
           this.ScrollOption.left = this.ScrollOption.left + 50
           this.$refs.tripListHeaderDayComponent.scroll(this.ScrollOption)
         },
-        AddDay(){
+        AddDay() {
           console.log(this.rawData);
-          
+
           // let newTotalDate = this.rawData.TotalDate + 1
           // 送出TripId、TotalDay -> 修改Trip表格中的TotalDate、增加一欄到TripDay中
         },
@@ -1427,7 +1676,7 @@
             // console.dir(document.querySelector('.trip-list-header-info'))
             // console.dir(document.querySelector('.trip-list').offsetTop)
             // console.log(document.querySelector('.trip-list-header-info').offsetHeight);
-            
+
             // 建立漂浮卡片
             let template = document.querySelector('#dayCard');
             cloneNode = template.content.cloneNode(true)
@@ -1493,7 +1742,7 @@
           // https://www.gushiciku.cn/pl/p9ck/zh-tw
           if (this.steps.length !== 0) {
             console.log(this.steps);
-            
+
             let dayItem_sort = Object.values(this.dayItems).sort((a, b) => a.dataset.id - b.dataset.id)
             let addDay = document.querySelector('.add-day');
 
@@ -1504,6 +1753,8 @@
             })
             // 深層複製
             let result = JSON.parse(JSON.stringify(this.rawData.TripContent))
+            console.log(JSON.parse(JSON.stringify(this.rawData.TripContent)));
+
             // 只交換有動到的部分
             this.steps.forEach(step => {
               let newDay = result.find(x => x.Day == step.new).Day
@@ -1527,8 +1778,10 @@
             let Day, DayId, Sequence, Color
             let Id = (document.querySelectorAll('.day-item')[0].dataset.id) * 20;
             let rawStartDateArray = this.rawData.StartDate.split('-')
-            let StartDate = new Date(rawStartDateArray[0], rawStartDateArray[1], rawStartDateArray[2])
+            console.log(rawStartDateArray);
 
+            let StartDate = new Date(rawStartDateArray[0], rawStartDateArray[1], rawStartDateArray[2])
+            let WeekDays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六']
             result.forEach(item => {
               if (item.Type == "Day") {
                 Day = item.Day
@@ -1536,7 +1789,12 @@
                 Sequence = 0
                 Color = item.Color
                 item.Date = `${StartDate.getMonth()}月${StartDate.getDate()}日`
+                // 修改日期
+                let rawDate = new Date()
                 StartDate = new Date(StartDate.setDate(StartDate.getDate() + 1))
+                let index = JSON.parse(new Date(StartDate.setDate(StartDate.getDate() + 1)).getDay())
+                // console.log((new Date(StartDate.setDate(StartDate.getDate() + 1))).getDay());
+                item.WeekDay = WeekDays[index]
               }
               else {
                 item.Day = Day
@@ -1548,8 +1806,12 @@
               item.Id = Id
               Id = Id + 1
             })
+            console.log(result);
+
             this.rawData.TripContent = result
             this.rawDataOnlyDay = this.rawData.TripContent.filter(x => x.Type == 'Day')
+            console.log(this.rawDataOnlyDay);
+
             // return
             // 移除marker、direction
             // if (this.markers.length !== 0) {
@@ -1592,7 +1854,7 @@
         updateDayMove(e) {
           this.checkDayDirection(e)
           console.log(this.selectL);
-          
+
           // 漂浮卡片移動
           this.dayCard.style.transform = `translateX(${this.x}px)`
           if (this.currentDirection == 'right') {
@@ -1668,9 +1930,9 @@
             if (changeNode.style.transform == 'translateX(0px)' || changeNode.style.transform == `translateX(${this.selectL * (-1)}px)`) {
               let moveNode = this.dayContainer.querySelector(`[data-id="${parseInt(this.currentId) + 1}"]`)
               console.log(parseInt(this.currentId) + 1);
-              
+
               console.log(moveNode);
-              
+
               moveNode.style.transform = `translateX(${this.selectL * (-1)}px)`
               this.currentId = parseInt(this.currentId) + 1
             }
@@ -1854,10 +2116,10 @@
         calcTripContainerHeight(height) {
           let H = this.$refs.tripListHeaderInfo.scrollHeight
           console.log(this.$refs.tripListHeaderDayContainer.clientHeight);
-          
+
           this.tripContainer.style.height = `calc(100% - (${this.$refs.tripListHeaderInfo.scrollHeight + height}px)`
           console.log(this.tripContainer.style.height);
-          
+
         },
       },
       watch: {
@@ -1873,62 +2135,57 @@
               show: false,
               content: {}
             }
-            if (this.edit){
+            if (this.edit) {
               this.calcTripContainerHeight(99);
             }
-            else{
+            else {
               this.calcTripContainerHeight(49);
             }
-            
+
           }
         },
         StartDate: {
           handler: function (newValue, oldValue) {
             console.log(newValue, oldValue);
-            
+
             let StartDateAry = newValue.split('-')
             let newDate = new Date(StartDateAry[0], StartDateAry[1], StartDateAry[2])
             let calcDate = new Date(StartDateAry[0], StartDateAry[1], StartDateAry[2])
-            if (oldValue !== ''){
-                this.rawData.TripContent.filter(x => x.Type == 'Day').forEach((item, index) => {
-                let calcEndDat
-                if (index == 0){
+            if (oldValue !== '') {
+              this.rawData.TripContent.filter(x => x.Type == 'Day').forEach((item, index) => {
+                if (index == 0) {
                   calcEndDate = new Date(calcDate.setDate(calcDate.getDate()))
                   item.Date = `${calcEndDate.getMonth()}月${calcEndDate.getDate()}日`
                 }
-                else{
+                else {
                   calcEndDate = new Date(calcDate.setDate(calcDate.getDate() + 1))
                   item.Date = `${calcEndDate.getMonth()}月${calcEndDate.getDate()}日`
                 }
               })
+              this.rawDataOnlyDay = this.rawData.TripContent.filter(x => x.Type == 'Day')
+              let EndDate = new Date(newDate.setDate(newDate.getDate() + this.rawData.TotalDate - 1))
+              this.StartDateDisplay = `${StartDateAry[0]}年${StartDateAry[1]}月${StartDateAry[2]}日`
+              this.rawData.StartDate = `${StartDateAry[0]}-${StartDateAry[1]}-${StartDateAry[2]}`
+              this.EndDate = `${EndDate.getFullYear()}年${EndDate.getMonth()}月${EndDate.getDate()}日`
             }
-            this.rawDataOnlyDay = this.rawData.TripContent.filter(x => x.Type == 'Day')
-            let EndDate = new Date(newDate.setDate(newDate.getDate() + this.rawData.TotalDate - 1))
-            this.StartDateDisplay = `${StartDateAry[0]}年${StartDateAry[1]}月${StartDateAry[2]}日`
-            this.EndDate = `${EndDate.getFullYear()}年${EndDate.getMonth()}月${EndDate.getDate()}日`
-            // let TotalDate = this.rawData.TotalDate
-            // for (let i = 0; i < TotalDate; i++){
-            //   let EndDate = new Date(newDate.setDate(newDate.getDate() + this.rawData.TotalDate - 1))
-            //   this.StartDateDisplay = `${StartDateAry[0]}年${StartDateAry[1]}月${StartDateAry[2]}日`
-            //   this.EndDate = `${EndDate.getMonth()}月${EndDate.getDate()}日`
-            // }
-            
             // this.rawDataOnlyDay = this.rawData.TripContent.filter(x => x.Type == 'Day')
+            // let EndDate = new Date(newDate.setDate(newDate.getDate() + this.rawData.TotalDate - 1))
+            // this.StartDateDisplay = `${StartDateAry[0]}年${StartDateAry[1]}月${StartDateAry[2]}日`
+            // this.rawData.StartDate = `${StartDateAry[0]}-${StartDateAry[1]}-${StartDateAry[2]}`
+            // this.EndDate = `${EndDate.getFullYear()}年${EndDate.getMonth()}月${EndDate.getDate()}日`
+            // console.log(EndDate, this.EndDate);
+
+            console.log(this.rawDataOnlyDay);
+            console.log(this.rawData);
           }
         },
-        // tripListHeight: {
-        //   handler: function (newValue) {
-        //     if (edit){
-              
-        //     }
-        //   }
-        // }
       },
       components: {
         day,
         placeGps,
         dayPlus,
-        dayCell
+        dayCell,
+        placeDetail
       },
 
       mounted() {

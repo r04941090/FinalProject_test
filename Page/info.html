@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="/css/map.css">
+  <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.css" />
+  <script src="https://unpkg.com/swiper/swiper-bundle.js"></script>
+</head>
+
+<body>
+  <section class="card">
+    <div class="scroll-box">
+      <h1 class="name">@Model.result.name</h1>
+      <div class="location-photo w-100">
+        <div style="--swiper-navigation-color: #fff; --swiper-pagination-color: #fff" class="swiper mySwiper2">
+          <div class="swiper-wrapper">
+            <div class="swiper-slide">
+              <img src="@item.Url" />
+            </div>
+          </div>
+        </div>
+        <div thumbsSlider="" class="swiper mySwiper">
+          <div class="swiper-wrapper">
+            <div class="swiper-slide">
+              <img src="@item.Url" />
+            </div>
+          </div>
+          <div class="swiper-button-next" style="color:white;"></div>
+          <div class="swiper-button-prev" style="color:white;"></div>
+        </div>
+      </div>
+      <div class="location-info">
+        <div class="location-info-suggest">
+          <i class="fas fa-clock"></i>
+          <p class="mb-auto ms-1">建議停留 1 小時 30 分鐘</p>
+        </div>
+        <ul>
+          <li class="d-flex align-items-center">
+            <i class="fas fa-map-marker-alt"></i>
+            <p class="mb-auto ms-1">@Model.result.formatted_address</p>
+          </li>
+          <li class="d-flex align-items-center">
+            <i class="fas fa-store"></i>
+            @if (Model.result.opening_hours.open_now)
+            {
+            <p class="mb-auto ms-1">開放中</p>
+            }
+            else
+            {
+            <p class="mb-auto ms-1">關閉中</p>
+            }
+            <p class="mb-auto mx-1">11:00 - 21:30</p>
+            <i class="fas fa-sort-down" id="timeShow"></i>
+          </li>
+          <!--api抓到今天的日期移至在最上面 到時用template建------------------>
+          <ul id="timeList">
+            @foreach (var item in Model.result.opening_hours.weekday_text)
+            {
+            <li class="d-flex align-items-center">
+              <p class="mb-auto ms-1">@item</p>
+            </li>
+            }
+
+            @*<li class="d-flex align-items-center">
+              <p class="mb-auto ms-1">星期一</p>
+              <p class="mb-auto mx-1">11:00 - 21:30</p>
+            </li>*@
+
+          </ul>
+          <!--api抓到今天的日期移至在最上面 到時用template建------------------------------------------------- -->
+          <li class="d-flex align-items-center">
+            <i class="fas fa-globe-americas"></i>
+            <a href="@Model.result.website" class="mb-auto ms-1">@Model.result.website</a>
+          </li>
+          <li class="d-flex align-items-center">
+            <i class="fas fa-phone-alt"></i>
+            <p class="mb-auto ms-1">+88635892352</p>
+          </li>
+        </ul>
+      </div>
+      <div class="relations w-100">
+        <div class="relations-content">
+          <h2>評論</h2>
+          <div class="relations-content-wrap" style="padding-top:0;">
+            <a href="">
+              <div class="comment-progress">
+
+                <div class="progress">
+                  <div class="progress-bar" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0"
+                    aria-valuemax="100"></div>
+                </div>
+                <div class="progress">
+                  <div class="progress-bar" role="progressbar" style="width: 75%" aria-valuenow="75" aria-valuemin="0"
+                    aria-valuemax="100"></div>
+                </div>
+                <div class="progress">
+                  <div class="progress-bar" role="progressbar" style="width: 50%" aria-valuenow="50" aria-valuemin="0"
+                    aria-valuemax="100"></div>
+                </div>
+                <div class="progress">
+                  <div class="progress-bar" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0"
+                    aria-valuemax="100"></div>
+                </div>
+                <div class="progress">
+                  <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                  </div>
+                </div>
+              </div>
+              <div class="relations-image review">
+                <span id="review-score">@Model.result.rating</span>
+                <ul class="d-flex text-decoration-none review-star">
+
+                  @for (var i = 0; i < rating; i++) { <li>
+                    <i class="fas fa-star"></i>
+                    </li>
+                    }
+                    @for (var j = 0; j < (5 - rating); j++) { <li>
+                      <i class="fas fa-star" style="color:lightgrey;"></i>
+                      </li>
+
+                      }
+                </ul>
+                <span id="review-amount">@Model.result.reviews.Length 個評論</span>
+              </div>
+            </a>
+            @foreach (var item in Model.result.reviews)
+            {
+            <div class="relations-footer review-footer mt-3">
+              <a href="">
+                <img src="@item.profile_photo_url" alt="">
+              </a>
+              <p>@item.text</p>
+            </div>
+            }
+
+          </div>
+        </div>
+      </div>
+      <div class="relations w-100">
+        <div class="relations-content">
+          <h2>旅遊回憶</h2>
+          <div class="relations-content-wrap">
+            <a href="">
+              <div class="relations-text">
+                <h3>其實新竹很好玩｜不知道新竹要去哪裡的看這裡</h3>
+                <p>
+                  新竹每到了秋冬就是柿子的季節～看到好多人來到這裡與一整片金黃色的柿子合照，害我也想來，來到新竹不知道要去哪的話～選擇這裡就對了💯💖-💙FB：https://www.facebook.com/iamclaireyoung
+                  💜IG：https://www.instagram.com/_claireyoung/
+                </p>
+              </div>
+              <div class="relations-image">
+                <img src="~/Assets/images/map/orange.png" alt="">
+              </div>
+            </a>
+            <div class="relations-footer">
+              <a href="">
+                <img src="~/Assets/images/map/person1.jpg" alt="">
+                <span>Claire</span>
+              </a>
+              <span class="px-1"> | </span>
+              <span>2020/11/03</span>
+            </div>
+          </div>
+
+          <div class="relations-content-wrap">
+            <a href="">
+              <div class="relations-text">
+                <h3>其實新竹很好玩｜不知道新竹要去哪裡的看這裡</h3>
+                <p>
+                  新竹每到了秋冬就是柿子的季節～看到好多人來到這裡與一整片金黃色的柿子合照，害我也想來，來到新竹不知道要去哪的話～選擇這裡就對了💯💖-💙FB：https://www.facebook.com/iamclaireyoung
+                  💜IG：https://www.instagram.com/_claireyoung/
+                </p>
+              </div>
+              <div class="relations-image">
+                <img src="~/Assets/images/map/Travel-Destinations.jpg" alt="">
+              </div>
+            </a>
+            <div class="relations-footer">
+              <a href="">
+                <img src="~/Assets/images/map/person2.jpg" alt="">
+                <span>Claire</span>
+              </a>
+              <span class="px-1"> | </span>
+              <span>2020/11/03</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="button-group">
+        <button class="button ms-auto" id="button-collect">加入收藏</button>
+        <button class="button ms-auto" id="button-addtrip">加入行程</button>
+      </div>
+    </div>
+  </section>
+  <script src="/js/map.js"></script>
+</body>
+
+</html>

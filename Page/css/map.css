@@ -1,0 +1,373 @@
+#google-map {
+    height: 100vh;
+}
+.card{
+    width:100%;
+    position:fixed;
+    top:72px;
+    left:0;
+    bottom:0;
+    background-color:white;
+    border-radius: 4px;
+    overflow:hidden;
+    box-shadow: 0 2px 8px rgb(0 0 0 / 20%);
+}
+
+.scroll-box{
+    width:100%;
+    overflow-y: scroll;
+    background-color: white;
+}
+.scroll-box::-webkit-scrollbar{
+    display: none;
+}
+.name{
+    font-size: 16px;
+    font-weight: bold;
+    width:100%;
+    padding:16px;
+    position: sticky;
+    top:0;
+    background-color: white;
+    box-shadow: 0 2px 8px rgb(0 0 0 / 20%);
+    z-index:5;
+    margin: 0;
+}
+
+.location-photo > .location-photo-main{
+    padding-top: 56.25%;
+}
+
+.location-photo > .location-photo-main > img {
+    height: 100%;
+    object-fit: cover;
+    position:absolute;
+    top:0;
+    left: 0;
+    width:100%;
+}
+
+.location-photo > .location-photo-list {
+    height:76px;
+    background-color: white;
+}
+
+.location-info{
+    font-size: 14px;
+    padding:16px;
+}
+
+.location-info > .location-info-suggest{
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.location-info i {
+    font-size: 14px;
+    width:20px;
+    text-align: center;
+}
+
+.fa-clock {
+    color:rgb(138, 138, 138);
+}
+
+.location-info > ul {
+    padding-left:0;
+    list-style: none;
+}
+
+.location-info > ul > li {
+    margin-bottom: 8px;
+}
+
+.location-info > ul > li > a{
+    color:black;
+    text-decoration: none;
+}
+
+.location-info > ul > ul{
+    padding-left:0;
+    margin-left:20px;
+    list-style: none;
+}
+
+#timeClose{
+    display:none;
+}
+
+#timeList{
+    display: none;
+}
+
+/* ---------------------------------------------------------- */
+
+.relations {
+    padding-bottom: 55px;
+}
+.relations-content {
+    border-top: 8px solid #f4f4f4;
+}
+
+.relations-content > h2 {
+    padding:16px 0 0 16px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.relations-content-wrap{
+}
+
+.relations-content-wrap > a {
+    display: flex;
+    text-decoration: none;
+}
+
+.relations-text {
+    width: 70%;
+    margin-right: 16px;
+    margin-left:0;
+}
+
+.relations-text h3 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333333;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    -webkit-line-clamp: 2;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    margin-bottom: 4px;
+}
+
+.relations-text p {
+    font-size: 12px;
+    font-weight: normal;
+    line-height: 1.33;
+    letter-spacing: normal;
+    color: #666666;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    -webkit-line-clamp: 2;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+}
+
+.relations-image{
+    width:90px;
+    height:90px;
+    margin-left:16px;
+}
+
+.relations-image > img{
+    width:100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.relations-footer{
+    display: flex;
+    padding: 0px 16px 8px 0;
+    align-items: center;
+}
+
+.relations-footer > a{
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+}
+
+.relations-footer > a > img {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    margin-right: 4px;
+}
+
+.relations-footer span {
+    font-size: 12px;
+    color: rgb(105, 105, 105);
+}
+
+.button-group{
+    background-color:white;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    left: 0;
+    padding: 8px;
+    box-shadow: 0 0 8px rgb(0 0 0 / 20%);
+    display: flex;
+}
+
+.button-group > .button{
+    width: calc(50% - 8px);
+    margin: 0 4px;
+    background: #ee3c77;
+    border-radius: 4px;
+    color: white;
+    padding: 8px;
+    box-shadow: 0 2px 8px rgb(0 0 0 / 20%);
+    margin-left: 24px;
+    font-size: 16px;
+    text-align: center;
+    border:none;
+}
+#button-addtrip:hover {
+    background-color:#b9325f;
+}
+#button-collect{
+    color: #ee3c77;
+    background: none;
+    box-shadow: none;
+}
+
+/* --------------------------------------------------------- */
+/*swiper®M¥ó*/
+.swiper {
+    width: 100%;
+    height: 100%;
+}
+
+.swiper-slide {
+    text-align: center;
+    font-size: 18px;
+    background: #fff;
+    /* Center slide text vertically */
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    -webkit-justify-content: center;
+    justify-content: center;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    -webkit-align-items: center;
+    align-items: center;
+}
+
+.swiper-slide img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.swiper {
+    width: 100%;
+    height: 300px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.swiper-slide {
+    background-size: cover;
+    background-position: center;
+}
+
+.mySwiper2 {
+    height: 200px;
+    width: 100%;
+}
+
+.mySwiper {
+    height: 80px;
+    box-sizing: border-box;
+    padding: 10px 0;
+}
+
+.mySwiper .swiper-slide {
+    width: 25%;
+    height: 100%;
+    opacity: 0.4;
+}
+
+
+.mySwiper .swiper-slide-thumb-active {
+    opacity: 1;
+}
+
+
+.swiper-slide img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.swiper-button-prev::after {
+    font-size: 16px;
+}
+
+.swiper-button-next::after {
+    font-size: 16px;
+}
+
+/* --------------------------------------------------------- */
+.comment-progress {
+    width: 65%;
+}
+
+.progress {
+    height: 10px;
+    margin: 12px 0;
+}
+
+.progress-bar {
+    background-color: #ee3c77;
+}
+
+.review {
+    width: 35%;
+    text-align: center;
+}
+
+    .review > #review-score {
+        font-size: 40px;
+        color: black;
+    }
+
+.review-star {
+    list-style: none;
+    padding-left: 0;
+    justify-content: center;
+    margin: 0;
+}
+
+    .review-star > li {
+        padding: 0 2px;
+    }
+
+        .review-star > li > i {
+            font-size: 12px;
+            color: #ee3c77;
+        }
+
+#review-amount {
+    font-size: 12px;
+}
+
+.review-footer {
+    align-items: center;
+}
+
+.review-footer > p {
+    margin: 0;
+}
+
+/* --------------------------------------------------------- */
+
+@media screen and (min-width:768px) {
+    .card{
+        width:400px;
+        bottom:16px;
+        left:16px;
+    }
+    .relations-image {
+        margin-left:0;
+    }
+}
