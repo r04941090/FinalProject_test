@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="https://unpkg.com/vue@next"></script>
+  <link
+    rel="stylesheet"
+    href="//cdn.jsdelivr.net/npm/element-plus/dist/index.css"
+  />
+  <script src="//cdn.jsdelivr.net/npm/element-plus"></script>
+  <style>
+    .el-select-dropdown__item.selected{
+      color: #ff4477;
+    }
+    .el-select .el-input.is-focus .el-input__inner{
+      border-color: #ff4477 !important;
+    }
+    .el-input__inner:focus{
+      border-color: #dcdfe6 !important;
+    }
+    .el-select-dropdown__wrap{
+      max-height: 170px;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    {{value}}
+    <el-select v-model="value" placeholder="Select" style="width: 80px;">
+      <el-option
+        v-for="item in minutes"
+        :key="item"
+        :label="item"
+        :value="item"
+      >
+      </el-option>
+    </el-select>
+  </div>
+  <script>
+    const App = {
+      data(){
+        return{
+          minutes: Array.from(Array(60).keys()),
+          value: 2
+        }
+      }
+    }
+    const test = Vue.createApp(App)
+    test.use(ElementPlus)
+    test.mount('#app')
+  </script>
+</body>
+
+</html>

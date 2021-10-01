@@ -24,8 +24,10 @@
   <link rel="stylesheet" href="/css/map.css">
   <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.css" />
   <script src="https://unpkg.com/swiper/swiper-bundle.js"></script>
-
   <script src="https://unpkg.com/vue@next"></script>
+
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/element-plus/dist/index.css" />
+  <script src="//cdn.jsdelivr.net/npm/element-plus"></script>
 </head>
 
 <body ref="body">
@@ -130,6 +132,7 @@
             </div>
           </div>
         </div>
+        <!-- Trip List -->
         <div class="trip-list-day-container" ref="tripListDayContainer">
           <div class="trip-item" v-for="(TripContent, index) in rawData.TripContent" :key="TripContent.Id"
             :data-id="TripContent.Id" @mousedown="DragMouseDown">
@@ -137,7 +140,8 @@
               :show-day="showSpecificRoute" :edit="edit" @select-time="selectTime">
             </day>
             <place-gps :trip-content="TripContent" v-else-if="TripContent.Type == 'Place'" @copy-data="copyPlace"
-              @delete-place="getDeletePlace" :edit="edit" @select-place="ShowPlacePage">
+              @delete-place="getDeletePlace" :edit="edit" @select-place="ShowPlacePage"
+              @select-stay-time="selectStayTime">
             </place-gps>
             <day-plus :trip-content="TripContent" v-else-if="TripContent.Type == 'Day'" @select-day="selectDayMethod"
               :show-day="showSpecificRoute" @select-time="selectTime" :edit="edit" @add-place="changePage"></day-plus>
@@ -151,15 +155,15 @@
       </div>
       <div class="create-venu-box" v-show="page == 'CreateBox'">
         <div class="create-venu-tab">
-          <div class="trip-list-header-back create-venu-tab-back" @click="changePage">
+          <div class="trip-list-header-back create-venu-tab-back" @click.prevent="changePage">
             <a href="" class="m-0"></a>
           </div>
-          <div class="create-venu-tab-search" @click="updateSelectTab('search')"
+          <div class="create-venu-tab-search" @click="selectTab = 'search'"
             :style="{'borderBottom': selectTab == 'search' ? '4px solid #ee3c77 ' : 'none'}">
             <i class="fas fa-search" :style="{'color': selectTab == 'search' ? '#ee3c77' : '#666'}"></i>
             <span>搜尋</span>
           </div>
-          <div class="create-venu-tab-collection" @click="updateSelectTab('collection')"
+          <div class="create-venu-tab-collection" @click="selectTab = 'collection'"
             :style="{'borderBottom': selectTab == 'collection' ? '4px solid #ee3c77 ' : 'none'}">
             <i class="fas fa-map-marker-alt" :style="{'color': selectTab == 'collection' ? '#ee3c77' : '#666'}"></i>
             <span>景點收藏</span>
@@ -236,6 +240,37 @@
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
               <button type="button" class="btn btn-primary" style="background: #ee3c77; border: none;"
                 data-bs-dismiss="modal" @click="updateDayStartTime">完成</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal fade" id="StayTime" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered d-flex justify-centent-center" style="max-width: 280px">
+          <div class="modal-content">
+            <div class="modal-body edit-time-box">
+              <div class="start-time" style="font-size: 20px; font-weight: bold; margin-bottom: 20px;">停留時間：</div>
+              <div class="d-flex justify-content-center">
+                <!-- <select class="form-select" v-model="selectDayTime.hour">
+                  <option :value="hour" v-for="hour in stayHour">{{hour}}</option>
+                </select> -->
+                <el-select v-model="selectPlaceStayTime.hour" style="width: 100%;">
+                  <el-option v-for="hour in stayHour" :key="hour" :label="hour" :value="hour"></el-option>
+                </el-select>
+                <div class="d-flex align-items-center w-50 justify-content-center">
+                  <span>小時:</span>
+                </div>
+                <el-select v-model="selectPlaceStayTime.minute" style="width: 100%;">
+                  <el-option v-for="minute in stayMinute" :key="minute" :label="minute" :value="minute"></el-option>
+                </el-select>
+                <div class="ms-1 d-flex align-items-center justify-content-center">
+                  <span>分</span>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer pt-0" style="border: none;">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+              <button type="button" class="btn btn-primary" style="background: #ee3c77; border: none;"
+                data-bs-dismiss="modal" @click="updatePlaceStayTime">完成</button>
             </div>
           </div>
         </div>
@@ -496,7 +531,6 @@
             </div>
           </div>
         </div>`,
-      // <span>DayId: {{tripData.DayId}}</span>
       methods: {
         deleteData() {
           this.$emit('deleteData', this.tripData)
@@ -547,7 +581,9 @@
           <div class="trip-list-day-venu-info-detail" @click="ShowPlace(tripContent.PlaceName)">
             <div class="trip-list-day-venu-info-time" @click=Show>
               <i class="fas fa-clock" style= "color: #888;" v-if="!edit"></i>
-              {{tripContent.StayTime}}</div>
+              <span class="edit-mode" data-bs-toggle="modal" data-bs-target="#StayTime" v-if="edit" @click="selectStayTime">{{tripContent.StayTime}}</span>
+              <span v-else class="ms-1">{{tripContent.StayTime}}</span>
+            </div>
             <div class="trip-list-day-venu-info-name">{{tripContent.PlaceName}}</div>
             <div class="trip-list-day-venu-info-address">{{tripContent.Address}}</div>
           </div>
@@ -584,14 +620,19 @@
       </div>`,
       // template: `<p>{{tripContent.Day}}</p>`,
       props: ['tripContent', 'edit'],
-      emits: ['copyData', 'deletePlace', 'selectPlace'],
+      emits: ['copyData', 'deletePlace', 'selectPlace', 'selectStayTime'],
       methods: {
         Show() { },
         deletePlace() {
           this.$emit('deletePlace', this.tripContent)
         },
         ShowPlace(Place) {
-          this.$emit('selectPlace', Place)
+          if (!this.edit) {
+            this.$emit('selectPlace', Place)
+          }
+        },
+        selectStayTime() {
+          this.$emit('selectStayTime', this.tripContent)
         }
       },
     }
@@ -644,16 +685,35 @@
           Loading: false,
           hours: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
           minutes: ['00', '05', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55'],
+          stayMinute: Array.from(Array(60).keys()),
+          stayHour: Array.from(Array(24).keys()),
           showSpecificRoute: {
             show: false,
             content: {}
           },
-          selectStartTime: '',
+          originDayTime: {
+            Type: '',
+            DayId: '',
+            hour: '',
+            minute: ''
+          },
           selectDayTime: {
             Type: '',
             DayId: '',
             hour: '',
             minute: ''
+          },
+          originPlaceStayTime: {
+            DayId: '',
+            TripDetailId: '',
+            hour: '',
+            minute: '',
+          },
+          selectPlaceStayTime: {
+            DayId: '',
+            TripDetailId: '',
+            hour: '',
+            minute: '',
           },
           StartDate: '',
           EndDate: '',
@@ -717,9 +777,9 @@
       },
       methods: {
         updateSelectTab(select) {
-          console.log(select);
           this.selectTab = select;
         },
+        // --- 切換分頁 ---
         changePage() {
           if (this.page == 'TripList') {
             this.page = 'CreateBox'
@@ -729,80 +789,128 @@
             this.page = 'TripList'
           }
         },
-
+        // --- 取得Plan資料 ---
         getData() {
           this.initialLoading = true
           let url = "https://raw.githubusercontent.com/r04941090/FileStorage/master/Trip"
-          let url2 = "https://localhost:44392/api/PlanApi/GetTripDetail/44"
+          let url2 = "https://localhost:44392/api/plan/GetPlanDetails/44"
           axios.get(url2).then(res => {
-            console.log(res);
-
+            console.log('RawData', res);
             this.rawData = res.data
             this.rawDataOnlyDay = this.rawData.TripContent.filter(x => x.Type == 'Day')
             let StartDateAry = this.rawData.StartDate.split('-')
             let EndDateAry = this.rawData.EndDate.split('-')
             this.StartDate = this.rawData.StartDate
             this.StartDateDisplay = `${StartDateAry[0]}年${StartDateAry[1]}月${StartDateAry[2]}日`
-            console.log(this.StartDateDisplay);
-            console.log(this.rawData);
-
             this.EndDate = `${EndDateAry[0]}年${EndDateAry[1]}月${EndDateAry[2]}日`
-            console.log(this.StartDate, this.EndDate);
-
             this.calculateRoute(this.rawData.TripContent)
           }).catch(error => {
-            console.log('error');
+            console.log(error);
             axios.get(url).then(res => {
-              console.log(res);
-
               this.rawData = res.data
               this.rawDataOnlyDay = this.rawData.TripContent.filter(x => x.Type == 'Day')
               let StartDateAry = this.rawData.StartDate.split('-')
               let EndDateAry = this.rawData.EndDate.split('-')
               this.StartDate = this.rawData.StartDate
               this.StartDateDisplay = `${StartDateAry[0]}年${StartDateAry[1]}月${StartDateAry[2]}日`
-              console.log(this.StartDateDisplay);
-              console.log(this.rawData);
-
               this.EndDate = `${EndDateAry[0]}年${EndDateAry[1]}月${EndDateAry[2]}日`
-              console.log(this.StartDate, this.EndDate);
-
               this.calculateRoute(this.rawData.TripContent)
             })
           })
         },
-        ClosePlaceDetail(AAA) {
-          this.ShowPlaceDetail = false
-        },
+        // --- 打開景點頁面 ---
         ShowPlacePage(Place) {
           this.ShowPlaceDetail = true;
         },
+        // --- 改變出發時間，並且重新計算時間 ---
         updateDayStartTime() {
-          if (this.selectDayTime.Type == '下午') {
-            this.selectDayTime.hour = this.selectDayTime.hour + 12
-          }
-          let selectIndex = this.rawData.TripContent.findIndex(x => x.DayId == this.selectDayTime.DayId && x.Type == 'Day')
-          let origin_hour = parseInt(this.rawData.TripContent[selectIndex].StartTime.split(':')[0])
-          let origin_minute = parseInt(this.rawData.TripContent[selectIndex].StartTime.split(':')[1])
-          let diff = (this.selectDayTime.hour * 60 + parseInt(this.selectDayTime.minute)) - (origin_hour * 60 + origin_minute)
-          this.rawData.TripContent.forEach(item => {
-            if (item.DayId == this.selectDayTime.DayId) {
-              let start_hour = parseInt(item.StartTime.split(':')[0])
-              let start_minute = parseInt(item.StartTime.split(':')[1])
-              let start_totalMinute = ((start_hour * 60) + start_minute) + diff
-              item.StartTime = `${(Math.floor(start_totalMinute / 60)).toString().padStart(2, '0')}:${(start_totalMinute % 60).toString().padStart(2, '0')}`
-              if (item.Type == 'Place') {
-                // 只有Type為Place才有EndTime
-                let end_hour = parseInt(item.EndTime.split(':')[0])
-                let end_minute = parseInt(item.EndTime.split(':')[1])
-                let end_totalMinute = ((end_hour * 60) + end_minute) + diff
-                item.EndTime = `${(Math.floor(end_totalMinute / 60)).toString().padStart(2, '0')}:${(end_totalMinute % 60).toString().padStart(2, '0')}`
-              }
+          if ((this.originDayTime.hour !== this.selectDayTime.hour) || (this.originDayTime.minute !== this.selectDayTime.minute)) {
+            if (this.selectDayTime.Type == '下午') {
+              this.selectDayTime.hour = this.selectDayTime.hour + 12
             }
-          })
+            let selectIndex = this.rawData.TripContent.findIndex(x => x.DayId == this.selectDayTime.DayId && x.Type == 'Day')
+            let origin_hour = parseInt(this.rawData.TripContent[selectIndex].StartTime.split(':')[0])
+            let origin_minute = parseInt(this.rawData.TripContent[selectIndex].StartTime.split(':')[1])
+            let diff = (this.selectDayTime.hour * 60 + parseInt(this.selectDayTime.minute)) - (origin_hour * 60 + origin_minute)
+            this.rawData.TripContent.forEach(item => {
+              if (item.DayId == this.selectDayTime.DayId) {
+                let start_hour = parseInt(item.StartTime.split(':')[0])
+                let start_minute = parseInt(item.StartTime.split(':')[1])
+                let start_totalMinute = ((start_hour * 60) + start_minute) + diff
+                item.StartTime = `${(Math.floor(start_totalMinute / 60)).toString().padStart(2, '0')}:${(start_totalMinute % 60).toString().padStart(2, '0')}`
+                if (item.Type == 'Place') {
+                  // 只有Type為Place才有EndTime
+                  let end_hour = parseInt(item.EndTime.split(':')[0])
+                  let end_minute = parseInt(item.EndTime.split(':')[1])
+                  let end_totalMinute = ((end_hour * 60) + end_minute) + diff
+                  item.EndTime = `${(Math.floor(end_totalMinute / 60)).toString().padStart(2, '0')}:${(end_totalMinute % 60).toString().padStart(2, '0')}`
+                }
+              }
+            })
+          }
+
         },
+        // --- 改變景點停留時間，並且重新計算時間 ---
+        updatePlaceStayTime() {
+          if ((this.originPlaceStayTime.hour !== this.selectPlaceStayTime.hour) || (this.originPlaceStayTime.minute !== this.selectPlaceStayTime.minute)) {
+            let selectIndex = this.rawData.TripContent.findIndex(x => x.TripDetailId == this.selectPlaceStayTime.TripDetailId && x.Type == 'Place')
+            let origin = this.parseStayTime(this.rawData.TripContent[selectIndex])
+            let origin_hour = origin.stay_hour
+            let origin_minute = origin.stay_minute
+            let diff = (this.selectPlaceStayTime.hour * 60 + parseInt(this.selectPlaceStayTime.minute)) - (origin_hour * 60 + origin_minute)
+            let start = false
+            this.rawData.TripContent.forEach(item => {
+              if (item.DayId == this.selectPlaceStayTime.DayId) {
+                if (start) {
+                  console.log(item);
+                  let start_hour = parseInt(item.StartTime.split(':')[0])
+                  let start_minute = parseInt(item.StartTime.split(':')[1])
+                  let start_totalMinute = ((start_hour * 60) + start_minute) + diff
+                  item.StartTime = `${(Math.floor(start_totalMinute / 60)).toString().padStart(2, '0')}:${(start_totalMinute % 60).toString().padStart(2, '0')}`
+                  if (item.Type == 'Place') {
+                    // 只有Type為Place才有EndTime
+                    let end_hour = parseInt(item.EndTime.split(':')[0])
+                    let end_minute = parseInt(item.EndTime.split(':')[1])
+                    let end_totalMinute = ((end_hour * 60) + end_minute) + diff
+                    item.EndTime = `${(Math.floor(end_totalMinute / 60)).toString().padStart(2, '0')}:${(end_totalMinute % 60).toString().padStart(2, '0')}`
+                  }
+                }
+                if (item.TripDetailId == this.selectPlaceStayTime.TripDetailId) {
+                  // 算到自己才開始，並且更新自己的StayTime
+                  if (this.selectPlaceStayTime.hour == 0 && this.selectPlaceStayTime.minute == 0) {
+                    item.StayTime = '0秒'
+                  }
+                  else if (this.selectPlaceStayTime.hour == 0) {
+                    item.StayTime = `${this.selectPlaceStayTime.minute}分`
+                  }
+                  else if (this.selectPlaceStayTime.minute == 0) {
+                    item.StayTime = `${this.selectPlaceStayTime.hour}小時`
+                  }
+                  else {
+                    item.StayTime = `${this.selectPlaceStayTime.hour}小時 ${this.selectPlaceStayTime.minute}分`
+                  }
+                  let end_hour = parseInt(item.EndTime.split(':')[0])
+                  let end_minute = parseInt(item.EndTime.split(':')[1])
+                  let end_totalMinute = ((end_hour * 60) + end_minute) + diff
+                  item.EndTime = `${(Math.floor(end_totalMinute / 60)).toString().padStart(2, '0')}:${(end_totalMinute % 60).toString().padStart(2, '0')}`
+                  start = true
+                }
+              }
+            })
+          }
+        },
+        // 更改景點的停留時間
+        selectStayTime(select) {
+          let stayTimeResult = this.parseStayTime(select)
+          this.selectPlaceStayTime.DayId = select.DayId
+          this.selectPlaceStayTime.TripDetailId = select.TripDetailId
+          this.selectPlaceStayTime.hour = stayTimeResult.stay_hour
+          this.selectPlaceStayTime.minute = stayTimeResult.stay_minute
+          // 複製一份，用於比較是否修改
+          this.originPlaceStayTime = { ...this.selectPlaceStayTime }
+        },
+        // 更改出發時間
         selectTime(select) {
-          this.selectStartTime = select
           let selectTime = select.StartTime.split(':')
           let hour = selectTime[0]
           let minute = selectTime[1]
@@ -815,10 +923,11 @@
           this.selectDayTime.DayId = select.DayId
           this.selectDayTime.hour = parseInt(hour)
           this.selectDayTime.minute = minute.toString()
+          // 複製一份，用於比較是否修改
+          this.originDayTime = { ...this.selectDayTime }
         },
+        // 判斷是否顯示路線
         selectDayMethod(select) {
-          console.log(select);
-
           if (this.rawData.TripContent.find(x => x.Day == select.Day && x.Type == 'Place') !== undefined) {
             if (this.showSpecificRoute.content == '') {
               this.showSpecificRoute.content = select
@@ -837,6 +946,7 @@
             this.ResetRoute(this.map);
           }
         },
+        // 刪除景點
         getDeletePlace(place) {
           console.log(place);
         },
@@ -1135,19 +1245,10 @@
                   }
                   let StartDateAry = this.rawData.StartDate.split('-')
                   let datetime = new Date(StartDateAry[0], StartDateAry[1], StartDateAry[2], DayStartTime.split(':')[0], DayStartTime.split(':')[1])
-                  let stay_hour = 0;
-                  let stay_minute = 0;
-                  if (selected.StayTime.split(' ')[0].split('小時')[0] == 0) {
-                    console.log(selected.StayTime);
-                    // 沒有小時
-                    stay_hour = 0
-                    stay_minute = parseInt(selected.StayTime.split(' ')[1].split('分')[0])
-                  }
-                  else {
-                    stay_hour = parseInt(selected.StayTime.split(' ')[0].split('小時')[0])
-                    stay_minute = parseInt(selected.StayTime.split(' ')[1].split('分')[0])
-                  }
-                  let EndTime = new Date(datetime.getTime() + (stay_hour * 60 + stay_minute) * 60000)
+
+                  let stayTime = this.parseStayTime(selected)
+
+                  let EndTime = new Date(datetime.getTime() + (stayTime.stay_hour * 60 + stayTime.stay_minute) * 60000)
                   selected.StartTime = this.changeDateFormat(datetime)
                   selected.EndTime = this.changeDateFormat(EndTime)
                   console.log(selected.StartTime, selected.EndTime);
@@ -1172,7 +1273,7 @@
                       car_hour = parseInt(CalulateResult.CarTime[index].split(' ')[0])
                       car_minute = parseInt(CalulateResult.CarTime[index].split(' ')[2])
                     }
-                    let AddCarTime = new Date(datetime.getTime() + ((car_hour + stay_hour) * 60 + (car_minute + stay_minute)) * 60000)
+                    let AddCarTime = new Date(datetime.getTime() + ((car_hour + stayTime.stay_hour) * 60 + (car_minute + stayTime.stay_minute)) * 60000)
                     DayStartTime = this.changeDateFormat(AddCarTime)
                   }
                 })
@@ -1187,18 +1288,10 @@
               let StartDateAry = this.rawData.StartDate.split('-')
               let datetime = new Date(StartDateAry[0], StartDateAry[1], StartDateAry[2], DayStartTime.split(':')[0], DayStartTime.split(':')[1])
               let selected = result.filter(x => x.DayId == item.DayId && x.Type == "Place")[0]
-              let stay_hour = 0;
-              let stay_minute = 0;
-              if (selected.StayTime.split(' ')[0].split('小時')[0] == 0) {
-                // 沒有小時
-                stay_hour = 0
-                stay_minute = parseInt(selected.StayTime.split('分')[0])
-              }
-              else {
-                stay_hour = parseInt(selected.StayTime.split(' ')[0].split('小時')[0])
-                stay_minute = parseInt(selected.StayTime.split(' ')[1].split('分')[0])
-              }
-              let EndTime = new Date(datetime.getTime() + ((stay_hour) * 60 + stay_minute) * 60000)
+
+              let stayTime = this.parseStayTime(selected)
+
+              let EndTime = new Date(datetime.getTime() + ((stayTime.stay_hour) * 60 + stayTime.stay_minute) * 60000)
               selected.StartTime = this.changeDateFormat(datetime)
               selected.EndTime = this.changeDateFormat(EndTime)
               selected.Car = ''
@@ -1209,6 +1302,27 @@
               })
             }
           })
+        },
+        parseStayTime(selected) {
+          console.log(selected);
+
+          let stayTime = {
+            stay_hour: 0,
+            stay_minute: 0
+          }
+          if (selected.StayTime.split(' ').length == 2) {
+            stayTime.stay_hour = parseInt(selected.StayTime.split(' ')[0].split('小時')[0])
+            stayTime.stay_minute = parseInt(selected.StayTime.split(' ')[1].split('分')[0])
+          }
+          else {
+            if (selected.StayTime.includes("小時")) {
+              stayTime.stay_hour = parseInt(selected.StayTime.split('小時')[0])
+            }
+            else if (selected.StayTime.includes("分")) {
+              stayTime.stay_minute = parseInt(selected.StayTime.split('分')[0])
+            }
+          }
+          return stayTime
         },
         copyPlace(place) {
           console.log(place);
@@ -1663,14 +1777,14 @@
           // scroll： jsonplaceholder.typicode.com
           let scrollObj = this.$refs.tripListHeaderDayComponent
           this.ScrollOption.left = scrollObj.scrollLeft
-          this.ScrollOption.left = this.ScrollOption.left - 50
+          this.ScrollOption.left = this.ScrollOption.left - 70
           this.$refs.tripListHeaderDayComponent.scroll(this.ScrollOption)
         },
         next() {
           // scroll： jsonplaceholder.typicode.com
           let scrollObj = this.$refs.tripListHeaderDayComponent
           this.ScrollOption.left = scrollObj.scrollLeft
-          this.ScrollOption.left = this.ScrollOption.left + 50
+          this.ScrollOption.left = this.ScrollOption.left + 70
           this.$refs.tripListHeaderDayComponent.scroll(this.ScrollOption)
         },
         AddDay() {
@@ -1829,7 +1943,7 @@
             this.rawDataOnlyDay = this.rawData.TripContent.filter(x => x.Type == 'Day')
             console.log(this.rawDataOnlyDay);
             console.log(this.markers);
-            
+
             // return
             // 移除marker、direction
             // if (this.markers.length !== 0) {
@@ -2218,7 +2332,7 @@
         window.removeEventListener("resize", this.TripListShow);
       }
     }
-    Vue.createApp(App).mount('#app');
+    Vue.createApp(App).use(ElementPlus).mount('#app');
   </script>
 </body>
 

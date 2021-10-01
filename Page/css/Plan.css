@@ -11,6 +11,23 @@ body {
   /* height: 1000px; */
   /* width: 100%; */
 }
+.el-select-dropdown__item.selected{
+  color: #ff4477 !important;
+}
+.el-select .el-input.is-focus .el-input__inner{
+  border-color: #ff4477 !important;
+}
+.el-input__inner:focus{
+  border-color: #dcdfe6 !important;
+}
+.el-select-dropdown__wrap{
+  max-height: 230px !important;
+}
+.el-select-dropdown__item{
+  height: 25px !important;
+  line-height: 25px !important;
+  text-align: center;
+}
 .create-venu-tab{
   height: 48px;
   box-shadow: 0 2px 8px rgb(0 0 0 / 20%);
@@ -149,10 +166,20 @@ body {
 .trip-list-day-venu-info-time{
   font-size: 14px;
   color: #666;
+  z-index: 100;
+  position: absolute;
+  top: -25px;
+}
+.trip-list-day-venu-info-time .edit-mode{
+  border-bottom: 1px solid #666;
+  cursor: pointer;
+  z-index: 2000;
 }
 .trip-list-day-venu-info-detail{
   font-size: 16px;
   padding-left: 5px;
+  margin-top: 23px;
+  position: relative;
 }
 .trip-list-day-venu-info-detail > div{
   margin: 5px 0px;
