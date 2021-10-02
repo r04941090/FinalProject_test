@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="https://unpkg.com/vue@next"></script>
+</head>
+<body>
+  <div id="app">
+    <input type="text" @mouseout="blur" v-model="title">
+    {{title}}
+    <a href="https://www.google.com/search?q=google&oq=google&aqs=chrome..69i57j0i131i433i512j0i433i512j69i60l3j69i65l2.2835j0j7&sourceid=chrome&ie=UTF-8">tset</a>
+  </div>
+  <script>
+    const App = {
+      data(){
+        return {
+          title: '',
+          origin_title: '',
+          titleout: false
+        }
+      },
+      methods:{
+        blur(){
+          console.log('blur');
+          this.titleout = true
+        }
+      },
+      watch: {
+        title:{
+          handler: function(oldvalue, newvalue){
+            if (this.titleout){
+              console.log(oldvalue, newvalue);
+              // titleout: false
+            }
+            this.titleout = false
+          }
+        }
+      }
+    }
+    Vue.createApp(App).mount('#app')
+  </script>
+</body>
+</html>

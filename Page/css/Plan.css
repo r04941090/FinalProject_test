@@ -440,8 +440,19 @@ input:focus{
 .tool-button-wrapper {
   display: none;
 }
+.scroll-box textarea{
+  resize: none;
+  outline: none;
+}
+.scroll-box textarea:focus-visible{
+  border: none;
+  outline: none;
+}
+.button-collect{
+
+}
 .close-place-card{
-  height: 45px;
+  height: 48px;
   display: flex;
   align-items: center;
   position: absolute;

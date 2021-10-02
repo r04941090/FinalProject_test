@@ -12,8 +12,6 @@ html {
 .trip-list-header-day-container.edit-mode{
   height: 100px;
   position: relative;
-  z-index: 500;
-  
 }
 .dayBox{
   height: 100%;

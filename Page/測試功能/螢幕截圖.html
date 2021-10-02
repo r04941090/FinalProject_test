@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script  src="http://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+</head>
+<body>
+  <div id="chart3" style="width: 100px; position: relative;">
+    Lorem ipsum dolor sit amet consectetur adipisicing elit. Qui minus nesciunt cupiditate quo laudantium vitae tempora quis ab ipsum laborum quidem tenetur magnam, officiis eveniet quasi quos similique architecto placeat?
+    <img src="" alt="" style="width: 100px; display: none; position: absolute; top: -1;bottom: 0;left: 0;right: 0;" >
+  </div>
+  <button id="btnSave" class="btn btn-danger" onclick="screenshot()">Download screenshot</button>
+  
+  <script type="text/javascript">    
+    function screenshot(){
+        html2canvas(document.getElementById('chart3')).then(function(canvas) {
+            console.log(canvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream"));
+            document.querySelector('img').style.display = 'block'
+            document.querySelector('img').src = canvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
+        });
+    }
+    function screenshot(){
+        html2canvas(this.$refs.tripListDayContainer).then(function(canvas) {
+            // console.log(canvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream"));
+            document.querySelector('img').style.display = 'block'
+            document.querySelector('img').src = canvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
+        });
+    }
+</script>
+</body>
+</html>
