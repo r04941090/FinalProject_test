@@ -463,6 +463,43 @@ input:focus{
   background-color: #fff;
   cursor: pointer;
 }
+.my-collections-content{
+  padding: 16px 8px ;
+  overflow: auto;
+  height: calc(100% - 48px);
+}
+.my-collections-list{
+  padding: 0px 8px;
+}
+.my-collections-cell{
+  width: 100%;
+  -webkit-box-shadow: 0 2px 8px rgb(0 0 0 / 20%);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 20%);
+  border-radius: 4px;
+  margin: 8px 0;
+  padding: 8px 8px 8px 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.my-collections-name{
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 190px;
+}
+.my-collections-cover{
+  height: 50px;
+  border-radius: 5px;
+  overflow: hidden;
+  width: 80px;
+  background-position: center;
+  background-size: cover;
+}
+.my-collections-cover img{
+  width: 100%;
+}
 @media screen and (min-width: 768px) {
   .trip-list, .create-venu-box{
     position: fixed;
@@ -501,6 +538,7 @@ input:focus{
     border-radius: 5px;
     border: 1px solid #aaa;
   }
+
   .trip-tools-footer {
     display: none;
   }

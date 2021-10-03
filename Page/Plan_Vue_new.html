@@ -182,6 +182,17 @@
           </label>
           <button @click="searchByBtn">搜尋</button>
         </div>
+        <div class="my-collections-content" v-show="selectTab == 'collection'">
+          <div class="my-collections-list" v-for="collection in rawData.AttractionCollection" :key="collection.PlaceName">
+            <div class="my-collections-cell" @click="searchByCollection(collection.PlaceName)">
+              <div class="my-collections-name">
+                <span>{{collection.PlaceName}}</span>
+              </div>
+              <div class="my-collections-cover" :style="{backgroundImage: `url(${collection.PlaceImage})`}">
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="comments-minimized">
         <i class="far fa-comment-alt"></i>
@@ -739,10 +750,13 @@
           if (this.page == 'TripList') {
             this.page = 'CreateBox'
             this.selectTab = 'search'
-
           }
           else {
             this.page = 'TripList'
+            if (this.ShowPlaceDetail){
+              this.ShowPlaceDetail = false
+              this.revealRouteAndMarker(false)
+            }
           }
         },
         // --- 取得Plan資料 ---
@@ -2330,6 +2344,9 @@
             Place: Place
           }
           this.searchPlace = searchPlaceType
+        },
+        searchByCollection(Place){
+          console.log(Place);
         },
         // --- 標記搜尋出來的地點 ---
         markSearchResult(loaction) {
