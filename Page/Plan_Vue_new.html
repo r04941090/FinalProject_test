@@ -37,6 +37,7 @@
       <button @click="Loading=!Loading">loading</button>
       <button @click="changePage">change-page</button>
       <button @click="screenshot">screenshot</button>
+      <button @click="revealRouteAndMarker">revealAllMarker</button>
       <span style="color: #fff;">{{page}} | {{initialLoading}}</span>
     </div>
     <div class="outside position-relative">
@@ -157,7 +158,7 @@
           <!-- <img :src="coverImage" alt="" style="width: 350px; position: absolute; top: -1;bottom: 0;left: 0;right: 0;" v-show="Loading"> -->
         </div>
       </div>
-      <div class="create-venu-box" v-if="page == 'CreateBox'">
+      <div class="create-venu-box" v-show="page == 'CreateBox'">
         <div class="create-venu-tab">
           <div class="trip-list-header-back create-venu-tab-back" @click.prevent="changePage">
             <a href="" class="m-0"></a>
@@ -173,12 +174,14 @@
             <span>景點收藏</span>
           </div>
         </div>
-        <label for="" style="position: relative;" v-if="selectTab == 'search'">
-          <i class="fas fa-map-marker-alt"
-            style="position: absolute; top: 33px; left: 18px; color: #666; font-size: 18px;"></i>
-          <input type="text" ref="searchBox" placeholder="請輸入景點關鍵字" class="searchBox">
-        </label>
-
+        <div class="search-box" v-show="selectTab == 'search'">
+          <label for="" style="position: relative;">
+            <i class="fas fa-map-marker-alt"
+              style="position: absolute; top: 33px; left: 18px; color: #666; font-size: 18px;"></i>
+            <input type="text" ref="searchBox" placeholder="景點關鍵字" class="searchBox">
+          </label>
+          <button @click="searchByBtn">搜尋</button>
+        </div>
       </div>
       <div class="comments-minimized">
         <i class="far fa-comment-alt"></i>
@@ -187,7 +190,8 @@
         </div>
       </div>
       <!-- place-detail -->
-      <place-detail @close="ShowPlaceDetail = false" v-show="ShowPlaceDetail" :search-place="searchPlace" @update-note="updateNote"></place-detail>
+      <place-detail @close="revealRouteAndMarker(false)" v-show="ShowPlaceDetail" :select-place="searchPlace"
+        @update-note="updateNote" @update-search-result="markSearchResult" @add-place="addPlace"></place-detail>
       <div class="tool-button-wrapper">
         <div class="tool-button">
           <i class="far fa-copy trip-tools-icon mx-2"></i>
@@ -313,16 +317,17 @@
           url_UpdatePlaceNote: 'https://localhost:44392/api/plan/UpdatePlaceNote',
           origin_note: '',
           selectTab: 'search',
-          searchResult: ''
+          searchResult: '',
+          PlaceName: ''
         }
       },
       template: `
         <section class="card">
           <div class="close-place-card" @click="Close">
-            <i class="fas fa-times" ></i>
+            <i class="fas fa-times"></i>
           </div>
-          <div class="create-venu-tab">
-            <div class="create-venu-tab-search" @click="updateSelectTab('search')"
+          <div class="create-venu-tab" v-show="!selectPlace.searchBoxPlace">
+            <div class="create-venu-tab-search" @click="!updateSelectTab('search')"
           :style="{'borderBottom': selectTab == 'search' ? '4px solid #ee3c77 ' : 'none'}">
             <i class="fas fa-map-marker-alt" :style="{'color': selectTab == 'search' ? '#ee3c77' : '#666'}"></i>
             <span>搜尋</span>
@@ -334,24 +339,24 @@
           </div>
           </div>
             <div class="scroll-box mt-2">
-              <h1 class="name" class="border-bottom" style= "box-shadow:none">{{searchPlace.PlaceName}}</h1>
+              <h1 class="name" class="border-bottom" style= "box-shadow:none; padding: 10px;">{{PlaceName}}</h1>
               <div v-if="selectTab == 'search'">
                 <p>{{searchResult}}</p>
                 <div class="button-group">
                   <button class="button ms-auto" id="button-collect">加入收藏</button>
-                  <button class="button ms-auto" id="button-addtrip">加入行程</button>
+                  <button class="button ms-auto" id="button-addtrip" @click="AddPlace">加入行程</button>
                 </div>
               </div>
               <div v-else>
-                <textarea name="" id="" cols="30" rows="10" style="height: 500px; width: 100%; border: none; padding: 20px 15px;" v-model="searchPlace.Note"></textarea>
+                <textarea name="" id="" cols="30" rows="10" style="height: 500px; width: 100%; border: none; padding: 20px 15px;" v-model="selectPlace.Place.Note"></textarea>
                 <div class="button-group">
-                  <button class="button ms-auto" id="button-save" style="width: calc(100% - 8px);" @click="SaveNote" :disabled="origin_note == searchPlace.Note" :style="{'background': origin_note == searchPlace.Note ? '#ccc' : '#ee3c77'}">儲存</button>
+                  <button class="button ms-auto" id="button-save" style="width: calc(100% - 8px);" @click="SaveNote" :disabled="origin_note == selectPlace.Place.Note" :style="{'background': origin_note == selectPlace.Note ? '#ccc' : '#ee3c77'}">儲存</button>
                 </div>
               </div>
             </div>
         </section>`,
-      props: ['searchPlace'],
-      emits: ['close', 'updateNote'],
+      props: ['selectPlace'],
+      emits: ['close', 'updateNote', 'updateSearchResult', 'addPlace'],
       methods: {
         updateSelectTab(select) {
           this.selectTab = select
@@ -359,33 +364,53 @@
         Close() {
           this.$emit('close')
           this.selectTab = 'search'
-          this.searchPlace = ''
+          this.selectPlace = ''
           this.searchResult = ''
         },
-        SaveNote(){
+        SaveNote() {
           axios.put(this.url_UpdatePlaceNote, {
-            TripDetailsId: this.searchPlace.TripDetailsId,
-            Note: this.searchPlace.Note
+            TripDetailsId: this.selectPlace.Place.TripDetailsId,
+            Note: this.selectPlace.Place.Note
           }).then(res => {
-            console.log(res);
-            if (res.data.IsSuccessful){
+            if (res.data.IsSuccessful) {
               // 如果資料庫更新成功，則傳回去父層更新
-              this.$emit('updateNote', this.searchPlace)
+              this.$emit('updateNote', this.selectPlace.Place)
+            }
+          })
+        },
+        AddPlace() {
+          let PlaceDetail = {
+            PlaceName: PlaceName,
+            PlaceCity: this.searchResult.plus_code.compound_code.split(' ')[1]
+          }
+          console.log(PlaceDetail);
+          this.$emit('addPlace', PlaceDetail)
+        }
+      },
+      watch: {
+        selectPlace: function () {
+          this.PlaceName = this.selectPlace.Place.PlaceName
+          console.log(this.selectPlace);
+
+          if (!this.selectPlace.searchBoxPlace) {
+            this.origin_note = this.selectPlace.Place.Note
+          }
+          // let searchPlaceType = {
+          //   searchBoxPlace: false,
+          //   Place: Place
+          // }
+          console.log(this.selectPlace, 'inside');
+          axios.get(`${this.url_GetSearch}${this.selectPlace.Place.PlaceName}`).then(res => {
+            console.log(res.data.result);
+            this.searchResult = res.data.result
+            PlaceName = res.data.result.name // 景點完整的名字
+            if (this.selectPlace.searchBoxPlace) {
+              this.$emit('updateSearchResult', res.data.result.geometry.location)
             }
           })
         }
-      },
-      watch:{
-        searchPlace: function(){
-          this.origin_note = this.searchPlace.Note
-          console.log(this.searchPlace.PlaceName, 'inside');
-          axios.get(`${this.url_GetSearch}${this.searchPlace.PlaceName}`).then(res => {
-            console.log(res.data.result);
-            this.searchResult = res.data.result
-          })
-        }
       }
-      
+
     }
     const dayCell = {
       template: `
@@ -559,6 +584,7 @@
             url_AddPlanDay: 'https://localhost:44392/api/plan/AddPlanDay',
             url_AddPlaceToPlan: 'https://localhost:44392/api/plan/AddPlaceToPlan'
           },
+          revealAllMarkers: false,
           coverImage: '',
           ShowPlaceDetail: false,
           searchBox: '',
@@ -612,6 +638,7 @@
           directionsService: '',
           directionsRenderersData: [],
           markersData: [],
+          placeMarker: '',
           placeCard: '',
 
           dayContainer: '',
@@ -712,6 +739,7 @@
           if (this.page == 'TripList') {
             this.page = 'CreateBox'
             this.selectTab = 'search'
+
           }
           else {
             this.page = 'TripList'
@@ -750,9 +778,17 @@
         ShowPlacePage(Place) {
           console.log(Place);
           this.ShowPlaceDetail = true;
-          this.searchPlace = Place
+          let searchPlaceType = {
+            searchBoxPlace: false,
+            Place: Place
+          }
+          this.searchPlace = searchPlaceType
           console.log(this.searchPlace);
-          
+          console.log(this.markersData);
+          this.revealRouteAndMarker(true);
+          let selectMarker = this.markersData.filter(x => x.TripDetailsId == Place.TripDetailsId)[0].marker
+          selectMarker.setVisible(true)
+          this.map.setCenter(selectMarker.getPosition());
         },
         // --- 改變出發時間，並且重新計算時間 ---
         updateDayStartTime() {
@@ -928,7 +964,7 @@
             this.getData();
           })
         },
-        updateNote(place){
+        updateNote(place) {
           this.rawData.TripContent.filter(x => x.TripDetailsId == place.TripDetailsId).Note = place.Note
         },
         DragMouseDown(e) {
@@ -1073,6 +1109,49 @@
             })
           }
         },
+        // --- 決定是否隱藏路線、標記 ---
+        revealRouteAndMarker(revealAllMarkers) {
+          let map = this.map
+          if (revealAllMarkers) {
+            // 隱藏
+            this.directionsRenderersData.forEach(directionsRendererData => {
+              directionsRendererData.directionsRenderer.setMap(null)
+            })
+            this.markersData.forEach(markerData => {
+              markerData.marker.setVisible(false)
+            })
+          }
+          else {
+            // 顯示
+            if (this.placeMarker !== '') {
+              this.placeMarker.setVisible(false);
+            }
+            this.placeMarker = ''
+            this.directionsRenderersData.forEach(directionsRendererData => {
+              this.directionsService = new google.maps.DirectionsService();
+              this.directionsService.route({
+                origin: {
+                  query: directionsRendererData.origin
+                },
+                destination: directionsRendererData.destination,
+                waypoints: directionsRendererData.waypoint,
+                travelMode: google.maps.TravelMode.DRIVING,
+                provideRouteAlternatives: false
+              }, function (res, status) {
+                directionsRendererData.directionsRenderer.setOptions({
+                  map: map
+                })
+                directionsRendererData.directionsRenderer.setDirections(res);
+              })
+            })
+            this.markersData.forEach(markerData => {
+              markerData.marker.setVisible(true)
+            })
+            // 全部顯示代表頁面關掉
+            this.ShowPlaceDetail = false
+          }
+        },
+        // --- 顯示有點擊的路線 ---
         ResetRoute(map) {
           if (this.showSpecificRoute.content.Day == undefined) {
             if (this.markersData.length !== 0) {
@@ -1142,6 +1221,7 @@
             }
           }
         },
+        // --- 用非同步的方式計算路線 ---
         async calculateRoute(result) {
           // 移除marker、direction
           if (this.markersData.length !== 0) {
@@ -1197,9 +1277,21 @@
           }
           console.log('end');
           this.rawData.TripContent = JSON.parse(JSON.stringify(result))
+
+          // 更新markersData裡的TripDetailsId
+          let TotalTripDetailsId = this.rawData.TripContent.filter(x => x.TripDetailsId !== 0);
+          console.log(TotalTripDetailsId);
+
+          this.markersData.forEach((item, index) => {
+            item.TripDetailsId = TotalTripDetailsId[index].TripDetailsId
+          })
+          console.log(this.markersData);
           this.initialLoading = false
           this.Loading = false
+
+
         },
+        // --- 標記多個地點與路線 (Promise) ---
         markRouteAndPlace(item, result, i) {
           return new Promise((resolve) => {
             let loactions = {
@@ -1272,6 +1364,7 @@
             })
           })
         },
+        // --- 標記一個地點 (Promise) ---
         markOnePlace(item, result, i) {
           return new Promise(resolve => {
             let DayStartTime = result.filter(x => x.DayId == item.DayId && x.Type == "Day")[0].StartTime
@@ -1285,12 +1378,14 @@
             selected.StartTime = this.changeDateFormat(datetime)
             selected.EndTime = this.changeDateFormat(EndTime)
             selected.Car = ''
-            this.findPlace(item.DayId, item.Places[0], this.markLabel, selected, item.Color).then(res => {
+
+            this.findPlace(item.DayId, item.Places[0], item.Color, this.markLabel, selected).then(res => {
               console.log(i);
               resolve(i)
             })
           })
         },
+        // --- 解析停留時間成stay_hour/stay_minute ---
         parseStayTime(selected) {
           let stayTime = {
             stay_hour: 0,
@@ -1310,12 +1405,25 @@
           }
           return stayTime
         },
+        // --- 複製景點，複製到該天的最後一個 ---
         copyPlace(place) {
           console.log(place);
           let selectDayContent = this.rawData.TripContent.filter(x => x.DayId == place.DayId)
+          this.updatePlaceToPlan(place, selectDayContent, place.DayId)
+        },
+        // --- 增加景點，增加在第一天的最後一個 ---
+        addPlace(place) {
+          let selectDayId = this.rawData.TripContent[0].DayId
+          let selectDayContent = this.rawData.TripContent.filter(x => x.DayId == selectDayId)
+          console.log(place, selectDayContent, selectDayId);
+
+          this.updatePlaceToPlan(place, selectDayContent, selectDayId)
+        },
+        // --- 將景點增加至資料庫 ---
+        updatePlaceToPlan(place, selectDayContent, selectDayId) {
           let request = {
             TripId: this.rawData.TripId,
-            DayId: place.DayId,
+            DayId: selectDayId,
             Sequence: selectDayContent[selectDayContent.length - 1].Sequence + 1,
             PlaceName: place.PlaceName,
             PlaceCity: place.PlaceCity,
@@ -1323,16 +1431,21 @@
             Note: ''
           }
           console.log(request);
-
           axios.post(this.urls.url_AddPlaceToPlan, request).then(res => {
             console.log(res);
             if (res.data.IsSuccessful) {
+              this.page = 'TripList'
               this.initialLoading = true
+              this.ShowPlaceDetail = false
+              if (this.placeMarker !== '') {
+                this.placeMarker.setVisible(false);
+              }
+              this.placeMarker = ''
               this.getData();
             }
           })
         },
-        findPlace(DayId, Place, markLabel, selected, color) {
+        findPlace(DayId, Place, color, markLabel, selected) {
           return new Promise((resolve, reject) => {
             let request = {
               query: Place,
@@ -1433,7 +1546,8 @@
           })
           let markerData = {
             marker: marker,
-            DayId: DayId
+            DayId: DayId,
+            TripDetailsId: ''
           }
           this.markersData.push(markerData)
         },
@@ -2182,7 +2296,6 @@
             mapTypeControl: false
             // streetViewControl: false
           })
-
         },
         TripListShow(e) {
           if (e.target.innerWidth >= 768) {
@@ -2195,8 +2308,41 @@
 
           this.tripContainer.style.height = `calc(100% - (${this.$refs.tripListHeaderInfo.scrollHeight + height}px)`
           console.log(this.tripContainer.style.height);
-
         },
+        // --- 在searchBox按下Enter ---
+        updateSearchBox() {
+          this.searchBox = new google.maps.places.SearchBox(this.$refs.searchBox);
+          this.searchBox.addListener('places_changed', () => {
+            console.log(this.$refs.searchBox.value);
+            this.searchByBtn();
+          })
+        },
+        // --- 按下搜尋按鈕 ---
+        searchByBtn() {
+          console.log(this.$refs.searchBox.value);
+          this.ShowPlaceDetail = true
+          let Place = {
+            PlaceName: this.$refs.searchBox.value,
+            Note: ''
+          }
+          let searchPlaceType = {
+            searchBoxPlace: true,
+            Place: Place
+          }
+          this.searchPlace = searchPlaceType
+        },
+        // --- 標記搜尋出來的地點 ---
+        markSearchResult(loaction) {
+          this.revealRouteAndMarker(true)
+          if (this.placeMarker !== '') {
+            this.placeMarker.setVisible(false);
+          }
+          this.placeMarker = new google.maps.Marker({
+            position: loaction,
+            map: this.map,
+          })
+          this.map.setCenter(loaction);
+        }
       },
       watch: {
         rawData: {
@@ -2271,7 +2417,7 @@
 
       mounted() {
         this.tripContainer = this.$refs.tripListDayContainer
-        this.searchBox = new google.maps.places.SearchBox(this.$refs.searchBox);
+        this.updateSearchBox()
         this.initialLoading = true
         this.getData();
         this.InitMap();

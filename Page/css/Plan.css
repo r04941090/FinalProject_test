@@ -479,11 +479,27 @@ input:focus{
     overflow: visible !important;
     
   }
+  .search-box{
+    display: flex;
+    align-items: center;
+  }
+  .search-box button{
+    height: 40px;
+    background: #ee3c77;
+    -webkit-box-shadow: 0 2px 8px rgb(0 0 0 / 20%);
+    box-shadow: 0 2px 8px rgb(0 0 0 / 20%);
+    color: #fff;
+    border-radius: 4px;
+    width: 50px;
+    border: none;
+
+  }
   .searchBox{
-    width: 330px;
+    width: 275px;
     padding: 8px 0px 8px 30px;
-    margin:20px 10px;
-    
+    margin: 20px 8px 20px 10px;
+    border-radius: 5px;
+    border: 1px solid #aaa;
   }
   .trip-tools-footer {
     display: none;
