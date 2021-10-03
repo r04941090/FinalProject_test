@@ -39,6 +39,9 @@
       <button @click="screenshot">screenshot</button>
       <button @click="revealRouteAndMarker">revealAllMarker</button>
       <span style="color: #fff;">{{page}} | {{initialLoading}}</span>
+
+      <el-button plain @click="open1"> Success </el-button>
+      <el-button plain @click="open2"> Error </el-button>
     </div>
     <div class="outside position-relative">
       <div id="map" ref="map"></div>
@@ -183,7 +186,8 @@
           <button @click="searchByBtn">搜尋</button>
         </div>
         <div class="my-collections-content" v-show="selectTab == 'collection'">
-          <div class="my-collections-list" v-for="collection in rawData.AttractionCollection" :key="collection.PlaceName">
+          <div class="my-collections-list" v-for="collection in rawData.AttractionCollection"
+            :key="collection.PlaceName">
             <div class="my-collections-cell" @click="searchByCollection(collection.PlaceName)">
               <div class="my-collections-name">
                 <span>{{collection.PlaceName}}</span>
@@ -202,7 +206,8 @@
       </div>
       <!-- place-detail -->
       <place-detail @close="revealRouteAndMarker(false)" v-show="ShowPlaceDetail" :select-place="searchPlace"
-        @update-note="updateNote" @update-search-result="markSearchResult" @add-place="addPlace"></place-detail>
+        @update-note="updateNote" @update-search-result="markSearchResult" @add-place="addPlace"
+        @add-collection="addCollection"></place-detail>
       <div class="tool-button-wrapper">
         <div class="tool-button">
           <i class="far fa-copy trip-tools-icon mx-2"></i>
@@ -326,10 +331,16 @@
         return {
           url_GetSearch: 'https://localhost:44392/api/plan/GetMapDetail/?search=',
           url_UpdatePlaceNote: 'https://localhost:44392/api/plan/UpdatePlaceNote',
+
           origin_note: '',
           selectTab: 'search',
           searchResult: '',
-          PlaceName: ''
+          PlaceName: '',
+          CollectionPlace: {
+            PlaceImage: '',
+            PlaceName: '',
+            PlaceTypeId: 7
+          }
         }
       },
       template: `
@@ -354,20 +365,20 @@
               <div v-if="selectTab == 'search'">
                 <p>{{searchResult}}</p>
                 <div class="button-group">
-                  <button class="button ms-auto" id="button-collect">加入收藏</button>
+                  <button class="button ms-auto" id="button-collect" :disabled="this.selectPlace.collection" :style="{'background':this.selectPlace.collection ? '#ccc' : '#fff', 'color': this.selectPlace.collection ? '#fff' : '#ee3c77'}" @click="AddToCollection">加入收藏</button>
                   <button class="button ms-auto" id="button-addtrip" @click="AddPlace">加入行程</button>
                 </div>
               </div>
               <div v-else>
                 <textarea name="" id="" cols="30" rows="10" style="height: 500px; width: 100%; border: none; padding: 20px 15px;" v-model="selectPlace.Place.Note"></textarea>
                 <div class="button-group">
-                  <button class="button ms-auto" id="button-save" style="width: calc(100% - 8px);" @click="SaveNote" :disabled="origin_note == selectPlace.Place.Note" :style="{'background': origin_note == selectPlace.Note ? '#ccc' : '#ee3c77'}">儲存</button>
+                  <button class="button ms-auto" id="button-save" style="width: calc(100% - 8px);" @click="SaveNote" :disabled="origin_note == selectPlace.Place.Note" :style="{'background': origin_note == selectPlace.Place.Note ? '#ccc' : '#ee3c77'}">儲存</button>
                 </div>
               </div>
             </div>
         </section>`,
       props: ['selectPlace'],
-      emits: ['close', 'updateNote', 'updateSearchResult', 'addPlace'],
+      emits: ['close', 'updateNote', 'updateSearchResult', 'addPlace', 'addCollection'],
       methods: {
         updateSelectTab(select) {
           this.selectTab = select
@@ -396,6 +407,12 @@
           }
           console.log(PlaceDetail);
           this.$emit('addPlace', PlaceDetail)
+        },
+        AddToCollection() {
+          this.CollectionPlace.PlaceName = this.PlaceName
+          // 將圖片轉成url後上傳至雲端
+          this.CollectionPlace.PlaceImage = 'https://picsum.photos/id/145/600/400'
+          this.$emit('addCollection', this.CollectionPlace)
         }
       },
       watch: {
@@ -440,7 +457,7 @@
       methods: {
         deleteData() {
           this.$emit('deleteData', this.tripData)
-        }
+        },
       }
     }
     const day = {
@@ -579,12 +596,14 @@
         }
       }
     }
-
+    const { ElNotification } = ElementPlus;
     const App = {
       data() {
         return {
           urls: {
+            // 需要修改傳入的TripId
             url_GetPlanDetails: 'https://localhost:44392/api/plan/GetPlanDetails/44',
+            url_GetAttractionCollection: 'https://localhost:44392/api/plan/GetAttractionCollection/',
             url_UpdatePlaceStayTime: 'https://localhost:44392/api/plan/UpdatePlaceStayTime',
             url_UpdateTrip: 'https://localhost:44392/api/plan/UpdateTrip',
             url_UpdateDayStartTime: 'https://localhost:44392/api/plan/UpdateDayStartTime',
@@ -593,7 +612,8 @@
             url_DeletePlace: 'https://localhost:44392/api/plan/DeletePlace',
             url_DeleteDay: 'https://localhost:44392/api/plan/DeleteDay',
             url_AddPlanDay: 'https://localhost:44392/api/plan/AddPlanDay',
-            url_AddPlaceToPlan: 'https://localhost:44392/api/plan/AddPlaceToPlan'
+            url_AddPlaceToPlan: 'https://localhost:44392/api/plan/AddPlaceToPlan',
+            url_AddAttractionCollection: 'https://localhost:44392/api/plan/AddAttractionCollection'
           },
           revealAllMarkers: false,
           coverImage: '',
@@ -727,6 +747,34 @@
         //       });
         //     })
         // },
+
+        open1() {
+          ElNotification({
+            title: '',
+            message: '刪除成功',
+            type: 'success',
+            duration: 1000,
+            position: 'bottom-right'
+          })
+        },
+        open2() {
+          ElNotification({
+            title: '',
+            message: '刪除失敗',
+            type: 'error',
+            duration: 1000,
+            position: 'bottom-right'
+          })
+        },
+        Notification(message, type) {
+          ElNotification({
+            message: message,
+            type: type,
+            duration: 2000,
+            position: 'bottom-right'
+          })
+        },
+        // --- 修改標題 ---
         changeTripTitle() {
           if (this.TripTitle !== this.rawData.TripTitle) {
             axios.put(this.urls.url_UpdateTrip, {
@@ -734,10 +782,13 @@
               TripTitle: this.rawData.TripTitle,
               StartDate: this.rawData.StartDate
             }).then(res => {
-              if (!res.data.IsSuccessful) {
+              if (res.data.IsSuccessful) {
+                this.Notification('修改成功', 'success')
+              }
+              else{
                 // 變回原樣
                 this.rawData.TripTitle = this.TripTitle
-                alert(res.data.Exception.Message)
+                this.Notification('修改失敗', 'error')
               }
             })
           }
@@ -753,7 +804,7 @@
           }
           else {
             this.page = 'TripList'
-            if (this.ShowPlaceDetail){
+            if (this.ShowPlaceDetail) {
               this.ShowPlaceDetail = false
               this.revealRouteAndMarker(false)
             }
@@ -762,6 +813,7 @@
         // --- 取得Plan資料 ---
         getData() {
           let url = "https://raw.githubusercontent.com/r04941090/FileStorage/master/Trip"
+          this.initialLoading = true
           axios.get(this.urls.url_GetPlanDetails).then(res => {
             console.log('RawData', res);
             this.rawData = res.data
@@ -806,14 +858,10 @@
         },
         // --- 改變出發時間，並且重新計算時間 ---
         updateDayStartTime() {
-          console.log('enter');
-
           if ((this.originDayTime.hour !== this.selectDayTime.hour) || (this.originDayTime.minute !== this.selectDayTime.minute)) {
             if (this.selectDayTime.Type == '下午') {
               this.selectDayTime.hour = this.selectDayTime.hour + 12
             }
-            console.log(this.selectDayTime.DayId, `${this.selectDayTime.hour.toString().padStart(2, '0')}:${this.selectDayTime.minute.toString().padStart(2, '0')}:00`);
-
             axios.put(this.urls.url_UpdateDayStartTime, {
               DayId: this.selectDayTime.DayId,
               StartTime: `${this.selectDayTime.hour.toString().padStart(2, '0')}:${this.selectDayTime.minute.toString().padStart(2, '0')}:00`
@@ -838,6 +886,10 @@
                     }
                   }
                 })
+                this.Notification('修改成功', 'success')
+              }
+              else{
+                this.Notification('修改失敗', 'error')
               }
             })
           }
@@ -902,6 +954,10 @@
                     }
                   }
                 })
+                this.Notification('修改成功', 'success')
+              }
+              else {
+                this.Notification('修改失敗', 'error')
               }
             })
           }
@@ -963,19 +1019,26 @@
           console.log(place);
           axios.delete(`${this.urls.url_DeletePlace}/${place.TripDetailsId}`).then(res => {
             console.log(res);
-            // this.Loading = true
-            this.initialLoading = true
-            this.getData();
+            if (res.data.IsSuccessful) {
+              this.Notification('刪除成功', 'success')
+              this.getData();
+            }
+            else {
+              this.Notification('刪除失敗', 'error')
+            }
           })
         },
         // --- 刪除天 ---
         DeleteData(day) {
           console.log('Delete', day);
           axios.delete(`${this.urls.url_DeleteDay}/${day.DayId}`).then(res => {
-            console.log(res);
-            // this.Loading = true
-            this.initialLoading = true
-            this.getData();
+            if (res.data.IsSuccessful) {
+              this.Notification('刪除成功', 'success')
+              this.getData();
+            }
+            else {
+              this.Notification('刪除失敗', 'error')
+            }
           })
         },
         updateNote(place) {
@@ -1104,8 +1167,14 @@
             axios.put(this.urls.url_UpdatePlaceSequence, {
               PlaceSequenceDetail: PlaceSequenceDetail
             }).then(res => {
-              console.log(res);
-              this.getData();
+              if (res.data.IsSuccessful) {
+                this.Notification('修改成功', 'success')
+                console.log(res);
+                this.getData();
+              }
+              else {
+                this.Notification('修改失敗', 'error')
+              }
             })
             this.tripItems.forEach(trip => {
               trip.style.transitionDuration = '10ms'
@@ -1455,7 +1524,11 @@
                 this.placeMarker.setVisible(false);
               }
               this.placeMarker = ''
+              this.Notification('新增成功', 'success')
               this.getData();
+            }
+            else {
+              this.Notification('新增失敗', 'error')
             }
           })
         },
@@ -1928,8 +2001,11 @@
           }).then(res => {
             console.log(res);
             if (res.data.IsSuccessful) {
-              this.initialLoading = true;
+              this.Notification('新增成功', 'success')
               this.getData();
+            }
+            else {
+              this.Notification('新增失敗', 'error')
             }
           })
         },
@@ -2035,8 +2111,14 @@
               DaySequenceDetail: DaySequenceDetail
             }).then(res => {
               console.log(res);
-              // 重新讀資料庫的資料
-              this.getData();
+              if (res.data.IsSuccessful) {
+                this.Notification('修改成功', 'success')
+                // 重新讀資料庫的資料
+                this.getData();
+              }
+              else{
+                this.Notification('修改失敗', 'error')
+              }
             })
             this.dayItems.forEach(item => {
               item.style.transitionDuration = '10ms'
@@ -2341,12 +2423,46 @@
           }
           let searchPlaceType = {
             searchBoxPlace: true,
-            Place: Place
+            Place: Place,
+            collection: false
           }
           this.searchPlace = searchPlaceType
         },
-        searchByCollection(Place){
-          console.log(Place);
+        searchByCollection(Place) {
+          this.ShowPlaceDetail = true
+          let searchPlaceType = {
+            searchBoxPlace: true,
+            Place: {
+              PlaceName: Place,
+              Note: ''
+            },
+            collection: true
+          }
+          this.searchPlace = searchPlaceType
+        },
+        addCollection(CollectionPlace) {
+          console.log(CollectionPlace);
+          let request = {
+            UserId: this.rawData.UserId,
+            PlaceName: CollectionPlace.PlaceName,
+            PlaceImage: CollectionPlace.PlaceImage,
+            PlaceTypeId: CollectionPlace.PlaceTypeId
+          }
+          axios.post(this.urls.url_AddAttractionCollection, request).then(res => {
+            console.log(res);
+            if (res.data.IsSuccessful) {
+              this.Notification('新增成功', 'success')
+              axios.get(`${this.urls.url_GetAttractionCollection}${this.rawData.UserId}`).then(res => {
+                console.log(res);
+                if (res.data.IsSuccessful){
+                  this.rawData.AttractionCollection = res.data
+                }
+              })
+            }
+            else{
+              this.Notification('新增失敗', 'error')
+            }
+          })
         },
         // --- 標記搜尋出來的地點 ---
         markSearchResult(loaction) {
@@ -2395,9 +2511,11 @@
                 let value
                 if (res.data.IsSuccessful) {
                   value = newValue
+                  this.Notification('修改成功', 'success')
                 }
                 else {
                   value = oldValue
+                  this.Notification('修改失敗', 'error')
                 }
                 let StartDateAry = value.split('-')
                 let newDate = new Date(StartDateAry[0], StartDateAry[1], StartDateAry[2])
