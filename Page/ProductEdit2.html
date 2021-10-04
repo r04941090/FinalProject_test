@@ -24,7 +24,7 @@
   <!-- journal-edit-banner -->
   <div id="app">
     <div class="position-relative" id="journal-edit-banner"
-      :style="{backgroundImage: journalDatas.journal_coverImage == '' ? `url(https://picsum.photos/1200/500/?random=1)` : `url(${journalDatas.journal_coverImage})` }">
+      :style="{backgroundImage: journalDatas.JournalCoverImage == '' ? `url(https://picsum.photos/1200/500/?random=1)` : `url(${journalDatas.JournalCoverImage})` }">
       <div class="container h-100 py-3">
         <input type="file" class="cover-file" style="display:none" ref="coverFile" @change="GetCoverImg">
         <div class="p-1 bg-white mb-2 changeCover" @click="CallCoverImg">
@@ -37,7 +37,7 @@
             <div class="fs-6">標題</div>
             <div class="d-flex">
               <!-- journal-edit-title -->
-              <p id="journal-edit-title" class="fs-3 mb-0 fw-bold">{{journalDatas.journal_title}}</p>
+              <p id="journal-edit-title" class="fs-3 mb-0 fw-bold">{{journalDatas.JournalTitle}}</p>
               <div class="journal-edit-publish-up ms-auto">
                 <!-- 用於儲存 -->
                 <p class="m-0 journal-edit-save text-white text-bold">已儲存</p>
@@ -56,35 +56,33 @@
             <textarea class="form-control" placeholder="Leave a comment here" id="journal-edit-desc"></textarea>
             <label for="journal-edit-desc">旅遊介紹</label>
           </div>
-          <div v-for="(journal, index) in journalDatas.journal_content" :key="journal.Date + index">
+          <div v-for="(journal, index) in journalDatas.JournalContent" :key="journal.Day">
             <div class="day-card">
-              <span class="journal-day badge rounded-pill bg-danger text-white p-2">第{{journal.Date}}天</span>
+              <span class="journal-day badge rounded-pill bg-danger text-white p-2">第{{journal.Day}}天</span>
               <div class="journal-day-more fas fa-ellipsis-h" @click="ClickRevealDay"
                 :style="{color: journal.Tour.find(x => x.Reveal == false) ? 'black' : '#bbb'}"></div>
               <div class="journal-day-more-text" style="display: none;" @click="RevealDay(journal, $event)"
-                :style="{color: journal.Tour.find(x => x.Reveal == false) ? 'red' : 'black'}">{{journal.Tour.find(x =>
-                x.Reveal == false) ? "隱藏" : "顯示"}}此天</div>
+                :style="{color: journal.Tour.find(x => x.Reveal == false) ? '#ff4477' : 'black'}">{{journal.Tour.find(x => x.Reveal == false) ? "隱藏" : "顯示"}}此天</div>
             </div>
-            <div class="d-flex mt-3 journal-card" v-for="(place, index) in journal.Tour" :key="place.name + index"
-              :id=`content_${journal.Date}-${place.id}`>
+            <div class="d-flex mt-3 journal-card" v-for="(place, index) in journal.Tour" :key="place.TripDetailsId"
+              :id=`content_${journal.Day}-${place.Sequence}`>
               <!-- 重構style！！！！ -->
               <i class="fas fa-map-marker-alt fa-2x location-icon" :style="{color: place.Reveal ? '#bbb' : '#000'}"></i>
               <div class="d-flex flex-column flex-grow-1 ms-2">
                 <div class="d-flex mb-3 justify-content-between position-relative">
                   <p class="mb-0" :style="{color: place.Reveal ? '#bbb' : '#000'}">
-                    <span class="journal-time me-1">{{place.staytime}}</span>|
-                    <span class="journal-location ms-1">{{place.name}}</span>
+                    <span class="journal-time me-1">{{place.Staytime}}</span>|
+                    <a class="journal-location ms-1 " href="#">{{place.PlaceName}}</a>
                   </p>
                   <div class="journal-time-more fas fa-ellipsis-h" @click="ClickRevealPlace"
                     :style="{color: place.Reveal ? '#bbb' : '#000'}"></div>
                   <div class="journal-time-more-text" style="display: none"
-                    :style="{color: place.Reveal ? 'black' : 'red'}" @click="RevealPlace(place, $event)">{{place.Reveal
-                    ?
-                    "顯示" : "隱藏"}}此景點</div>
+                    :style="{color: place.Reveal ? 'black' : '#ff4477'}" @click="RevealPlace(place, $event)">
+                    {{place.Reveal ? "顯示" : "隱藏"}}此景點</div>
                 </div>
                 <!-- 圖片 -->
                 <div class="journal-edit-updateImg" v-if="!place.Reveal">
-                  <form class="dropzone needsclick" :id=`updateImg_${journal.Date}-${place.id}` action="/upload">
+                  <form class="dropzone needsclick" :id=`updateImg_${journal.Day}-${place.Sequence}` action="/upload">
                     <div class="dz-message needsclick">
                       <span class="mt-4 d-inline-block">請點擊/拖拉上傳圖片，最多10張</span><br>
                       <span class="note needsclick "></span>
@@ -102,13 +100,13 @@
           </div>
         </div>
         <div class="col-xl-3 position-sticky top-0">
-          <div class="day-content mt-3" v-for="journal in journalDatas.journal_content" :key="journal.Date + index">
+          <div class="day-content mt-3" v-for="journal in journalDatas.JournalContent" :key="journal.Day">
             <div class="day-wrapper my-2">
-              <div class="day-nth">第{{journal.Date}}天</div>
+              <div class="day-nth">第{{journal.Day}}天</div>
               <div class="divider mx-2">|</div>
               <div class="attraction-list">
-                <div v-for="place in journal.Tour" :id=`list_${journal.Date}-${place.id}`
-                  @click="to(`content_${journal.Date}-${place.id}`)">{{place.name}}</div>
+                <div v-for="place in journal.Tour" :id=`list_${journal.Day}-${place.Sequence}`
+                  @click="to(`content_${journal.Day}-${place.Sequence}`)">{{place.PlaceName}}</div>
               </div>
             </div>
           </div>
@@ -179,16 +177,19 @@
       },
       methods: {
         getData() {
-          let url = 'https://raw.githubusercontent.com/r04941090/FileStorage/master/JournalEdit'
+          let url = 'https://localhost:44392/api/plan/GetTripDetail/65'
           axios.get(url).then(res => {
             this.journalDatas = res.data
-            this.initialElement()
+            console.log(this.journalDatas);
+            // this.CreateDropZone()
+            this.$nextTick(() => {
+              this.CreateDropZone()
+            });
           })
         },
         addClickEvent() {
           window.addEventListener('click', (e) => {
             // console.log('click');
-
             if (e.target.classList.contains('journal-time-more')) {
               document.querySelectorAll('.journal-day-more-text').forEach(item => {
                 item.style.display = 'none'
@@ -219,7 +220,7 @@
                 console.log(entry.intersectionRatio);
 
                 if (entry.intersectionRatio > 0.8) {
-                  document.querySelector(`#list_${id}`).style.color = 'red'
+                  document.querySelector(`#list_${id}`).style.color = '#ff4477'
                 }
                 else {
                   document.querySelector(`#list_${id}`).style.color = ''
@@ -245,9 +246,25 @@
           let dropzones = document.querySelectorAll('.dropzone');
           let n = 0
           console.log(dropzones);
-          
-          this.journalDatas.journal_content.forEach(places => {
+
+          this.journalDatas.JournalContent.forEach(places => {
             places.Tour.forEach(place => {
+              let url = 'https://api.cloudinary.com/v1_1/ditncduk1/image/upload'
+              console.log(place);
+              let reader = new FileReader();
+              reader.onload = function(){
+                console.log(reader.result);
+                let request = {
+                  api_key: '819392311777911',
+                  file: reader.result,
+                  api_secret: 'vWFjIgauRBwpAcELX8a6hve-WZY',
+                  upload_preset: 'g0uupmf7'
+                }
+                axios.post(url, request).then(res => {
+                  console.log(place.TripDetailsId, res);
+                })
+              }
+                  
               n = n + 1
               var dropzone = new Dropzone(`#${dropzones[n - 1].id}`, {
                 previewTemplate: document.querySelector('#preview-template').innerHTML,
@@ -257,6 +274,7 @@
                 maxFilesize: 3,
                 filesizeBase: 1000,
                 maxFiles: 10,
+                url: 'https://api.cloudinary.com/v1_1/ditncduk1/upload',
                 thumbnail: (file, dataUrl) => {
                   if (file.previewElement) {
                     file.previewElement.classList.remove("dz-file-preview");
@@ -277,12 +295,29 @@
                   this.on('maxfilesexceeded', function () {
                     this.removeFile(this.files[10]);
                     alert('上傳圖片已超過10張')
+                    console.log(this.files);
+                    
                   })
-                  // let mockFile = { name: '123'};
+                  let mockFile = { name: '123'};
                   
+                  place.PlaceImage.forEach(element => {
+                    this.emit("addedfile", mockFile, element);
+                    this.emit("thumbnail", mockFile, element);
+                    
+                    this.emit("complete", mockFile);
+                    this.files.push(mockFile);
+                    console.log(this.files);
+                    console.log(this);
+                  });
+                  
+                  // this.emit("success");
+                  
+                  // this.processQueue();
+                  // let mockFile = { name: '123'};
+
                   // this.emit('addedfile', mockFile, 'https://picsum.photos/200/300')
                   // // this.emit("thumbnail", mockFile, 'https://picsum.photos/200/300')
-                  
+
                   // // this.emit("uploadFiles", mockFile, 'https://picsum.photos/200/300')
                   // this.on('addedfile', function (file) {
                   //   // this.uploadFiles(file)
@@ -298,7 +333,7 @@
                   //     }
                   //   })
                   // })
-                  
+
                 },
               });
               // Now fake the file upload, since GitHub does not handle file uploads
@@ -312,13 +347,13 @@
               dropzone.uploadFiles = function (files) {
                 var self = this;
                 console.log('asdsadasd', files);
-
+                console.log(self);
+                
                 for (var i = 0; i < files.length; i++) {
-                  // console.log(this);
                   var file = files[i];
-                  // console.log(file);
-                  totalSteps = Math.round(Math.min(maxSteps, Math.max(minSteps, file.size / bytesPerStep)));
-
+                  reader.readAsDataURL(file)
+                  
+                  
                   for (var step = 0; step < totalSteps; step++) {
                     var duration = timeBetweenSteps * (step + 1);
                     setTimeout(function (file, totalSteps, step) {
@@ -330,7 +365,6 @@
                         };
                         self.emit('uploadprogress', file, file.upload.progress, file.upload.bytesSent);
                         if (file.upload.progress == 100) {
-                          // console.log(file);
                           file.status = Dropzone.SUCCESS;
                           self.emit("success", file, 'success', null);
                           self.emit("complete", file);
@@ -378,10 +412,6 @@
             })
           }
         },
-        // test(place) {
-        //   console.log(place);
-
-        // },
         to(toEL) {
           // https://juejin.cn/post/6868968417769029640
           // 右邊點擊，移動到特定位置
@@ -419,9 +449,10 @@
       },
       mounted() {
         this.getData()
+
         this.addClickEvent()
         this.addScrollEvent()
-        this.initialElement()
+        // this.initialElement()
         this.reader.addEventListener('load', this.UpdateCoverImg)
       },
     }

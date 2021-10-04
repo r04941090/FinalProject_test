@@ -22,7 +22,13 @@
   justify-content: center;
   align-content: center;
 }
-
+.journal-location{
+  text-decoration: none;
+  color: #000;
+}
+.journal-location:hover{
+  color: #ff4477;
+}
 .journal-day-more,
 .journal-time-more {
   cursor: pointer;
@@ -104,7 +110,7 @@ footer {
 }
 
 .active {
-  color: red;
+  color: #ff4477;
 }
 
 .dropzone {
@@ -132,12 +138,12 @@ footer {
   right: 5px;
   cursor: pointer !important;
   z-index: 100;
-  border: 1px solid red;
+  border: 1px solid #ff4477;
   border-radius: 50px;
   text-align: center;
   line-height: 25px;
   color: #fff;
-  background-color: red;
+  background-color: #ff4477;
 
 }
 
