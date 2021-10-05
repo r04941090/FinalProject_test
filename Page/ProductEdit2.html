@@ -251,19 +251,19 @@
             places.Tour.forEach(place => {
               let url = 'https://api.cloudinary.com/v1_1/ditncduk1/image/upload'
               console.log(place);
-              let reader = new FileReader();
-              reader.onload = function(){
-                console.log(reader.result);
-                let request = {
-                  api_key: '819392311777911',
-                  file: reader.result,
-                  api_secret: 'vWFjIgauRBwpAcELX8a6hve-WZY',
-                  upload_preset: 'g0uupmf7'
-                }
-                axios.post(url, request).then(res => {
-                  console.log(place.TripDetailsId, res);
-                })
-              }
+              // let reader = new FileReader();
+              // reader.onload = function(){
+              //   console.log(reader.result);
+              //   let request = {
+              //     api_key: '819392311777911',
+              //     file: reader.result,
+              //     api_secret: 'vWFjIgauRBwpAcELX8a6hve-WZY',
+              //     upload_preset: 'g0uupmf7'
+              //   }
+              //   axios.post(url, request).then(res => {
+              //     console.log(place.TripDetailsId, res);
+              //   })
+              // }
                   
               n = n + 1
               var dropzone = new Dropzone(`#${dropzones[n - 1].id}`, {
@@ -292,10 +292,15 @@
                   }
                 },
                 init: function () {
-                  this.on('maxfilesexceeded', function () {
-                    this.removeFile(this.files[10]);
+                  this.on('maxfilesexceeded', function (file) {
+                    // this.removeFile(this.files[10]);
+                    this.removeFile(file);
                     alert('上傳圖片已超過10張')
                     console.log(this.files);
+                    
+                  })
+                  this.on("removedfile", function(file){
+                    console.log(file);
                     
                   })
                   let mockFile = { name: '123'};
@@ -347,13 +352,33 @@
               dropzone.uploadFiles = function (files) {
                 var self = this;
                 console.log('asdsadasd', files);
-                console.log(self);
-                
-                for (var i = 0; i < files.length; i++) {
-                  var file = files[i];
+                // console.log(self);
+                console.log(place.PlaceImage);
+                console.log(this.files);
+                if (place.PlaceImage.length !== 10){
+                  let selectFiles = files.slice(0, 10 - place.PlaceImage.length)
+                  console.log(selectFiles);
+                  
+                  for (var i = 0; i < selectFiles.length; i++) {
+                  var file = selectFiles[i];
+                  // console.log(i);
+                  
+                  let reader = new FileReader();
+                  reader.onload = function(){
+                    // console.log(reader.result);
+                    let request = {
+                      api_key: '819392311777911',
+                      file: reader.result,
+                      // reader.result：base64
+                      api_secret: 'vWFjIgauRBwpAcELX8a6hve-WZY',
+                      upload_preset: 'g0uupmf7'
+                    }
+                    axios.post(url, request).then(res => {
+                      place.PlaceImage.push(res.data.url)
+                    })
+                  }
                   reader.readAsDataURL(file)
-                  
-                  
+                  totalSteps = Math.round(Math.min(maxSteps, Math.max(minSteps, file.size / bytesPerStep)));
                   for (var step = 0; step < totalSteps; step++) {
                     var duration = timeBetweenSteps * (step + 1);
                     setTimeout(function (file, totalSteps, step) {
@@ -373,6 +398,7 @@
                       };
                     }(file, totalSteps, step), duration);
                   }
+                }
                 }
               }
             })
