@@ -69,6 +69,7 @@
 
 .journal-edit-publish-up {
   display: none;
+  width: none;
 }
 
 .journal-edit-publish-bottom {
@@ -112,7 +113,11 @@ footer {
 .active {
   color: #ff4477;
 }
-
+.location-icon{
+  position: absolute;
+  left: -11px;
+  font-size: 24px;
+}
 .dropzone {
   width: 100%;
   background: white;
@@ -162,7 +167,7 @@ footer {
   }
 
   .journal-edit-publish-up {
-    width: 150px;
+    /* width: 150px; */
     display: flex;
     justify-content: space-between;
     align-items: center;
