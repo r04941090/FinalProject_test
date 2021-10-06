@@ -34,14 +34,14 @@
 <body ref="body">
   <div id="app">
     <div class="temp-header">
-      <button @click="Loading=!Loading">loading</button>
-      <button @click="changePage">change-page</button>
-      <button @click="screenshot">screenshot</button>
-      <button @click="revealRouteAndMarker">revealAllMarker</button>
+      <button v-on:click="Loading=!Loading">loading</button>
+      <button v-on:click="changePage">change-page</button>
+      <button v-on:click="screenshot">screenshot</button>
+      <button v-on:click="revealRouteAndMarker">revealAllMarker</button>
       <span style="color: #fff;">{{page}} | {{initialLoading}}</span>
-      <el-button plain @click="open1"> Success </el-button>
-      <el-button plain @click="open2"> Error </el-button>
-      <button @click="to(2)">test</button>
+      <el-button plain v-on:click="open1"> Success </el-button>
+      <el-button plain v-on:click="open2"> Error </el-button>
+      <button v-on:click="to(2)">test</button>
     </div>
     <div class="outside position-relative">
       <div id="map" ref="map"></div>
@@ -89,7 +89,7 @@
             <!-- component -->
             <div class="trip-list-header-title-container">
               <input type="text" class="trip-list-header-title edit-mode" v-model="rawData.TripTitle" v-if="edit"
-                @blur="changeTripTitle" @focus="TripTitle = rawData.TripTitle">
+                v-on:blur="changeTripTitle" v-on:focus="TripTitle = rawData.TripTitle">
               <div class="trip-list-header-title" v-if="!edit">{{rawData.TripTitle}}</div>
             </div>
             <div class="trip-list-header-date">
@@ -106,7 +106,7 @@
               </a>
             </div>
             <div class="trip-list-header-edit">
-              <span class="me-2" @click="edit = !edit">編輯</span>
+              <span class="me-2" v-on:click="edit = !edit">編輯</span>
               <div class="onoffswitch d-inline-block">
                 <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="myonoffswitch" tabindex="0"
                   checked v-model="edit">
@@ -124,37 +124,37 @@
           <div class="dayBox" ref="dayBox">
             <div class="trip-list-header-day-component" ref="tripListHeaderDayComponent">
               <div class="day-item d-inline-block" v-for="tripContent in rawDataOnlyDay" :key="tripContent.Day"
-                :data-id="tripContent.Day" @click="selectDay = tripContent">
-                <day-cell :trip-data="tripContent" @mousedown="DayDragMouseDown" :select-day="selectDay"
-                  @delete-data="DeleteData" :edit="edit" @move-day="to"></day-cell>
+                :data-id="tripContent.Day" v-on:click="selectDay = tripContent">
+                <day-cell :trip-data="tripContent" v-on:mousedown="DayDragMouseDown" :select-day="selectDay"
+                  v-on:delete-data="DeleteData" :edit="edit" v-on:move-day="to"></day-cell>
               </div>
-              <div class="day-cell add-day" v-if="edit" @click="AddDay">
+              <div class="day-cell add-day" v-if="edit" v-on:click="AddDay">
                 <div class="day-cell-content">
                   <span><br>+</span>
                 </div>
               </div>
             </div>
             <div class="page-controller">
-              <a class="previous" @click="previous"></a>
-              <a class="next" @click="next"></a>
+              <a class="previous" v-on:click="previous"></a>
+              <a class="next" v-on:click="next"></a>
             </div>
           </div>
         </div>
         <!-- Trip List -->
         <div class="trip-list-day-container" ref="tripListDayContainer">
           <div class="trip-item" v-for="(TripContent, index) in rawData.TripContent" :key="TripContent.Id"
-            :data-id="TripContent.Id" @mousedown="DragMouseDown">
-            <day :trip-content="TripContent" v-if="index == 0" @select-day="selectDayMethod"
-              :show-day="showSpecificRoute" :edit="edit" @select-time="selectTime">
+            :data-id="TripContent.Id" v-on:mousedown="DragMouseDown">
+            <day :trip-content="TripContent" v-if="index == 0" v-on:select-day="selectDayMethod"
+              :show-day="showSpecificRoute" :edit="edit" v-on:select-time="selectTime">
             </day>
-            <place-gps :trip-content="TripContent" v-else-if="TripContent.Type == 'Place'" @copy-data="copyPlace"
-              @delete-place="DeletePlace" :edit="edit" @select-place="ShowPlacePage" @select-stay-time="selectStayTime">
+            <place-gps :trip-content="TripContent" v-else-if="TripContent.Type == 'Place'" v-on:copy-data="copyPlace"
+              v-on:delete-place="DeletePlace" :edit="edit" v-on:select-place="ShowPlacePage" v-on:select-stay-time="selectStayTime">
             </place-gps>
-            <day-plus :trip-content="TripContent" v-else-if="TripContent.Type == 'Day'" @select-day="selectDayMethod"
-              :show-day="showSpecificRoute" @select-time="selectTime" :edit="edit" @add-place="changePage"></day-plus>
+            <day-plus :trip-content="TripContent" v-else-if="TripContent.Type == 'Day'" v-on:select-day="selectDayMethod"
+              :show-day="showSpecificRoute" v-on:select-time="selectTime" :edit="edit" v-on:add-place="changePage"></day-plus>
           </div>
           <div class="trip-item" :data-id="LastId">
-            <div class="add-venue" style="margin-top: 16px;" @click="changePage">
+            <div class="add-venue" style="margin-top: 16px;" v-on:click="changePage">
               <span>+ 新增景點</span>
             </div>
           </div>
@@ -163,15 +163,15 @@
       </div>
       <div class="create-venu-box" v-show="page == 'CreateBox'">
         <div class="create-venu-tab">
-          <div class="trip-list-header-back create-venu-tab-back" @click.prevent="changePage">
+          <div class="trip-list-header-back create-venu-tab-back" v-on:click.prevent="changePage">
             <a href="" class="m-0"></a>
           </div>
-          <div class="create-venu-tab-search" @click="selectTab = 'search'"
+          <div class="create-venu-tab-search" v-on:click="selectTab = 'search'"
             :style="{'borderBottom': selectTab == 'search' ? '4px solid #ee3c77 ' : 'none'}">
             <i class="fas fa-search" :style="{'color': selectTab == 'search' ? '#ee3c77' : '#666'}"></i>
             <span>搜尋</span>
           </div>
-          <div class="create-venu-tab-collection" @click="selectTab = 'collection'"
+          <div class="create-venu-tab-collection" v-on:click="selectTab = 'collection'"
             :style="{'borderBottom': selectTab == 'collection' ? '4px solid #ee3c77 ' : 'none'}">
             <i class="fas fa-map-marker-alt" :style="{'color': selectTab == 'collection' ? '#ee3c77' : '#666'}"></i>
             <span>景點收藏</span>
@@ -183,12 +183,12 @@
               style="position: absolute; top: 33px; left: 18px; color: #666; font-size: 18px;"></i>
             <input type="text" ref="searchBox" placeholder="景點關鍵字" class="searchBox">
           </label>
-          <button @click="searchByBtn">搜尋</button>
+          <button v-on:click="searchByBtn">搜尋</button>
         </div>
         <div class="my-collections-content" v-show="selectTab == 'collection'">
           <div class="my-collections-list" v-for="collection in rawData.AttractionCollection"
             :key="collection.PlaceName">
-            <div class="my-collections-cell" @click="searchByCollection(collection.PlaceName)">
+            <div class="my-collections-cell" v-on:click="searchByCollection(collection.PlaceName)">
               <div class="my-collections-name">
                 <span>{{collection.PlaceName}}</span>
               </div>
@@ -205,9 +205,9 @@
         </div>
       </div>
       <!-- place-detail -->
-      <place-detail @close="revealRouteAndMarker(false)" v-show="ShowPlaceDetail" :select-place="searchPlace"
-        @update-note="updateNote" @update-search-result="markSearchResult" @add-place="addPlace"
-        @add-collection="addCollection"></place-detail>
+      <place-detail v-on:close="revealRouteAndMarker(false)" v-show="ShowPlaceDetail" :select-place="searchPlace"
+        v-on:update-note="updateNote" v-on:update-search-result="markSearchResult" v-on:add-place="addPlace"
+        v-on:add-collection="addCollection"></place-detail>
       <div class="tool-button-wrapper">
         <div class="tool-button">
           <i class="far fa-copy trip-tools-icon mx-2"></i>
@@ -235,7 +235,7 @@
           <i class="far fa-comment-alt trip-tools-icon"></i>
           <span class="trip-tools-content">留言</span>
         </div>
-        <div class="trip-tools-block" @click="showTripList=!showTripList">
+        <div class="trip-tools-block" v-on:click="showTripList=!showTripList">
           <i class="fas fa-map-marked-alt trip-tools-icon"></i>
           <span class="trip-tools-content">顯示地圖</span>
         </div>
@@ -263,7 +263,7 @@
             <div class="modal-footer" style="border: none;">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
               <button type="button" class="btn btn-primary" style="background: #ee3c77; border: none;"
-                data-bs-dismiss="modal" @click="updateDayStartTime">完成</button>
+                data-bs-dismiss="modal" v-on:click="updateDayStartTime">完成</button>
             </div>
           </div>
         </div>
@@ -291,7 +291,7 @@
             <div class="modal-footer pt-0" style="border: none;">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
               <button type="button" class="btn btn-primary" style="background: #ee3c77; border: none;"
-                data-bs-dismiss="modal" @click="updatePlaceStayTime">完成</button>
+                data-bs-dismiss="modal" v-on:click="updatePlaceStayTime">完成</button>
             </div>
           </div>
         </div>
@@ -341,16 +341,16 @@
       },
       template: `
         <section class="card">
-          <div class="close-place-card" @click="Close">
+          <div class="close-place-card" v-on:click="Close">
             <i class="fas fa-times"></i>
           </div>
           <div class="create-venu-tab" v-show="!selectPlace.searchBoxPlace">
-            <div class="create-venu-tab-search" @click="!updateSelectTab('search')"
+            <div class="create-venu-tab-search" v-on:click="!updateSelectTab('search')"
           :style="{'borderBottom': selectTab == 'search' ? '4px solid #ee3c77 ' : 'none'}">
             <i class="fas fa-map-marker-alt" :style="{'color': selectTab == 'search' ? '#ee3c77' : '#666'}"></i>
             <span>搜尋</span>
           </div>
-          <div class="create-venu-tab-collection" @click="updateSelectTab('note')"
+          <div class="create-venu-tab-collection" v-on:click="updateSelectTab('note')"
             :style="{'borderBottom': selectTab == 'note' ? '4px solid #ee3c77 ' : 'none'}">
             <i class="far fa-clipboard" :style="{'color': selectTab == 'note' ? '#ee3c77' : '#666'}"></i>
             <span>文字筆記</span>
@@ -361,14 +361,14 @@
               <div v-if="selectTab == 'search'">
                 <p>{{searchResult}}</p>
                 <div class="button-group">
-                  <button class="button ms-auto" id="button-collect" :disabled="this.selectPlace.collection" :style="{'background':this.selectPlace.collection ? '#ccc' : '#fff', 'color': this.selectPlace.collection ? '#fff' : '#ee3c77'}" @click="AddToCollection">加入收藏</button>
-                  <button class="button ms-auto" id="button-addtrip" @click="AddPlace">加入行程</button>
+                  <button class="button ms-auto" id="button-collect" :disabled="this.selectPlace.collection" :style="{'background':this.selectPlace.collection ? '#ccc' : '#fff', 'color': this.selectPlace.collection ? '#fff' : '#ee3c77'}" v-on:click="AddToCollection">加入收藏</button>
+                  <button class="button ms-auto" id="button-addtrip" v-on:click="AddPlace">加入行程</button>
                 </div>
               </div>
               <div v-else>
                 <textarea name="" id="" cols="30" rows="10" style="height: 500px; width: 100%; border: none; padding: 20px 15px;" v-model="selectPlace.Place.Note"></textarea>
                 <div class="button-group">
-                  <button class="button ms-auto" id="button-save" style="width: calc(100% - 8px);" @click="SaveNote" :disabled="origin_note == selectPlace.Place.Note" :style="{'background': origin_note == selectPlace.Place.Note ? '#ccc' : '#ee3c77'}">儲存</button>
+                  <button class="button ms-auto" id="button-save" style="width: calc(100% - 8px);" v-on:click="SaveNote" :disabled="origin_note == selectPlace.Place.Note" :style="{'background': origin_note == selectPlace.Place.Note ? '#ccc' : '#ee3c77'}">儲存</button>
                 </div>
               </div>
             </div>
@@ -438,12 +438,12 @@
     }
     const dayCell = {
       template: `
-        <div class="day-cell" :class="{'HighlightDay': tripData.Date == selectDay.Date, 'edit-mode': edit}"  @click="moveDay">
+        <div class="day-cell" :class="{'HighlightDay': tripData.Date == selectDay.Date, 'edit-mode': edit}"  v-on:click="moveDay">
           <div class="drag-handler" v-if="edit"></div>
           <div class="day-cell-content">
             <span :style="{fontWeight: tripData.Date == selectDay.Date ? 900 : 400}"  class="pt-1">{{tripData.Date}}</span>
             <span class="day-number">第{{tripData.Day}}天</span>
-            <div class="delete" @click="deleteData" v-if="edit">
+            <div class="delete" v-on:click="deleteData" v-if="edit">
               <i class="fas fa-trash delete-tool"></i>
             </div>
           </div>
@@ -462,7 +462,7 @@
     const day = {
       template: `
         <header class="trip-list-day-header">
-          <div class="text-white weekday" :style="{background: (showDay.content !== tripContent) && showDay.show  ? '#888' : tripContent.Color}" style="cursor: pointer" @click="selectDay" >
+          <div class="text-white weekday" :style="{background: (showDay.content !== tripContent) && showDay.show  ? '#888' : tripContent.Color}" style="cursor: pointer" v-on:click="selectDay" >
             <div class="d-inline-block eye" v-if="showDay.show">
               <i class="far fa-eye" v-if="showDay.content == tripContent"></i>
               <i class="far fa-eye-slash" v-else></i>
@@ -471,7 +471,7 @@
           </div>
           <div class="trip-list-day-header-time">
             出發時間：
-            <b class="edit-mode" data-bs-toggle="modal" data-bs-target="#Time" v-if="edit" @click="selectTime">{{tripContent.StartTime}}</b>
+            <b class="edit-mode" data-bs-toggle="modal" data-bs-target="#Time" v-if="edit" v-on:click="selectTime">{{tripContent.StartTime}}</b>
             <b v-else >{{tripContent.StartTime}}</b>
           </div>
         </header>`,
@@ -492,18 +492,18 @@
       template: `
         <div class="trip-list-venu-container" :class="{'edit': edit}">
           <div class="drag-handler" v-if="edit"></div>
-          <div class="trip-list-day-venu-time" @click="ShowPlace(tripContent.PlaceName)">
+          <div class="trip-list-day-venu-time" v-on:click="ShowPlace(tripContent.PlaceName)">
             <span class="trip-list-day-venu-time-from">{{tripContent.StartTime}}</span>
             <span class="fas fa-map-marker trip-list-day-venu-number-mark" :style="{color: tripContent.Color}">
               <span class="trip-list-day-venu-number">{{tripContent.Sequence}}</span>
             </span>
             <span class="trip-list-day-venu-time-to">{{tripContent.EndTime}}</span>
           </div>
-          <div class="trip-list-day-venu-info" @click="ShowPlace(tripContent)">
+          <div class="trip-list-day-venu-info" v-on:click="ShowPlace(tripContent)">
             <div class="trip-list-day-venu-info-detail" :style = "{width: edit? 'none' : '100%'}" >
-              <div class="trip-list-day-venu-info-time" @click=Show>
+              <div class="trip-list-day-venu-info-time" v-on:click=Show>
                 <i class="fas fa-clock" style= "color: #888;" v-if="!edit"></i>
-                <span class="edit-mode" data-bs-toggle="modal" data-bs-target="#StayTime" v-if="edit" @click="selectStayTime">{{tripContent.StayTime}}</span>
+                <span class="edit-mode" data-bs-toggle="modal" data-bs-target="#StayTime" v-if="edit" v-on:click="selectStayTime">{{tripContent.StayTime}}</span>
                 <span v-else class="ms-1">{{tripContent.StayTime}}</span>
               </div>
               <div class="trip-list-day-venu-info-name">{{tripContent.PlaceName}}</div>
@@ -511,14 +511,14 @@
             </div>
             <div class="trip-list-day-venu-info-edit">
               <div class="position-relative" v-if="edit">
-                <i class="far fa-copy copy-tool" @click="$emit('copyData', tripContent)"></i>
+                <i class="far fa-copy copy-tool" v-on:click="$emit('copyData', tripContent)"></i>
                 <div class="trip-list-day-venu-info-edit-func" >複製</div>
               </div>
-              <div class="position-relative" @click="deletePlace" v-if="edit">
+              <div class="position-relative" v-on:click="deletePlace" v-if="edit">
                 <i class="fas fa-trash delete-tool"></i>
                 <div class="trip-list-day-venu-info-edit-func">刪除</div>
               </div>
-              <div @click="ShowPlace(tripContent)">
+              <div v-on:click="ShowPlace(tripContent)">
                 <i class="fas fa-file-alt" style="font-size: 20px; color: #666;" v-if="!edit"></i>
               </div>
             </div>
@@ -565,11 +565,11 @@
         }
       },
       template: `
-      <div class="add-venue" style="margin-top: 16px;" @click="$emit('AddPlace')">
+      <div class="add-venue" style="margin-top: 16px;" v-on:click="$emit('AddPlace')">
         <span>+ 新增景點</span>
       </div>
       <header class="trip-list-day-header">
-        <div class="text-white weekday" style="cursor: pointer;" :style="{background: (showDay.content !== tripContent) && showDay.show ? '#888' : tripContent.Color}" @click="selectDay">
+        <div class="text-white weekday" style="cursor: pointer;" :style="{background: (showDay.content !== tripContent) && showDay.show ? '#888' : tripContent.Color}" v-on:click="selectDay">
           <div class="d-inline-block eye" v-if="showDay.show">
             <i class="far fa-eye" v-if="showDay.content == tripContent"></i>
             <i class="far fa-eye-slash" v-else></i>
@@ -578,7 +578,7 @@
         </div>
         <div class="trip-list-day-header-time">
           出發時間：
-          <b class="edit-mode" data-bs-toggle="modal" data-bs-target="#Time" v-if="edit" @click="selectTime">{{tripContent.StartTime}}</b>
+          <b class="edit-mode" data-bs-toggle="modal" data-bs-target="#Time" v-if="edit" v-on:click="selectTime">{{tripContent.StartTime}}</b>
           <b v-else>{{tripContent.StartTime}}</b>
         </div>
       </header>`,
