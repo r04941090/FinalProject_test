@@ -22,20 +22,28 @@
   <script src="/js/ckeditor.js"></script>
   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/element-plus/dist/index.css" />
   <script src="//cdn.jsdelivr.net/npm/element-plus"></script>
-  <style>
-    .TripIntro .ck-editor__editable_inline {
-      height: 200px;
-    }
-
-    .PlaceContent .ck-editor__editable_inline {
-      height: 250px;
-    }
-  </style>
+  <link rel="stylesheet" href="/css/Loading.css">
 </head>
 
 <body>
   <!-- journal-edit-banner -->
   <div id="app">
+    <div class="Loading-container h-100" style="background-color: #fff;" v-if="initialLoading">
+      <div class="sk-fading-circle">
+        <div class="sk-fading-circle1 sk-child-first"></div>
+        <div class="sk-fading-circle2 sk-child-first"></div>
+        <div class="sk-fading-circle3 sk-child-first"></div>
+        <div class="sk-fading-circle4 sk-child-first"></div>
+        <div class="sk-fading-circle5 sk-child-first"></div>
+        <div class="sk-fading-circle6 sk-child-first"></div>
+        <div class="sk-fading-circle7 sk-child-first"></div>
+        <div class="sk-fading-circle8 sk-child-first"></div>
+        <div class="sk-fading-circle9 sk-child-first"></div>
+        <div class="sk-fading-circle10 sk-child-first"></div>
+        <div class="sk-fading-circle11 sk-child-first"></div>
+        <div class="sk-fading-circle12 sk-child-first"></div>
+      </div>
+    </div>
     <div class="position-relative" id="journal-edit-banner"
       :style="{backgroundImage: journalDatas.JournalCoverImage == '' ? `url(https://picsum.photos/1200/500/?random=1)` : `url(${journalDatas.JournalCoverImage})` }">
       <div class="container h-100 py-3">
@@ -74,17 +82,19 @@
               <div class="journal-day-more fas fa-ellipsis-h" v-on:click="ClickHideDay"
                 :style="{color: journal.Tour.find(x => x.Hide == false) ? 'black' : '#bbb'}"></div>
               <div class="journal-day-more-text" style="display: none;" v-on:click="HideDay(journal, $event)"
-                :style="{color: journal.Tour.find(x => x.Hide == false) ? '#ff4477' : 'black'}">{{journal.Tour.find(x=> x.Hide == false) ? "隱藏" : "顯示"}}此天</div>
+                :style="{color: journal.Tour.find(x => x.Hide == false) ? '#ff4477' : 'black'}">{{journal.Tour.find(x=>
+                x.Hide == false) ? "隱藏" : "顯示"}}此天</div>
             </div>
-            <div class="d-flex mt-3 journal-card flex-column position-relative" v-for="(place, index) in journal.Tour" :key="place.TripDetailsId"
-              :id=`content_${journal.Day}-${place.Sequence}`>
+            <div class="d-flex mt-3 journal-card flex-column position-relative" v-for="(place, index) in journal.Tour"
+              :key="place.TripDetailsId" :id=`content_${journal.Day}-${place.Sequence}`>
               <!-- 重構style！！！！ -->
               <i class="fas fa-map-marker-alt fa-2x location-icon" :style="{color: place.Hide ? '#bbb' : '#000'}"></i>
               <div class="d-flex flex-column flex-grow-1 ms-2">
                 <div class="d-flex mb-3 justify-content-between position-relative">
                   <p class="mb-0 ps-1" :style="{color: place.Hide ? '#bbb' : '#000'}">
                     <span class="journal-time me-1">{{place.Staytime}}</span>|
-                    <a class="journal-location ms-1 " href="#" :style="{color: place.Hide ? '#bbb' : '#000'}">{{place.PlaceName}}</a>
+                    <a class="journal-location ms-1 " href="#"
+                      :style="{color: place.Hide ? '#bbb' : '#000'}">{{place.PlaceName}}</a>
                   </p>
                   <div class="journal-time-more fas fa-ellipsis-h" v-on:click="ClickHidePlace"
                     :style="{color: place.Hide ? '#bbb' : '#000'}"></div>
@@ -94,6 +104,7 @@
                 </div>
                 <!-- 圖片 -->
                 <div class="journal-edit-updateImg" v-show="!place.Hide">
+                  <loading></loading>
                   <form class="dropzone needsclick" :id=`updateImg_${journal.Day}-${place.Sequence}` action="/upload">
                     <div class="dz-message needsclick">
                       <span class="mt-4 d-inline-block">請點擊/拖拉上傳圖片，最多10張</span><br>
@@ -104,8 +115,8 @@
                 <!-- 文字 -->
                 <div class="form-floating w-100 mt-3 PlaceContent" v-show="!place.Hide">
                   <ckeditor :editor="editor" v-model="place.Description" :config="editorConfigPlace"
-                    v-on:blur="UpdatePlaceDescription(place)"
-                    v-on:focus="GetOriginPlaceDescription(place.Description)"></ckeditor>
+                    v-on:blur="UpdatePlaceDescription(place)" v-on:focus="GetOriginPlaceDescription(place.Description)">
+                  </ckeditor>
                 </div>
               </div>
             </div>
@@ -174,24 +185,47 @@
         </svg>
       </div>
       <!-- 刪除圖片 -->
-      <div class="fas fa-times position-absolute delete" data-dz-remove></div>
+      <div class="fas fa-times position-absolute delete" data-dz-remove id="123"></div>
     </div>
   </div>
   <!-- <script src="/js/ProductEdit2.js"></script> -->
   <script>
     const { ElNotification } = ElementPlus;
+    const loading = {
+      template: `
+      <div class="Loading-container image-loading" style="background-color: #fff;" v-show="imageUpload">
+        <div class="sk-fading-circle">
+          <div class="sk-fading-circle1 sk-child-first"></div>
+          <div class="sk-fading-circle2 sk-child-first"></div>
+          <div class="sk-fading-circle3 sk-child-first"></div>
+          <div class="sk-fading-circle4 sk-child-first"></div>
+          <div class="sk-fading-circle5 sk-child-first"></div>
+          <div class="sk-fading-circle6 sk-child-first"></div>
+          <div class="sk-fading-circle7 sk-child-first"></div>
+          <div class="sk-fading-circle8 sk-child-first"></div>
+          <div class="sk-fading-circle9 sk-child-first"></div>
+          <div class="sk-fading-circle10 sk-child-first"></div>
+          <div class="sk-fading-circle11 sk-child-first"></div>
+          <div class="sk-fading-circle12 sk-child-first"></div>
+        </div>
+      </div>`
+    }
     const App = {
       data() {
         return {
+          initialLoading: true,
           journalDatas: {},
           coverImageReader: '',
           urls: {
-            url_uploadImage: 'https://api.cloudinary.com/v1_1/ditncduk1/upload',
+            url_uploadImageCloudinary: 'https://api.cloudinary.com/v1_1/ditncduk1/upload',
             url_GetTripDetail: 'https://localhost:44392/api/plan/GetTripDetail/65',
-            url_UpdateJournalDescription: 'https://localhost:44392/api/draft/UpdateTripIntro',
+            url_UpdateJournalIntro: 'https://localhost:44392/api/draft/UpdateJournalIntro',
+            url_UpdateJournalCoverImage: 'https://localhost:44392/api/draft/UpdateJournalCoverImage',
             url_UpdatePlaceDescription: 'https://localhost:44392/api/draft/UpdatePlaceDescription',
             url_UpdatePlaceHide: 'https://localhost:44392/api/draft/UpdatePlaceHide',
-            url_UpdateDayHide: 'https://localhost:44392/api/draft/UpdateDayHide'
+            url_UpdateDayHide: 'https://localhost:44392/api/draft/UpdateDayHide',
+            url_deletePlaceImage: 'https://localhost:44392/api/draft/DeletePlaceImage/',
+            url_uploadImageUrl: 'https://localhost:44392/api/draft/UploadPlaceImage'
           },
           originDescription: '',
           originPlaceDescription: '',
@@ -240,12 +274,17 @@
       },
       methods: {
         getData() {
+          this.initialLoading = true
+          document.querySelector('body').style.overflow = 'hidden';
+          
           axios.get(this.urls.url_GetTripDetail).then(res => {
             this.journalDatas = res.data
             console.log(this.journalDatas);
             // this.CreateDropZone()
             this.$nextTick(() => {
               this.CreateDropZone()
+              this.initialLoading = false
+              document.querySelector('body').style.overflow = 'auto';
             });
           })
         },
@@ -258,8 +297,10 @@
           })
         },
         UpdateJournalDescription(Journal) {
+          console.log(Journal.JournalDescription);
+          
           if (Journal.JournalDescription !== this.originDescription) {
-            axios.put(this.urls.url_UpdateJournalDescription, {
+            axios.put(this.urls.url_UpdateJournalIntro, {
               TripId: Journal.TripId,
               TripIntro: Journal.JournalDescription
             }).then(res => {
@@ -267,18 +308,18 @@
               if (res.data.IsSuccessful) {
                 this.Notification('修改成功', 'success')
               }
-              else{
+              else {
                 Journal.JournalDescription = this.originDescription
                 this.Notification('修改失敗', 'error')
               }
             })
           }
         },
-        UpdatePlaceDescription(Place){
-          if (Place.Description !== this.originPlaceDescription){
+        UpdatePlaceDescription(Place) {
+          if (Place.Description !== this.originPlaceDescription) {
             console.log(Place.Description);
             console.log(Place);
-            
+
             axios.put(this.urls.url_UpdatePlaceDescription, {
               TripDetailsId: Place.TripDetailsId,
               PlaceContent: Place.Description
@@ -287,7 +328,7 @@
               if (res.data.IsSuccessful) {
                 this.Notification('修改成功', 'success')
               }
-              else{
+              else {
                 Place.Description = this.originPlaceDescription
                 this.Notification('修改失敗', 'error')
               }
@@ -297,7 +338,7 @@
         GetOriginDescription(originDescription) {
           this.originDescription = originDescription
         },
-        GetOriginPlaceDescription(originPlaceDescription){
+        GetOriginPlaceDescription(originPlaceDescription) {
           this.originPlaceDescription = originPlaceDescription
         },
         addClickEvent() {
@@ -332,7 +373,7 @@
                 const id = entry.target.getAttribute('id').split('_')[1]
                 console.log(entry.intersectionRatio);
 
-                if (entry.intersectionRatio > 0.8) {
+                if (entry.intersectionRatio > 0.6) {
                   document.querySelector(`#list_${id}`).style.color = '#ff4477'
                 }
                 else {
@@ -360,83 +401,80 @@
           let dropzones = document.querySelectorAll('.dropzone');
           let n = 0
           console.log(dropzones);
-
+          let Source = this // Vue主體
+          let url_deletePlaceImage = this.urls.url_deletePlaceImage
+          let url_uploadImageUrl = this.urls.url_uploadImageUrl
+          let url_uploadImageCloudinary = this.urls.url_uploadImageCloudinary
           this.journalDatas.JournalContent.forEach(places => {
             places.Tour.forEach(place => {
-              let url = 'https://api.cloudinary.com/v1_1/ditncduk1/image/upload'
-              console.log(place);
-              // let reader = new FileReader();
-              // reader.onload = function(){
-              //   console.log(reader.result);
-              //   let request = {
-              //     api_key: '819392311777911',
-              //     file: reader.result,
-              //     api_secret: 'vWFjIgauRBwpAcELX8a6hve-WZY',
-              //     upload_preset: 'g0uupmf7'
-              //   }
-              //   axios.post(url, request).then(res => {
-              //     console.log(place.TripDetailsId, res);
-              //     place.PlaceImage.push()
-              //   })
-              // }
-
               n = n + 1
               var dropzone = new Dropzone(`#${dropzones[n - 1].id}`, {
                 previewTemplate: document.querySelector('#preview-template').innerHTML,
-                // parallelUploads: 2,
+                parallelUploads: 2,
                 thumbnailHeight: 135,
                 thumbnailWidth: 135,
                 maxFilesize: 3,
                 filesizeBase: 1000,
                 maxFiles: 10,
-                url: this.urls.url_uploadImage,
-                thumbnail: (file, dataUrl) => {
-                  if (file.previewElement) {
-                    file.previewElement.classList.remove("dz-file-preview");
-                    var images = file.previewElement.querySelectorAll("[data-dz-thumbnail]");
-                    for (var i = 0; i < images.length; i++) {
-                      var thumbnailElement = images[i];
-                      thumbnailElement.alt = file.name;
-                      thumbnailElement.src = dataUrl;
-                      thumbnailElement.height = 135
-                      thumbnailElement.width = 135
-                      console.log('aaaaaaaaaaaaa');
-                      
-                      // https://stackoverflow.com/questions/30081416/dropzone-js-resize-image-to-fit-the-thumbnail-size
-                      // dataUrl為圖片的資料
-                    }
-                    setTimeout(function () { file.previewElement.classList.add("dz-image-preview"); }, 1);
-                  }
-                },
+                // url: Source.urls.url_uploadImageCloudinary,
                 init: function () {
-                  this.on('maxfilesexceeded', function (file) {
-                    console.log();
-                    
-                    // this.removeFile(this.files[10]);
-                    this.removeFile(file);
-                    // this.removeFile(file);
-                    alert('上傳圖片已超過10張')
-                    while(this.files.length > 10){
-                      this.removeFile(this.files.pop());
-                    }
-                    console.log(this.files);
-                  })
-                  this.on("removedfile", function (file) {
-                    console.log(file);
-
-                  })
-                  let mockFile = { name: '123' };
-
-                  place.PlaceImage.forEach(element => {
-                    this.emit("addedfile", mockFile, element);
-                    this.emit("thumbnail", mockFile, element);
-
+                  place.PlaceImage.forEach((element, index) => {
+                    let mockFile = { name: element.ImageDetailsId};
+                    this.emit("addedfile", mockFile, element.Image);
+                    this.emit("thumbnail", mockFile, element.Image);
                     this.emit("complete", mockFile);
                     this.files.push(mockFile);
-                    console.log(this.files);
-                    console.log(this);
                   });
-
+                  this.on("addedfile", function (file) {
+                    console.log('addedfile');
+                    console.log(this.files);
+                    let overLimit = false
+                    while (this.files.length > 10) {
+                      let selectFile = this.files.pop()
+                      this.removeFile(selectFile);
+                      console.log('delete');
+                      overLimit = true
+                    }
+                    if(overLimit){
+                      Source.Notification('上傳圖片數量最多為10張', 'error')
+                    }
+                  })
+                  this.on("success", function (event, file) {
+                    console.log('success');
+                  });
+                  this.on('complete', function (file, AAAA) {
+                    // 確定完成
+                    console.log('complete');
+                  })
+                  this.on("maxfilesreached", function (file) {
+                    console.log('maxfilesreached');
+                  });
+                  this.on('maxfilesexceeded', function (file) {
+                    console.log('maxfilesexceeded');
+                  })
+                  this.on("removedfile", function (file) {
+                    // console.log('remove', file.previewElement, file.previewElement.id);
+                    // console.log(file.previewElement.querySelector('.update-img-border img').alt);
+                    let ImageDetailsId = file.previewElement.querySelector('.update-img-border img').alt
+                    axios.delete(`${url_deletePlaceImage}${ImageDetailsId}`).then(res => {
+                      console.log(res);
+                      if (res.data.IsSuccessful){
+                        Source.Notification('刪除成功', 'success')
+                      }
+                      else{
+                        Source.Notification('刪除失敗', 'error')
+                      }
+                    })
+                    console.log(this.files);
+                    console.log(file);
+                  })
+                  
+                  this.on("cancel", function (file) {
+                    console.log('canceled');
+                  })
+                  this.on("error", function (file, message) {
+                    console.log('error');
+                  });
                 },
               });
               // Now fake the file upload, since GitHub does not handle file uploads
@@ -445,68 +483,91 @@
                 maxSteps = 60,
                 timeBetweenSteps = 100,
                 bytesPerStep = 100000;
-
               dropzone.uploadFiles = function (files) {
-                var self = this;
-                console.log('asdsadasd', files);
-                // console.log(self);
-                console.log(place.PlaceImage);
-                console.log({...this.files});
-                console.log(place.PlaceImage.length);
-                
-                if (place.PlaceImage.length < 10) {
-                  console.log(place.PlaceImage);
-                  // let selectFiles = files.slice(0, 10 - place.PlaceImage.length)
-                  let selectFiles = files
-                  // console.log(selectFiles);
+                console.log('upload');
+                var self = this; // dropzone
+                let reader = new FileReader();
+                reader.readAsDataURL(files[0])
+                reader.onload = function () {
+                  console.log('reader');
 
-                  for (var i = 0; i < selectFiles.length; i++) {
-                    var file = selectFiles[i];
-                    // console.log(i);
-
-                    let reader = new FileReader();
-                    reader.onload = function () {
+                  // console.log(reader.result);
+                  // Cloudinary參數
+                  let request = {
+                    api_key: '819392311777911',
+                    file: reader.result,
+                    api_secret: 'vWFjIgauRBwpAcELX8a6hve-WZY',
+                    upload_preset: 'g0uupmf7'
+                  }
+                  // 上傳到Cloudinary
+                  console.log(url_uploadImageCloudinary);
+                  
+                  axios.post(url_uploadImageCloudinary, request).then(res => {
+                    console.log(place.TripDetailsId, res);
+                    // place.PlaceImage.push()
+                    console.log(res.data.url);
+                    if (res.data.url) {
                       let request = {
-                        api_key: '819392311777911',
-                        file: reader.result,
-                        // reader.result：base64
-                        api_secret: 'vWFjIgauRBwpAcELX8a6hve-WZY',
-                        upload_preset: 'g0uupmf7'
+                        TripDetailsId: place.TripDetailsId,
+                        Image: res.data.url
                       }
-                      axios.post(url, request).then(res => {
-                        place.PlaceImage.push(res.data.url)
-                        console.log('upload----------');
-                        console.log(place.PlaceImage.length);
-                        
-                        
+                      console.log(request);
+                      axios.post(url_uploadImageUrl, request).then(res => {
+                        console.log(res);
+                        if (res.data.TripDetailsId) {
+                          // 成功
+                          if (files[0].previewElement) {
+                            files[0].previewElement.classList.remove("dz-file-preview");
+                            var images = files[0].previewElement.querySelectorAll("[data-dz-thumbnail]");
+                            for (var i = 0; i < images.length; i++) {
+                              var thumbnailElement = images[i];
+                              // thumbnailElement.alt = file.name;
+                              // thumbnailElement.src = dataUrl;
+                              thumbnailElement.src = res.data.Image
+                              thumbnailElement.height = 135
+                              thumbnailElement.width = 135
+                              thumbnailElement.alt = res.data.ImageDetailsId
+                              console.log('thumbnail');
+
+                              // https://stackoverflow.com/questions/30081416/dropzone-js-resize-image-to-fit-the-thumbnail-size
+                              // dataUrl為圖片的資料
+                            }
+                            setTimeout(function () { file.previewElement.classList.add("dz-image-preview"); }, 1);
+                          }
+
+                          let selectFiles = files
+                          for (var i = 0; i < selectFiles.length; i++) {
+                            var file = selectFiles[i];
+                            totalSteps = Math.round(Math.min(maxSteps, Math.max(minSteps, file.size / bytesPerStep)));
+                            for (var step = 0; step < totalSteps; step++) {
+                              var duration = timeBetweenSteps * (step + 1);
+                              setTimeout(function (file, totalSteps, step) {
+                                return function () {
+                                  file.upload = {
+                                    progress: 100 * (step + 1) / totalSteps,
+                                    total: file.size,
+                                    bytesSent: (step + 1) * file.size / totalSteps
+                                  };
+                                  self.emit('uploadprogress', file, file.upload.progress, file.upload.bytesSent);
+                                  if (file.upload.progress == 100) {
+                                    console.log('uploadOK');
+                                    Source.Notification('上傳成功', 'success')
+                                    file.status = Dropzone.SUCCESS;
+                                    self.emit("success", file, 'success', null);
+                                    self.emit("complete", file);
+                                    self.processQueue();
+                                  }
+                                };
+                              }(file, totalSteps, step), duration);
+                            }
+                          }
+                        }
                       })
                     }
-                    reader.readAsDataURL(file)
-                    totalSteps = Math.round(Math.min(maxSteps, Math.max(minSteps, file.size / bytesPerStep)));
-                    for (var step = 0; step < totalSteps; step++) {
-                      var duration = timeBetweenSteps * (step + 1);
-                      setTimeout(function (file, totalSteps, step) {
-                        return function () {
-                          file.upload = {
-                            progress: 100 * (step + 1) / totalSteps,
-                            total: file.size,
-                            bytesSent: (step + 1) * file.size / totalSteps
-                          };
-                          self.emit('uploadprogress', file, file.upload.progress, file.upload.bytesSent);
-                          if (file.upload.progress == 100) {
-                            file.status = Dropzone.SUCCESS;
-                            self.emit("success", file, 'success', null);
-                            self.emit("complete", file);
-                            self.processQueue();
-                          }
-                        };
-                      }(file, totalSteps, step), duration);
-                    }
-                  }
+                  })
                 }
               }
             })
-
           })
         },
         ClickHidePlace(e) {
@@ -533,10 +594,10 @@
             TripDetailsId: place.TripDetailsId,
             Hide: place.Hide
           }).then(res => {
-            if (res.data.IsSuccessful){
+            if (res.data.IsSuccessful) {
               this.Notification('修改成功', 'success')
             }
-            else{
+            else {
               this.Notification('修改失敗', 'error')
               place.Hide = !place.Hide
             }
@@ -562,10 +623,10 @@
             DayId: journal.DayId,
             Hide: result
           }).then(res => {
-            if (res.data.IsSuccessful){
+            if (res.data.IsSuccessful) {
               this.Notification('修改成功', 'success')
             }
-            else{
+            else {
               this.Notification('修改失敗', 'error')
               journal.Tour.forEach(item => {
                 result = !result
@@ -596,11 +657,26 @@
             api_secret: 'vWFjIgauRBwpAcELX8a6hve-WZY',
             upload_preset: 'g0uupmf7'
           }
-          axios.post(this.urls.url_uploadImage, request).then(res => {
-            this.Notification('更新成功', 'success')
-            this.journalDatas.JournalCoverImage = res.data.url
-            this.journalDatas["journal_coverImage"] = this.coverImageReader.result
+          let returnImage = ''
+          axios.post(this.urls.url_uploadImageCloudinary, request).then(res => {
+            console.log(res);
+            returnImage = res.data.url
+            axios.put(this.urls.url_UpdateJournalCoverImage, {
+              TripId: this.journalDatas.TripId,
+              CoverImage: res.data.url
+            }).then(res => {
+              console.log(res);
+              if (res.data.IsSuccessful){
+                this.Notification('更新成功', 'success')
+                this.journalDatas.JournalCoverImage = returnImage
+              }
+              else{
+                this.Notification('更新失敗', 'error')
+              }
+            })
           }).catch((err) => {
+            console.log(err);
+            
             this.Notification('更新失敗', 'error')
           })
         }
@@ -612,6 +688,9 @@
           },
           deep: true,
         }
+      },
+      components: {
+        loading
       },
       mounted() {
         this.getData()
