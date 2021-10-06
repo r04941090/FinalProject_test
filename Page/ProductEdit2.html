@@ -232,7 +232,6 @@
           editor: ClassicEditor,
           editorData: '',
           editorConfig: {
-            // height: '80px',
             placeholder: '請輸入旅遊介紹內容',
             fontFamily: {
               options: [
@@ -273,6 +272,7 @@
         }
       },
       methods: {
+        // --- 取得資料 ---
         getData() {
           this.initialLoading = true
           document.querySelector('body').style.overflow = 'hidden';
@@ -288,6 +288,7 @@
             });
           })
         },
+        // --- 跳出通知 ---
         Notification(message, type) {
           ElNotification({
             message: message,
@@ -296,6 +297,7 @@
             position: 'bottom-right'
           })
         },
+        // --- 更新旅遊回憶的介紹 ---
         UpdateJournalDescription(Journal) {
           console.log(Journal.JournalDescription);
           
@@ -315,6 +317,7 @@
             })
           }
         },
+        // --- 更新景點的介紹 ---
         UpdatePlaceDescription(Place) {
           if (Place.Description !== this.originPlaceDescription) {
             console.log(Place.Description);
@@ -335,9 +338,11 @@
             })
           }
         },
+        // --- 取得初始旅遊回憶的介紹 ---
         GetOriginDescription(originDescription) {
           this.originDescription = originDescription
         },
+        // --- 取得初始景點的介紹 ---
         GetOriginPlaceDescription(originPlaceDescription) {
           this.originPlaceDescription = originPlaceDescription
         },
@@ -365,6 +370,7 @@
             }
           })
         },
+        // --- 滾動的事件 ---
         addScrollEvent() {
           window.addEventListener('scroll', function () {
             // https://medium.com/%E9%BA%A5%E5%85%8B%E7%9A%84%E5%8D%8A%E8%B7%AF%E5%87%BA%E5%AE%B6%E7%AD%86%E8%A8%98/%E8%AA%8D%E8%AD%98-intersection-observer-api-%E5%AF%A6%E4%BD%9C-lazy-loading-%E5%92%8C-infinite-scroll-c8d434ad218c
@@ -386,6 +392,7 @@
             });
           })
         },
+        
         CallCoverImg() {
           console.log(this.$refs.coverFile);
           this.$refs.coverFile.click();
@@ -396,6 +403,7 @@
           this.coverImageReader.readAsDataURL(e.target.files[0])
 
         },
+        // --- 建立Dropzone的物件 ---
         CreateDropZone() {
           Dropzone.autoDiscover = false; // key point
           let dropzones = document.querySelectorAll('.dropzone');
@@ -570,6 +578,7 @@
             })
           })
         },
+        
         ClickHidePlace(e) {
           if (e.target.nextSibling.style.display == 'block') {
             e.target.nextSibling.style.display = 'none'
@@ -578,6 +587,7 @@
             e.target.nextSibling.style.display = 'block'
           }
         },
+        
         ClickHideDay(e) {
           if (e.target.nextSibling.style.display == 'block') {
             e.target.nextSibling.style.display = 'none'
@@ -586,6 +596,7 @@
             e.target.nextSibling.style.display = 'block'
           }
         },
+        // --- 隱藏/顯示景點 ---
         HidePlace(place, e) {
           console.log(place);
           place.Hide = !place.Hide
@@ -603,6 +614,7 @@
             }
           })
         },
+        // --- 隱藏/顯示日 ---
         HideDay(journal, e) {
           console.log(journal);
           let result;
@@ -644,11 +656,7 @@
             behavior: 'smooth'
           })
         },
-        initialElement() {
-          window.onload = () => {
-            this.CreateDropZone()
-          }
-        },
+        // --- 更新封面圖片 ---
         UpdateCoverImg(e) {
           let request = {
             api_key: '819392311777911',
@@ -676,7 +684,6 @@
             })
           }).catch((err) => {
             console.log(err);
-            
             this.Notification('更新失敗', 'error')
           })
         }
@@ -702,7 +709,5 @@
     }
     Vue.createApp(App).use(CKEditor).use(ElementPlus).mount('#app')
   </script>
-
 </body>
-
 </html>
