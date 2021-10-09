@@ -1,0 +1,148 @@
+.room{
+  width: 400px;
+  height: 500px;
+  border: 1px solid #000;
+  padding: 10px;
+  overflow: auto;
+}
+.message-date-box{
+  text-align: center;
+  font-size: 12px;
+  color: #666;
+}
+.message-date{
+  padding: 2px 10px;
+  border-radius: 10px;
+  border: 1px solid #bbb;
+  
+}
+.messageBox{
+  display: flex;
+  margin: 10px 0px;
+}
+.messageBox-photo{
+  height: 45px;
+  border-radius: 200px;
+  overflow: hidden;
+}
+.messageBox-photo img{
+  height: 100%;
+}
+.messageBox-info-left{
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  align-items: start;
+  font-size: 12px;
+}
+.messageBox-message{
+  display: flex;
+}
+.messageBox-message-left{
+  /* border: 1px solid #000; */
+  background-color: #eee;
+  max-width: 220px;
+  word-wrap: break-word;
+  padding: 10px 15px;
+  border-radius: 20px;
+  margin-left: 15px;
+  margin-bottom: 5px;
+}
+.bubble-arrow-left {
+  /* https://codepen.io/nycuaivw-the-scripter/pen/BadaBaX */
+  position: absolute;
+  width: 0;
+  top: 10px;
+  left: 5px;
+  height: 0;
+  z-index: 20;
+}
+.bubble-arrow-left:after {
+  content: "";
+  position: absolute;
+  border: 0 solid transparent;
+  border-top: 9px solid #eee;
+  border-radius: 0 20px 0;
+  width: 15px;
+  height: 30px;
+  transform: rotate(180deg);
+}
+.bubble-arrow-right{
+  /* https://codepen.io/nycuaivw-the-scripter/pen/BadaBaX */
+  position: absolute;
+  width: 0;
+  top: -7px;
+  right: 5px;
+  height: 0;
+  z-index: 20;
+}
+.bubble-arrow-right:after {
+  content: "";
+  position: absolute;
+  border: 0 solid transparent;
+  border-top: 9px solid #98f39d;
+  border-radius: 0 20px 0;
+  width: 15px;
+  height: 30px;
+  transform: rotate(0deg) scaleY(-1);
+}
+.messageBox-name{
+  margin-left: 5px;
+  color: #666;
+  
+}
+.messageBox-time-left{
+  margin-top: auto;
+  font-size: 10px;
+  color: #aaa;
+  margin-left: 10px;
+  margin-bottom: 5px;
+}
+.messageBox-message-last{
+  display: flex;
+}
+.messageBox-self{
+  display: flex;
+  flex-direction: row-reverse;
+  padding-right: 10px;
+}
+.messageBox-info-right{
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  align-items: end;
+  font-size: 12px;
+}
+.messageBox-message-right{
+  background-color: #98f39d;
+  max-width: 270px;
+  word-wrap: break-word;
+  padding: 10px 15px;
+  border-radius: 20px;
+  margin-bottom: 5px;
+}
+.messageBox-time-right{
+  margin-top: auto;
+  font-size: 10px;
+  color: #aaa;
+  margin-right: 10px;
+  margin-bottom: 5px;
+}
+.enter-message{
+  width: 400px;
+  display: flex;
+  padding: 5px;
+  border: 1px solid black;
+  border-radius: 10px;
+  margin-top: 5px;
+}
+.enter-message .message{
+  width: 100%;
+  margin-right: 15px;
+  padding: 5px 10px;
+  border-radius: 5px;
+  border: 1px solid #aaa;
+}
+.enter-message .send{
+  width: 70px;
+}
