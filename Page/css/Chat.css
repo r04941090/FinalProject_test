@@ -4,6 +4,7 @@
   border: 1px solid #000;
   padding: 10px;
   overflow: auto;
+  position: relative;
 }
 .message-date-box{
   text-align: center;

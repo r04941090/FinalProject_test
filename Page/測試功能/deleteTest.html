@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="https://unpkg.com/vue@next"></script>
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/element-plus/dist/index.css" />
+  <script src="//cdn.jsdelivr.net/npm/element-plus"></script>
+</head>
+
+<body>
+  <div id="app">
+    <template slot-scope="scope">
+      <el-popconfirm title="这是一段内容确定删除吗？">
+        <el-button slot="reference">删除</el-button>
+      </el-popconfirm>
+    </template>
+  </div>
+  <script>
+    const App = {
+      data() {
+        return {
+
+        }
+      }
+    }
+    Vue.createApp(App).use(ElementPlus).mount('#app')
+  </script>
+</body>
+
+</html>

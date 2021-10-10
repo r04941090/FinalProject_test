@@ -16,92 +16,28 @@
     integrity="sha384-SZXxX4whJ79/gErwcOYf+zWLeJdY/qpuqC4cAa9rOGUstPomtqpuNWT9wdPEn2fk" crossorigin="anonymous">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
   <link rel="stylesheet" href="/css/Chat.css">
+  <link rel="stylesheet" href="/css/ContextMenu.css">
+  <script src="//cdn.jsdelivr.net/npm/element-plus"></script>
+
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/element-plus/dist/index.css" />
 </head>
 
 <body>
   <div id="app">
-    {{test}}
-    <div class="room">
+    <div class="room" ref="room">
       <div v-for="content in chatData" :key="content.PostDate">
         <div class="message-date-box">
           <span class="message-date">{{content.PostDate}}</span>
         </div>
         <template v-for="(item, index) in content.MessageBox" :key="index">
-          <message-box :chat-data="item"></message-box>
+          <message-box :chat-data="item" @select-message="getSelectMessage"></message-box>
         </template>
         
-        <!-- <div class="messageBox">
-          <div class="messageBox-photo">
-            <img src="/image/user.jpg" alt="">
-          </div>
-          <div class="messageBox-info-left">
-            <div class="bubble-arrow-left"></div>
-            <div class="messageBox-name">Kevin</div>
-            <div class="messageBox-message">
-              <div class="messageBox-message-left">好哦 因為欄位性質重複，剛剛才發現如果新加一天上去要改兩個地方，感覺怪怪的</div>
-              <div class="messageBox-time-left">上午 11:57</div>
-            </div>
-            <div class="messageBox-message">
-              <div class="messageBox-message-left">對阿</div>
-              <div class="messageBox-time-left">上午 11:58</div>
-            </div>
-          </div>
+      </div>
+      <div class="context-menu" :class="{active: menuShow}" ref="contextMenu" id="delete" @click="deleteSelectMessage">
+        <div class="item">
+          <i class="fas fa-trash-alt" style="margin-right: 7px;"></i> 刪除
         </div>
-        <div class="messageBox-self">
-          <div class="messageBox-info-right">
-            <div class="bubble-arrow-right"></div>
-            <div class="messageBox-message">
-              <div class="messageBox-time-right">
-                <div class="read" style="text-align: right;">已讀 5</div>
-                下午 3:38
-              </div>
-              <div class="messageBox-message-right">
-                資料庫的欄位我想把Trip表格中的TotalDate移掉，因為TotalDate可以用TripId去查詢TripDay的表格查出來。因為如果多出otalDate這個欄位，在旅遊規劃時如果增加/刪除天數，除了修改TripDay的表格外(增加/刪除DayId)，還需要修改Trip的TotalDate
-              </div>
-            </div>
-            <div class="messageBox-message-last">
-              <div class="messageBox-time-right">
-                <div class="read" style="text-align: right;">已讀 5</div>
-                下午 3:39
-              </div>
-              <div class="messageBox-message-right">這樣有點重複</div>
-            </div>
-          </div>
-        </div>
-        <div class="messageBox">
-          <div class="messageBox-photo">
-            <img src="/image/user.jpg" alt="">
-          </div>
-          <div class="messageBox-info-left">
-            <div class="bubble-arrow-left"></div>
-            <div class="messageBox-name">Kevin</div>
-            <div class="messageBox-message">
-              <div class="messageBox-message-left">我是真的覺得視覺上蠻擠的</div>
-              <div class="messageBox-time-left">上午 11:57</div>
-            </div>
-            <div class="messageBox-message">
-              <div class="messageBox-message-left">對阿</div>
-              <div class="messageBox-time-left">上午 11:58</div>
-            </div>
-          </div>
-        </div>
-        <div class="messageBox">
-          <div class="messageBox-photo">
-            <img src="/image/user.jpg" alt="">
-          </div>
-          <div class="messageBox-info-left">
-            <div class="bubble-arrow-left"></div>
-            <div class="messageBox-name">Kevin</div>
-            <div class="messageBox-message">
-              <div class="messageBox-message-left">我是真的覺得視覺上蠻擠的</div>
-              <div class="messageBox-time-left">上午 11:57</div>
-            </div>
-            <div class="messageBox-message">
-              <div class="messageBox-message-left">對阿</div>
-              <div class="messageBox-time-left">上午 11:58</div>
-            </div>
-          </div>
-        </div> -->
       </div>
     </div>
     <div class="enter-message">
@@ -113,6 +49,12 @@
   </div>
   <script>
     const messageBox = {
+      data(){
+        return {
+          contextMenuShow: false,
+          selectMessage: ''
+        }
+      },
       template: `
       <div class="messageBox" v-if="chatData.CurrentUserName !== chatData.UserName">
         <div class="messageBox-photo">
@@ -132,7 +74,7 @@
       <div class="messageBox-self" v-else>
         <div class="messageBox-info-right">
           <div class="bubble-arrow-right"></div>
-          <div class="messageBox-message" v-for="(message, index) in chatData.TotalMessage" :key="message.CommentId">
+          <div class="messageBox-message" v-for="(message, index) in chatData.TotalMessage" :key="message.CommentId" @contextmenu.prevent="showMenu(message, $event)">
             <div class="messageBox-time-right">
               <div class="read" style="text-align: right;">已讀 {{message.ReadQuantity}}</div>
               <span v-if="index == chatData.TotalMessage.length - 1">
@@ -144,11 +86,16 @@
         </div>
       </div>`,
       props: ['chatData'],
+      emits: ['selectMessage'],
+      methods: {
+        showMenu(message, event){
+          this.$emit('selectMessage', message, event)
+        },
+      },
       watch:{
         chatData:{
           handler: function(){
             console.log(this.chatData);
-            
           }
         }
       }
@@ -156,28 +103,51 @@
     const App = {
       data() {
         return {
-          test: '123',
           chatData: [],
+          selectMessage: '',
+          menuShow: false
         }
       },
       methods: {
+        deleteSelectMessage(){
+          console.log(this.selectMessage);
+          
+        },
         getChatData() {
           let url = 'https://raw.githubusercontent.com/r04941090/FileStorage/master/ChatData'
           axios.get(url).then(res => {
             console.log(res);
             this.chatData = res.data
             console.log(this.chatData);
+            this.$refs.room.scrollTop = this.$refs.room.scrollHeight
+            this.$nextTick(() => {
+              // https://iter01.com/581627.html
+              console.log(this.$refs.room.scrollTop, this.$refs.room.scrollHeight);
+              this.$refs.room.scrollTop = this.$refs.room.scrollHeight
+            });
           })
+        },
+        getSelectMessage(message, event){
+          this.menuShow = true
+          let contextElement = this.$refs.contextMenu
+          contextElement.style.top = event.y + "px";
+          contextElement.style.left = event.x + "px";
+          this.selectMessage = message
+        },
+        clearSelectMessage(e){
+          this.menuShow = false
         }
       },
+      
       components: {
         messageBox
       },
       mounted() {
         this.getChatData()
+        window.addEventListener('click', this.clearSelectMessage)
       },
     }
-    Vue.createApp(App).mount('#app')
+    Vue.createApp(App).use(ElementPlus).mount('#app')
   </script>
 </body>
 

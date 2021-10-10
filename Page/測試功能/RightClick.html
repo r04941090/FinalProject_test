@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.3/css/all.css" integrity="sha384-SZXxX4whJ79/gErwcOYf+zWLeJdY/qpuqC4cAa9rOGUstPomtqpuNWT9wdPEn2fk" crossorigin="anonymous">
+  <link rel="stylesheet" href="/css/ContextMenu.css">
+</head>
+
+<body>
+  <div class="context-menu">
+    <div class="item">
+      <i class="fa fa-clone"></i> Copy
+    </div>
+    <div class="item">
+      <i class="fas fa-trash-alt" style="margin-right: 7px;"></i> Delete
+    </div>
+    <hr>
+    <div class="item">
+      <i class="fa fa-times" style="margin-right: 8px; margin-left: 2px;"></i> Exit
+    </div>
+  </div>
+  <script>
+    window.addEventListener("contextmenu", function (event) {
+      event.preventDefault();
+      console.log('show');
+      
+      var contextElement = document.querySelector(".context-menu");
+      contextElement.style.top = event.offsetY + "px";
+      contextElement.style.left = event.offsetX + "px";
+      contextElement.classList.add("active");
+    });
+    window.addEventListener("click", function (e) {
+      console.log(e.target);
+      
+      document.querySelector(".context-menu").classList.remove("active");
+      console.log('test');
+      
+    });
+  </script>
+</body>
+
+</html>
