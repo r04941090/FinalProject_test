@@ -90,7 +90,7 @@
             <div class="trip-list-header-title-container">
               <input type="text" class="trip-list-header-title edit-mode" v-model="rawData.TripTitle" v-if="edit"
                 v-on:blur="changeTripTitle" v-on:focus="TripTitle = rawData.TripTitle">
-              <div class="trip-list-header-title" v-if="!edit">{{rawData.TripTitle}}</div>
+              <div class="trip-list-header-title" v-if="!edit" :title="rawData.TripTitle">{{rawData.TripTitle}}</div>
             </div>
             <div class="trip-list-header-date">
               <input type="date" v-model="StartDate" v-if="edit">
@@ -187,7 +187,7 @@
         </div>
         <div class="my-collections-content" v-show="selectTab == 'collection'">
           <div class="my-collections-list" v-for="collection in rawData.AttractionCollection"
-            :key="collection.PlaceName">
+            :key="collection.AttractionsCollectionId">
             <div class="my-collections-cell" v-on:click="searchByCollection(collection.PlaceName)">
               <div class="my-collections-name">
                 <span>{{collection.PlaceName}}</span>
@@ -376,9 +376,18 @@
       props: ['selectPlace'],
       emits: ['close', 'updateNote', 'updateSearchResult', 'addPlace', 'addCollection'],
       methods: {
+        Notification(message, type) {
+          ElNotification({
+            message: message,
+            type: type,
+            duration: 2000,
+            position: 'bottom-right'
+          })
+        },
         updateSelectTab(select) {
           this.selectTab = select
         },
+        // (origin_note == selectPlace.Place.Note) || ((origin_note == null) && (selectPlace.Place.Note == ""))
         Close() {
           this.$emit('close')
           this.selectTab = 'search'
@@ -392,7 +401,11 @@
           }).then(res => {
             if (res.data.IsSuccessful) {
               // 如果資料庫更新成功，則傳回去父層更新
+              this.Notification('Note更新成功', 'success')
               this.$emit('updateNote', this.selectPlace.Place)
+            }
+            else{
+              this.Notification('Note更新失敗', 'error')
             }
           })
         },
@@ -419,6 +432,8 @@
           if (!this.selectPlace.searchBoxPlace) {
             this.origin_note = this.selectPlace.Place.Note
           }
+          console.log(this.origin_note);
+          
           // let searchPlaceType = {
           //   searchBoxPlace: false,
           //   Place: Place
@@ -600,7 +615,7 @@
         return {
           urls: {
             // 需要修改傳入的TripId
-            url_GetPlanDetails: 'https://localhost:44392/api/plan/GetPlanDetails/44',
+            url_GetPlanDetails: 'https://localhost:44392/api/plan/GetPlanDetail/44',
             url_GetAttractionCollection: 'https://localhost:44392/api/plan/GetAttractionCollection/',
             url_UpdatePlaceStayTime: 'https://localhost:44392/api/plan/UpdatePlaceStayTime',
             url_UpdateTrip: 'https://localhost:44392/api/plan/UpdateTrip',
@@ -2468,10 +2483,7 @@
             if (res.data.IsSuccessful) {
               this.Notification('新增成功', 'success')
               axios.get(`${this.urls.url_GetAttractionCollection}${this.rawData.UserId}`).then(res => {
-                console.log(res);
-                if (res.data.IsSuccessful){
-                  this.rawData.AttractionCollection = res.data
-                }
+                this.rawData.AttractionCollection = res.data
               })
             }
             else{

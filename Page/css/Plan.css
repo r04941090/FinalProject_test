@@ -354,6 +354,9 @@ body {
   border-width: 0px;
   font-size: 20px;
   font-weight: bold;
+  overflow:hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 .trip-list-header-title.edit-mode{
   border-bottom: 1px solid #000;
