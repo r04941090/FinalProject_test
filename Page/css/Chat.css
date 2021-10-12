@@ -1,3 +1,11 @@
+.room-container{
+  position: absolute;
+  bottom: 0;
+  z-index: 1000;
+  right: 55px;
+  background: #fff;
+  border-radius: 5px;
+}
 .room-header{
   width: 400px; 
   height: 25px; 
@@ -28,7 +36,7 @@
 }
 .room{
   width: 400px;
-  height: 500px;
+  height: 350px;
   border: 1px solid #aaa;
   border-top: none;
   border-radius: 0px 0px 5px 5px;

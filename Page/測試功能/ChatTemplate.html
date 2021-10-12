@@ -17,13 +17,12 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
   <link rel="stylesheet" href="/css/Chat.css">
   <link rel="stylesheet" href="/css/ContextMenu.css">
-  <script src="//cdn.jsdelivr.net/npm/element-plus"></script>
 
-  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/element-plus/dist/index.css" />
 </head>
 
 <body>
   <div id="app" style="margin: 20px;">
+    <input type="number" name="name" v-model="userId" />{{userId}}
     <div class="room-header">
       <div class="participant">
         <i class="fas fa-users"></i>
@@ -68,11 +67,6 @@
             </div>
           </div>
         </template>
-
-        <!-- <template v-for="(item, index) in content.MessageBox" :key="index">
-          <message-box :chat-data="item" @select-message="getSelectMessage"></message-box>
-        </template> -->
-
       </div>
       <div class="context-menu" :class="{active: menuShow}" ref="contextMenu" id="delete" @click="deleteSelectMessage">
         <div class="item">
@@ -81,133 +75,13 @@
       </div>
     </div>
     <div class="enter-message">
-      <input type="text" class="message" placeholder="請輸入...">
-      <button type="button" class="send btn btn-sm btn-success">
+      <input type="text" class="message" placeholder="請輸入..." v-model="message">
+      <button type="button" class="send btn btn-sm btn-success" v-on:click="addMessage">
         <i class="fas fa-paper-plane"></i>
       </button>
     </div>
-  </div>
-  <script>
-    const App = {
-      data() {
-        return {
-          chatData: [],
-          selectMessage: '',
-          menuShow: false,
-        }
-      },
-      methods: {
-        deleteSelectMessage() {
-          console.log(this.selectMessage);
-
-        },
-        getChatData() {
-          let url = 'https://raw.githubusercontent.com/r04941090/FileStorage/master/Chat_new5'
-          let url2 = 'https://localhost:44392/api/plan/ReadAllMessage/44'
-          axios.get(url2).then(res => {
-            console.log(res);
-            this.chatData = res.data
-            console.log(this.chatData);
-            this.$refs.room.scrollTop = this.$refs.room.scrollHeight
-            this.$nextTick(() => {
-              // https://iter01.com/581627.html
-              console.log(this.$refs.room.scrollTop, this.$refs.room.scrollHeight);
-              this.$refs.room.scrollTop = this.$refs.room.scrollHeight
-            });
-          })
-        },
-        getSelectMessage(message, event) {
-          this.menuShow = true
-          let contextElement = this.$refs.contextMenu
-          contextElement.style.top = event.y + "px";
-          contextElement.style.left = event.x + "px";
-          this.selectMessage = message
-        },
-        clearSelectMessage(e) {
-          this.menuShow = false
-        },
-        groupBy(array, f) {
-          // https://codertw.com/%E7%A8%8B%E5%BC%8F%E8%AA%9E%E8%A8%80/157462/
-          let groups = {};
-          array.forEach(function (o) {
-            let group = JSON.stringify(f(o));
-            groups[group] = groups[group] || [];
-            groups[group].push(o);
-          });
-          return Object.keys(groups).map(function (group) {
-            return groups[group];
-          });
-        }
-      },
-      computed: {
-        MessageContent: function () {
-          if (this.chatData.MessageContent !== undefined) {
-            console.log(this.chatData.MessageContent);
-            let sortData = []
-            let sorted = this.groupBy(this.chatData.MessageContent, function (item) {
-              return [item.Time.split(' ')[0]];
-            });
-            console.log(sorted);
-            let UserId = 0
-            sorted.forEach(sortByDay => {
-              let element = {
-                PostDate: sortByDay[0].Time.split(' ')[0],
-                MessageBox: []
-              }
-              let sortByTime = this.groupBy(sortByDay, function (item) {
-                return [item.Time.split(' ')[1]];
-              })
-
-              sortByTime.forEach(item1 => {
-                let BeforeUserId = 0
-                item1.forEach((item2, index) => {
-                  if (index == 0) {
-                    item2.showArrow = true
-                    UserId = item2.UserId
-                  }
-                  else {
-                    if (UserId !== item2.UserId) {
-                      item2.showArrow = true
-                      UserId = item2.UserId
-
-                    }
-                    else {
-                      item2.showArrow = false
-                    }
-                  }
-                  if (index !== item1.length - 1) {
-                    if (item1[index + 1].UserId !== item2.UserId) {
-                      item2.showTime = true
-                    }
-                    else {
-                      item2.showTime = false
-                    }
-                  }
-                  else{
-                    item2.showTime = true
-                  }
-                  let hour = item2.Time.split(' ')[1].split(':')[0]
-                  let minute = item2.Time.split(' ')[1].split(':')[1]
-                  item2.PostType = hour > 11 ? '下午' : '上午'
-                  item2.PostTime = hour > 12 ? `${hour - 12}:${minute}` : `${hour}:${minute}`
-                  element.MessageBox.push(item2)
-                })
-              })
-              sortData.push(JSON.parse(JSON.stringify(element)))
-              console.log(sortByTime);
-            })
-            console.log(sortData);
-            return sortData
-          }
-        }
-      },
-      mounted() {
-        this.getChatData()
-        window.addEventListener('click', this.clearSelectMessage)
-      },
-    }
-    Vue.createApp(App).use(ElementPlus).mount('#app')
-  </script>
+  </div>  
+  <script src="/js/Chat.js"></script>
 </body>
 
 </html>

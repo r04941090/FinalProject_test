@@ -60,15 +60,15 @@ html {
   height: 100%;
   cursor: pointer;
 }
-.day-cell .drag-handler{
-  height: 20px;
-  position: absolute;
-  cursor: move;
-  z-index: 100;
-  background: url(/image/MoveDay.png);
-  background-repeat: no-repeat;
-  background-position: center top;
-  background-size: 16px;
+.day-cell .drag-handler {
+    height: 20px;
+    position: absolute;
+    cursor: move;
+    z-index: 100;
+    background: url(https://res.cloudinary.com/ditncduk1/image/upload/v1634025818/Plan/sf5npgh9yvhokjyckqds.png);
+    background-repeat: no-repeat;
+    background-position: center top;
+    background-size: 16px;
 }
 .day-cell-content{
   /* padding-top: 20px; */
@@ -113,20 +113,20 @@ html {
   box-shadow: 0 2px 8px rgb(0 0 0 / 20%);
   cursor: pointer;
 }
-.page-controller .previous{
-  background: url(/image/left_arrow.png);
-  background-repeat: no-repeat;
-  background-position: center center;
-  background-size: 10px 16px;
+.page-controller .previous {
+    background: url(https://res.cloudinary.com/ditncduk1/image/upload/v1634025839/Plan/pr9slvte7zxqz5sngr7u.png);
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: 10px 16px;
 }
-.page-controller .next{
-  background: url(/image/right_arrow.png);
-  position: absolute;
-  right: 0;
-  top: 0;
-  background-repeat: no-repeat;
-  background-position: center center;
-  background-size: 10px 16px;
+.page-controller .next {
+    background: url(https://res.cloudinary.com/ditncduk1/image/upload/v1634025863/Plan/a2cyfntxgwwijbxtoesd.png);
+    position: absolute;
+    right: 0;
+    top: 0;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: 10px 16px;
 }
 .sortable-item{
   box-shadow: 0 2px 8px rgb(0 0 0 / 80%);

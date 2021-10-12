@@ -498,7 +498,7 @@
                 reader.readAsDataURL(files[0])
                 reader.onload = function () {
                   console.log('reader');
-
+                  let url = ''
                   // console.log(reader.result);
                   // Cloudinary參數
                   let request = {
@@ -521,6 +521,7 @@
                       }
                       console.log(request);
                       axios.post(url_uploadImageUrl, request).then(res => {
+                        // 
                         console.log(res);
                         if (res.data.TripDetailsId) {
                           // 成功
