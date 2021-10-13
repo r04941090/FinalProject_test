@@ -60,6 +60,7 @@ Html{
 
 .blog-card-title {
   font-weight: bold;
+  color: #000;
 }
 
 .blog-card-content:hover .blog-card-title {

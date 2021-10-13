@@ -1,7 +1,7 @@
 const placeDetail = {
   data() {
     return {
-      url_GetSearch: 'https://localhost:44392/api/planapi/GetMapDetail/?search=',
+      url_GetPlaceDetailFromGoogleVM: 'https://localhost:44392/api/planapi/GetPlaceDetailFromGoogleVM/?search=',
       url_UpdatePlaceNote: 'https://localhost:44392/api/planapi/UpdatePlaceNote',
       origin_note: '',
       selectTab: 'search',
@@ -34,7 +34,7 @@ const placeDetail = {
         <div class="scroll-box mt-2">
           <h1 class="name" class="border-bottom" style= "box-shadow:none; padding: 10px;">{{PlaceName}}</h1>
           <div v-if="selectTab == 'search'">
-            <p>{{searchResult}}</p>
+            {{searchResult}}
             <div class="button-group">
               <button class="button ms-auto" id="button-collect" :disabled="this.selectPlace.collection" :style="{'background':this.selectPlace.collection ? '#ccc' : '#fff', 'color': this.selectPlace.collection ? '#fff' : '#ee3c77'}" v-on:click="AddToCollection">加入收藏</button>
               <button class="button ms-auto" id="button-addtrip" v-on:click="AddPlace">加入行程</button>
@@ -114,10 +114,12 @@ const placeDetail = {
       //   Place: Place
       // }
       console.log(this.selectPlace, 'inside');
-      axios.get(`${this.url_GetSearch}${this.selectPlace.Place.PlaceName}`).then(res => {
-        console.log(res.data.result);
-        this.searchResult = res.data.result
-        PlaceName = res.data.result.name // 景點完整的名字
+      axios.get(`${this.url_GetPlaceDetailFromGoogleVM}${this.selectPlace.Place.PlaceName}`).then(res => {
+        console.log(res);
+        
+        console.log('result', res.data.result);
+        this.searchResult = res.data
+        PlaceName = res.data.PlaceDetailModel.result.name // 景點完整的名字
         if (this.selectPlace.searchBoxPlace) {
           this.$emit('updateSearchResult', res.data.result.geometry.location)
         }
