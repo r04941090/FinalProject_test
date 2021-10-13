@@ -17,11 +17,12 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/4.3.0/dropzone.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/4.3.0/dropzone.js"></script>
   <script src="https://unpkg.com/vue@next"></script>
-  <link rel="stylesheet" href="/css/ProductEdit2.css">
+  
   <script src="https://cdn.jsdelivr.net/npm/@ckeditor/ckeditor5-vue@2.0.1/dist/ckeditor.min.js"></script>
   <script src="/js/ckeditor.js"></script>
   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/element-plus/dist/index.css" />
   <script src="//cdn.jsdelivr.net/npm/element-plus"></script>
+  <link rel="stylesheet" href="/css/ProductEdit2.css">
   <link rel="stylesheet" href="/css/Loading.css">
 </head>
 
@@ -213,12 +214,13 @@
     const App = {
       data() {
         return {
+          tripId: 65,
           initialLoading: true,
           journalDatas: {},
           coverImageReader: '',
           urls: {
             url_uploadImageCloudinary: 'https://api.cloudinary.com/v1_1/ditncduk1/upload',
-            url_GetTripDetail: 'https://localhost:44392/api/plan/GetTripDetail/65',
+            url_GetTripDetail: 'https://localhost:44392/api/planapi/GetTripDetail/',
             url_UpdateJournalIntro: 'https://localhost:44392/api/draft/UpdateJournalIntro',
             url_UpdateJournalCoverImage: 'https://localhost:44392/api/draft/UpdateJournalCoverImage',
             url_UpdatePlaceDescription: 'https://localhost:44392/api/draft/UpdatePlaceDescription',
@@ -277,7 +279,7 @@
           this.initialLoading = true
           document.querySelector('body').style.overflow = 'hidden';
           
-          axios.get(this.urls.url_GetTripDetail).then(res => {
+          axios.get(`${this.urls.url_GetTripDetail}${this.tripId}`).then(res => {
             this.journalDatas = res.data
             console.log(this.journalDatas);
             // this.CreateDropZone()
