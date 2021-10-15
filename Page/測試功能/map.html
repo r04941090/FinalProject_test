@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <section class="card">
+    <div class="scroll-box">
+      <h1 class="name"></h1>
+      
+    </div>
+  </section>
+</body>
+
+</html>
+
+<div class="location-photo w-100">
+  <div style="--swiper-navigation-color: #fff; --swiper-pagination-color: #fff" class="swiper mySwiper2">
+    <div class="swiper-wrapper">
+      <div class="swiper-slide" v-for="item in searchResult.PlaceDetailModel.result.photos">
+        <img :src="item.Url" />
+      </div>
+    </div>
+  </div>
+  <div thumbsSlider="" class="swiper mySwiper">
+    <div class="swiper-wrapper">
+      <div class="swiper-slide" v-for="item in searchResult.PlaceDetailModel.result.photos">
+        <img :src="item.Url" />
+      </div>
+    </div>
+    <div class="swiper-button-next" style="color:white;"></div>
+    <div class="swiper-button-prev" style="color:white;"></div>
+  </div>
+</div>
+<div class="location-info">
+  <div v-if="searchResult.PlaceDetailModel.isProduct == true">
+    <button class="btn btn-danger" style="width:100px;height:40px;margin-bottom:12px;">立即購買</button>
+  </div>
+
+  <div class="location-info-suggest">
+    <i class="fas fa-clock"></i>
+    <p class="mb-auto ms-1">建議停留 1 小時 30 分鐘</p>
+  </div>
+  <ul>
+    <li class="d-flex align-items-center">
+      <i class="fas fa-map-marker-alt"></i>
+      <p class="mb-auto ms-1">{{ searchResult.PlaceDetailModel.result.formatted_address }}</p>
+    </li>
+    <li class="d-flex align-items-center" v-if="searchResult.PlaceDetailModel.result.opening_hours !== null">
+      <i class="fas fa-store"></i>
+      <p class="mb-auto ms-1" v-if="searchResult.PlaceDetailModel.result.opening_hours.open_now">開放中</p>
+      <p class="mb-auto ms-1" v-else>關閉中</p>
+      <i class="fas fa-sort-down" id="timeShow"></i>
+    </li>
+    <ul id="timeList">
+      <li class="d-flex align-items-center"
+        v-for="item in searchResult.PlaceDetailModel.result.opening_hours.weekday_text">
+        <p class="mb-auto ms-1">{{ item }}</p>
+      </li>
+    </ul>
+    <li class="d-flex align-items-center">
+      <i class="fas fa-globe-americas"></i>
+      <a :href="searchResult.PlaceDetailModel.result.website" class="mb-auto ms-1">
+        {{ searchResult.PlaceDetailModel.result.website }}</a>
+    </li>
+    <li class="d-flex align-items-center">
+      <i class="fas fa-phone-alt"></i>
+      <p class="mb-auto ms-1">+88635892352</p>
+    </li>
+  </ul>
+</div>
+<div class="relations w-100">
+  <div class="relations-content">
+    <h2>評論</h2>
+    <div class="relations-content-wrap" style="padding-top:0;">
+      <a href="">
+        <div class="comment-progress">
+          <div class="progress">
+            <div class="progress-bar" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0"
+              aria-valuemax="100"></div>
+          </div>
+          <div class="progress">
+            <div class="progress-bar" role="progressbar" style="width: 75%" aria-valuenow="75" aria-valuemin="0"
+              aria-valuemax="100"></div>
+          </div>
+          <div class="progress">
+            <div class="progress-bar" role="progressbar" style="width: 50%" aria-valuenow="50" aria-valuemin="0"
+              aria-valuemax="100"></div>
+          </div>
+          <div class="progress">
+            <div class="progress-bar" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0"
+              aria-valuemax="100"></div>
+          </div>
+          <div class="progress">
+            <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+            </div>
+          </div>
+        </div>
+        <div class="relations-image review">
+          <span id="review-score">{{ searchResult.PlaceDetailModel.result.rating }}</span>
+          <ul class="d-flex text-decoration-none review-star">
+            <li v-for="item in rating">
+              <i class="fas fa-star"></i>
+            </li>
+            <li v-for="item in (5 - rating)">
+              <i class="fas fa-star" style="color:lightgrey;"></i>
+            </li>
+          </ul>
+          <span id="review-amount">{{ searchResult.PlaceDetailModel.result.reviews.Length }} 個評論</span>
+        </div>
+      </a>
+      <div class="relations-footer review-footer mt-3"
+        v-for="item in searchResult.PlaceDetailModel.result.reviews">
+        <a href="">
+          <img :src="item.profile_photo_url" alt="">
+        </a>
+        <p>{{ item.text }}</p>
+      </div>
+
+    </div>
+  </div>
+</div>
+<div class="relations w-100">
+  <div class="relations-content">
+    <h2 v-if="searchResult.SearchCardModel.Where(x => x.State == '行程') !== 0">行程</h2>
+    <div class="relations-content-wrap" v-for="item in searchResult.SearchCardModel.Where(x => x.State == '行程')">
+      
+      <div class="relations-footer">
+        <a href="">
+          <img :src="item.UserPhoto" alt="">
+          <span>{{item.UserName}}</span>
+        </a>
+        <span class="px-1"> | </span>
+        <span>{{item.PostDate}}</span>
+      </div>
+    </div>
+    <h2 v-if="searchResult.PlaceDetailModel.isProduct == true">在地體驗</h2>
+    <div class="relations-content-wrap" v-for="item in searchResult.SearchCardModel.Where(x => x.State == '在地體驗')">
+      
+      <div class="relations-footer">
+        <a href="">
+          <img :src="item.UserPhoto" alt="">
+          <span>{{ item.UserName }}</span>
+        </a>
+        <span class="px-1"> | </span>
+        <span>{{ item.PostDate }}</span>
+      </div>
+    </div>
+    
+    <h2 v-if="searchResult.PlaceDetailModel.isMemory == true">旅遊回憶</h2>
+    <div class="relations-content-wrap" v-for="item in searchResult.SearchCardModel.Where(x => x.State == '旅遊回憶')">
+      
+      <div class="relations-footer">
+        <a href="">
+          <img :src="item.UserPhoto" alt="">
+          <span>{{item.UserName}}</span>
+        </a>
+        <span class="px-1"> | </span>
+        <span>{{item.PostDate}}</span>
+      </div>
+    </div>
+  </div>
+</div>

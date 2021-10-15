@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="//unpkg.com/element-plus/dist/index.css">
+  <script src="https://unpkg.com/vue@next"></script>
+  <script src="//unpkg.com/element-plus/dist/index.full.js"></script>
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.3/css/all.css" integrity="sha384-SZXxX4whJ79/gErwcOYf+zWLeJdY/qpuqC4cAa9rOGUstPomtqpuNWT9wdPEn2fk" crossorigin="anonymous">
+  <style>
+    /* .el-button:focus, .el-button:hover{
+      color: #ff4477 !important;
+    } */
+    .el-button{
+      padding: 5px !important;
+      min-height: 10px !important;
+    }
+  </style>
+
+
+</head>
+<body>
+  <!-- https://element-plus.org/en-US/component/popover.html#basic-usage -->
+  <div id="app">
+    <!-- delete button -->
+    <el-popconfirm title="Are you sure to delete this?" v-on:Confirm="deleteItem" v-on:Cancel="cancel">
+      <template #reference>
+        <el-button>
+          <i class="fas fa-trash-alt"></i>
+        </el-button>
+      </template>
+    </el-popconfirm>
+  </div>
+  <script>
+    const App = {
+      data(){
+        return{
+
+        }
+      },
+      methods: {
+        deleteItem(){
+          // delete方法
+          console.log('delete');
+        },
+        cancel(){
+          console.log('cancel');
+        }
+      },
+    }
+    Vue.createApp(App).use(ElementPlus).mount('#app')
+  </script>
+</body>
+</html>

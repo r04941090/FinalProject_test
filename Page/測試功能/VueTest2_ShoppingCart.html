@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="https://unpkg.com/vue@next"></script>
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.3/css/all.css"
+    integrity="sha384-SZXxX4whJ79/gErwcOYf+zWLeJdY/qpuqC4cAa9rOGUstPomtqpuNWT9wdPEn2fk" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+</head>
+
+<body>
+
+  <div id="app">
+    <div @mouseover="AAA" class="border d-inline-block" @mouseleave="BBB" style="padding: 10px;">
+      <i class="fas fa-shopping-cart"></i>
+    </div>
+    <div v-show="show" class="border" style="width: 200px; position: absolute; top: 40px;"  @mouseleave="BBB" @mouseover="AAA">
+      Lorem ipsum dolor sit amet consectetur, adipisicing elit. Nobis aut 
+    </div>
+    <div class="" style="z-index: 1000; margin-top: 300px;">
+      <span>購物車數量：</span>
+      <span class="data">{{total}}</span>
+    </div>
+  </div>
+  <div id="app2" style="margin-top: 200px;">
+    <input type="number" v-model="test2">
+    {{test2}}
+    <button @click="change">加入購物車</button>
+  </div>
+  <script>
+
+    const App = {
+      data() {
+        return {
+          test: '',
+          show: false,
+          total: 1
+        }
+      },
+      methods: {
+        aaa() {
+          console.log('asdasdasd');
+
+        },
+        AAA(){
+          console.log('getData');
+          this.show = true
+          loading
+          axio.get
+          un
+        },
+        BBB(){
+          this.show = false
+        }
+      },
+      watch: {
+        test: {
+          handler: function () {
+            console.log('aaaa');
+
+          }
+        }
+      }
+    }
+    const App2 = {
+      data() {
+        return {
+          test2: ''
+        }
+      },
+      methods: {
+        change() {
+          console.log(document.querySelector('.data'));
+          // 取得購物車的數量
+          document.querySelector('.data').textContent = this.test2;
+          axios.post(url, request).then(res => {
+            axio.get
+          })
+        }
+      },
+    }
+    Vue.createApp(App).mount('#app')
+    Vue.createApp(App2).mount('#app2')
+  </script>
+</body>
+
+</html>

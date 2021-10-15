@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="https://unpkg.com/vue@next"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+</head>
+<body>
+  <div id="app">
+    <div>
+      <span>訂單資訊</span>
+      <p>Name: {{selectData.name}}</p>
+      <p>id: {{selectData.id}}</p>
+    </div>
+    <nav aria-label="Page navigation example">
+      <ul class="pagination">
+        <li class="page-item" v-on:click="minusIndex">
+          <a class="page-link" href="#" aria-label="Previous">
+            <span aria-hidden="true">&laquo;</span>
+          </a>
+        </li>
+        <li class="page-item" v-for="(item, index) in rawData" @click="changeSelect(index)" :class="{'active': item === selectData}">
+          <a class="page-link" href="#" >{{ index + 1 }}</a>
+        </li>
+        <li class="page-item" v-on:click="addIndex">
+          <a class="page-link" href="#" aria-label="Next"> 
+            <span aria-hidden="true">&raquo;</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+  <script>
+    const App = {
+      data(){
+        return {
+          selectData: {},
+          index: 0,
+          rawData:[]
+        }
+      },
+      methods: {
+        changeSelect(index){
+          this.selectData = this.rawData[index]
+        },
+        getData(){
+          axios.put(url, request)
+          // axios.get(url).then(res => {
+          //   console.log(res.data);
+            
+          // })
+          // 用axios讀資料
+          this.rawData = [
+            {
+              name: 'Kevin',
+              id: 1
+            },
+            {
+              name: 'Marry',
+              id: 2
+            },
+            {
+              name: 'Sherry',
+              id: 3
+            }
+          ]
+        },
+        minusIndex(){
+          if (this.index - 1 >= 0){
+            this.index = this.index - 1
+            this.selectData = this.rawData[this.index]
+          }
+        },
+        addIndex(){
+          if (this.index + 1 < this.rawData.length ){
+            this.index = this.index + 1
+            this.selectData = this.rawData[this.index]
+          }
+        }
+      },
+      mounted() {
+        // 初始化
+        // loading
+        this.getData()
+        this.selectData = this.rawData[0]
+        // this.$nextTick(() => {
+        //   // unloading
+        // })
+        
+      },
+    }
+    Vue.createApp(App).mount('#app')
+  </script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/vue@next"></script>
+  <style>
+    body{
+      
+    }
+    .publish{
+      border: 1px solid #aaa;
+      background: #aaa;
+      color: #fff;
+      font-weight: bold;
+      cursor: not-allowed !important;
+    }
+    .unpublish{
+      border: 1px solid #ee3c77;
+      background: #ee3c77;
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <button class="btn-sm" type="button"  v-on:click="publish" :class="{'publish': publishLoading, 'unpublish': !publishLoading}">
+      <span class=" spinner-border-sm" role="status" aria-hidden="true" :class="{'spinner-border': publishLoading}"></span>
+      {{publishLoading? '發佈中':'發佈'}}
+    </button>
+  </div>
+  <script>
+    const App = {
+      data(){
+        return {
+          test:123,
+          publishLoading: false
+        }
+      },
+      methods: {
+        publish(){
+          this.publishLoading = true
+          test().then(res => {
+            console.log('done');
+            this.publishLoading = false
+          })
+          function test(){
+            return new Promise((resolve) => {
+              setTimeout(() => {
+                resolve('ok')
+              }, 10000);
+            })
+          }
+        }
+      },
+    }
+    Vue.createApp(App).mount('#app')
+  </script> 
+</body>
+</html>

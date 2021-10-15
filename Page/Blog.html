@@ -15,6 +15,8 @@
   <link rel="stylesheet" href="/css/Blog.css">
   <script src="https://unpkg.com/vue@next"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@ckeditor/ckeditor5-vue@2.0.1/dist/ckeditor.min.js"></script>
+  <script src="/js/ckeditor.js"></script>
   <title>Document</title>
 </head>
 
@@ -22,60 +24,68 @@
   <div id="app">
     <div class="temp-header"></div>
     <div class="position-relative">
-      <div class="blog-banner">
+      <div class="blog-banner" :style="{backgroundImage: `url(${BloggerData.CoverImage})`}">
       </div>
       <div class="d-flex flex-column align-items-center position-absolute user-details">
-        <div class="user-icon mb-1"></div>
-        <p class="user-name m-0 fs-4">Kevin</p>
-        <p class="user-id fs-6">@apomi0516</p>
+        <div class="user-icon mb-1" :style="{backgroundImage: `url(${BloggerData.UserPhoto})`}"></div>
+        <p class="user-name m-0 fs-4">{{ BloggerData.UserName }}</p>
+        <p class="user-id fs-6 mb-2">@{{ BloggerData.AccountId }} {{ currentPage }}</p>
         <!-- 自己的部落格不會有 -->
-        <!-- <button class="btn btn-outline-danger btn-sm">追蹤</button> -->
+        <button class="blogger-trace" v-show="(vistorId !== null) && (vistorId !== BloggerData.UserId)" :class="{'tracing': BloggerData.TraceOrNot}" v-on:click="Trace(BloggerData.UserId, vistorId)">
+          {{ BloggerData.TraceOrNot ? '追蹤中' : '追蹤' }}
+        </button>
+        
       </div>
     </div>
     <div class="container blog-content-container">
       <div class="blog-content m-auto">
         <!-- 改成模板！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！ -->
         <ul class="blog-content-list d-flex border-bottom ps-0 m-0">
-          <li class="me-2 h-100 listChange p-2">
-            <!-- <span class="blog-content-intro-number"></span> -->
+          <li class="me-2 h-100 p-2" v-on:click="currentPage = '簡介'" :class="{'listChange': currentPage == '簡介'}">
             <span class="blog-content-title">簡介</span>
           </li>
-          <!-- <li class="mx-3 p-2">
-          <span class="blog-content-product-number"></span>
-          商品
-        </li> -->
-          <li class="mx-2 p-2">
+          <li class="mx-3 p-2" v-if="accountId == 'TripWay'" v-on:click="currentPage = '商品'" :class="{'listChange': currentPage == '商品'}">
+            <span class="blog-content-product-number"></span>
+            <span class="blog-content-title">商品</span>
+          </li>
+          <li class="mx-2 p-2" v-on:click="currentPage = '旅遊回憶'" :class="{'listChange': currentPage == '旅遊回憶'}">
             <span class="blog-content-memory-number">1</span>
             <span class="blog-content-title">旅遊回憶</span>
           </li>
-          <li class="mx-2 p-2">
+          <li class="mx-2 p-2" v-on:click="currentPage = '行程'" :class="{'listChange': currentPage == '行程'}">
             <span class="blog-content-tour-number">1</span>
             <span class="blog-content-title">行程</span>
           </li>
-          <li class="mx-2 p-2">
+          <li class="mx-2 p-2" v-on:click="currentPage = '景點收藏'" :class="{'listChange': currentPage == '景點收藏'}">
             <span class="blog-content-place-number">2</span>
             <span class="blog-content-title">景點收藏</span>
           </li>
-          <li class="mx-2 p-2">
+          <li class="mx-2 p-2" v-on:click="currentPage = '讚'" :class="{'listChange': currentPage == '讚'}">
             <span class="blog-content-like-number">1</span>
             <span class="blog-content-title">讚</span>
           </li>
-          <li class="mx-2 p-2">
+          <li class="mx-2 p-2" v-on:click="currentPage = '粉絲'" :class="{'listChange': currentPage == '粉絲'}">
             <span class="blog-content-fans-number">3</span>
             <span class="blog-content-title">粉絲</span>
           </li>
-          <li class="mx-2 p-2">
+          <li class="mx-2 p-2" v-on:click="currentPage = '追蹤中'" :class="{'listChange': currentPage == '追蹤中'}">
             <span class="blog-content-follow-number">0</span>
             <span class="blog-content-title">追蹤中</span>
           </li>
         </ul>
-        <card></card>
+        <!-- 簡介 -->
+        <div class="mt-2">
+          <ckeditor :editor="editor" :config="editorConfig" v-model="BloggerData.UserIntro" v-if="vistorId == BloggerData.UserId"></ckeditor>
+          <div v-html="BloggerData.UserIntro" v-else></div>
+        </div>
         <div class="d-flex py-2 mt-3">
           <div>行程</div>
           <div class="more ms-auto" id="tourMore">更多</div>
+          <!-- click切到行程的頁面 -->
         </div>
         <div v-for="(item, index) in BloggerData.BlogPlanCard">
           <div class="row my-3 blog-card" v-show="2 > index">
+            <!-- 如果是在簡介頁面，則只顯示最多兩個 -->
             <div class="col-4 col-xl-3 position-relative pe-0">
               <a :href=`../${item.AccountId}/trips/${item.TripId}`>
                 <img src="https://picsum.photos/300/250/?random=2" class="w-100 h-100 rounded">
@@ -577,75 +587,74 @@
   </div>
   <script src="/js/Blog.js"></script>
   <script>
-    const card = {
-      template: `
-      <div class="d-flex py-2 mt-3">
-          <div>行程</div>
-          <div class="more ms-auto" id="tourMore">更多</div>
-        </div>
-        <div class="row my-3 blog-card">
-          <div class="col-4 col-xl-3 position-relative pe-0">
-            <img src="https://picsum.photos/300/250/?random=2" class="w-100 h-100 rounded">
-            <p class="m-0 position-absolute text-white blog-card-day">
-              3 天
-            </p>
-          </div>
-          <div class="col-8 col-xl-9 d-flex flex-column justify-content-between">
-            <div class="blog-card-content flex-grow-1 d-flex flex-column">
-              <div class="blog-card-title">
-                絶景✨富良野2泊3日のんびり旅
-              </div>
-              <div class="blog-card-intro mt-2">
-                [第1天] 旭川機場 > Furano Wine House > カンパーナ六花亭 > 森林精靈露台 > Furano Cheese Factory > 富良野農夫市集 > Furano Hotel
-                [第2天] Furano Hotel > 富田農場 > Hitsujinooka
-              </div>
-            </div>
-            <div class="blog-card-author d-flex align-self-start">
-              <div class="blog-card-author-img me-2" style="background-image: url();"></div>
-              <div class="blog-card-author-name"></div>
-            </div>
-            <div class="d-flex align-items-end">
-              <p class="m-0 blog-card-other">
-                <span class="blog-card-other">Jul 5, 2021 - Jul 7, 2021</span>
-                <span class="blog-card-other-interval">|</span>
-                <span class="blog-card-other-info">
-                  <span class="blog-card-other-info-popular">8</span>人氣,
-                  <span class="blog-card-other-info-like">0</span>讚
-                </span>
-              </p>
-              <i class="far fa-heart ms-auto blog-card-love"></i>
-            </div>
-          </div>
-        </div>
-      `
-    }
     const App = {
       data() {
         return {
-          accountId: 'SHERRY',
-          userId: '',
+          currentPage: '簡介', 
+          listName: ['簡介', '商品', '旅遊回憶', '行程', '景點收藏', '讚', '粉絲', '追蹤中'],
+          accountId: 'SHERRY', // 讀Razor
+          vistorId: '1', // 進來看的人  讀Razor
           urls: {
             url_GetBloggerVM: 'https://localhost:44392/api/blogapi/GetBloggerVM'
           },
-          BloggerData: {}
+          editor: ClassicEditor,
+          editorData: '',
+          editorConfig: {
+            placeholder: '簡介',
+            fontFamily: {
+              options: [
+                "default",
+                "Ubuntu, Arial, sans-serif",
+                "Ubuntu Mono, Courier New, Courier, monospace",
+                "Microsoft JhengHei"
+              ],
+            },
+            fontSize: {
+              options: [9, 12, "default", 16, 18, 20],
+            },
+            toolbar: {
+              items: [
+                'heading', '|', 'fontSize', 'fontFamily', '|', 'fontColor', 'fontBackgroundColor', '|', 'bold', 'italic', 'underline', 'strikethrough', '|', 'alignment', '|', 'numberedList', 'bulletedList', '|', 'outdent', 'indent', '|', 'undo', 'redo'
+              ]
+            }
+          },
+          BloggerData: {},
+          BlogCard: []
         }
       },
       methods: {
         getData() {
-          axios.get(`${this.urls.url_GetBloggerVM}/?accountId=${this.accountId}&id=${this.userId}`).then(res => {
+          // console.log(this.urls.url_GetBloggerVM, this.accountId);
+          
+          // this.accountId = 'SHERRY'
+          // console.log(this.accountId);
+          axios.get(`${this.urls.url_GetBloggerVM}/?accountId=${this.accountId}&id=${this.vistorId}`).then(res => {
             console.log(res);
             this.BloggerData = res.data
+            this.newListName = [...new Set(this.BloggerData.BlogCard.map(x => x.Type))]
+            console.log(aa);
+            
           })
+        },
+        Trace(OwnerId, FansId){
+          console.log(OwnerId, FansId);
+          this.BloggerData.TraceOrNot = !this.BloggerData.TraceOrNot
         }
       },
-      components: {
-        card
+      computed:{
+        newListName(){
+          console.log(this.BloggerData.BlogCard.map(x => x.Type));
+          
+          let aa = [...new Set(this.BloggerData.BlogCard.map(x => x.Type))];
+          console.log(aa);
+          return
+        }
       },
       mounted() {
         this.getData();
       },
     }
-    Vue.createApp(App).mount('#app')
+    Vue.createApp(App).use(CKEditor).mount('#app')
   </script>
 </body>
 

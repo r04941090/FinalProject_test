@@ -2,16 +2,29 @@ Html{
   overflow-y: scroll;
   /* 解決scrollbar上下跳動 */
 }
-
+.blogger-trace{
+  border: 1px solid #000;
+  border-radius: 5px;
+  padding: 5px 10px;
+  background-color: #fff;
+}
+.ck-editor__editable_inline{
+  height: 100px;
+}
+.blogger-trace.tracing{
+  border: 1px solid #ff4477;
+  border-radius: 5px;
+  padding: 5px 10px;
+  background-color: #ff4477;
+  color: #fff;
+}
 .blog-banner {
   height: 400px;
-  background-image: url(/image/blog_banner.png);
   background-size: cover;
   background-position: center center;
 }
 
 .user-icon {
-  background-image: url(/image/user.jpg);
   background-position: center;
   background-size: cover;
   width: 120px;
