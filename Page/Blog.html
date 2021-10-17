@@ -17,21 +17,38 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@ckeditor/ckeditor5-vue@2.0.1/dist/ckeditor.min.js"></script>
   <script src="/js/ckeditor.js"></script>
+  <link rel="stylesheet" href="/css/Loading.css">
   <title>Document</title>
 </head>
 
 <body>
-  <div id="app">
-    <div class="temp-header"></div>
+  <div id="app" style="position: relative;">
+    <div style="height: 60px; background-color: #000; width: 100%;"></div>
+    <div class="Loading-container" style="background-color: #fff; height: calc(100vh - 60px); top: 60px;" v-if="initialLoading">
+      <div class="sk-fading-circle">
+          <div class="sk-fading-circle1 sk-child-first"></div>
+          <div class="sk-fading-circle2 sk-child-first"></div>
+          <div class="sk-fading-circle3 sk-child-first"></div>
+          <div class="sk-fading-circle4 sk-child-first"></div>
+          <div class="sk-fading-circle5 sk-child-first"></div>
+          <div class="sk-fading-circle6 sk-child-first"></div>
+          <div class="sk-fading-circle7 sk-child-first"></div>
+          <div class="sk-fading-circle8 sk-child-first"></div>
+          <div class="sk-fading-circle9 sk-child-first"></div>
+          <div class="sk-fading-circle10 sk-child-first"></div>
+          <div class="sk-fading-circle11 sk-child-first"></div>
+          <div class="sk-fading-circle12 sk-child-first"></div>
+      </div>
+  </div>
     <div class="position-relative">
       <div class="blog-banner" :style="{backgroundImage: `url(${BloggerData.CoverImage})`}">
       </div>
       <div class="d-flex flex-column align-items-center position-absolute user-details">
         <div class="user-icon mb-1" :style="{backgroundImage: `url(${BloggerData.UserPhoto})`}"></div>
         <p class="user-name m-0 fs-4">{{ BloggerData.UserName }}</p>
-        <p class="user-id fs-6 mb-2">@{{ BloggerData.AccountId }} {{ currentPage }}</p>
+        <p class="user-id fs-6 mb-2">@{{ BloggerData.AccountId }}</p>
         <!-- 自己的部落格不會有 -->
-        <button class="blogger-trace" v-show="(vistorId !== null) && (vistorId !== BloggerData.UserId)" :class="{'tracing': BloggerData.TraceOrNot}" v-on:click="Trace(BloggerData.UserId, vistorId)">
+        <button class="blogger-trace" v-show="(vistorId !== null) && (vistorId != BloggerData.UserId)" :class="{'tracing': BloggerData.TraceOrNot}" v-on:click="Trace(BloggerData.UserId, vistorId)">
           {{ BloggerData.TraceOrNot ? '追蹤中' : '追蹤' }}
         </button>
         
@@ -39,22 +56,21 @@
     </div>
     <div class="container blog-content-container">
       <div class="blog-content m-auto">
-        <!-- 改成模板！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！ -->
         <ul class="blog-content-list d-flex border-bottom ps-0 m-0">
           <li class="me-2 h-100 p-2" v-on:click="currentPage = '簡介'" :class="{'listChange': currentPage == '簡介'}">
             <span class="blog-content-title">簡介</span>
           </li>
           <li class="mx-3 p-2" v-if="accountId == 'TripWay'" v-on:click="currentPage = '商品'" :class="{'listChange': currentPage == '商品'}">
-            <span class="blog-content-product-number"></span>
-            <span class="blog-content-title">商品</span>
+            <span class="blog-content-product-number">{{ page.productPage}}</span>
+            <span class="blog-content-title"> 商品</span>
           </li>
-          <li class="mx-2 p-2" v-on:click="currentPage = '旅遊回憶'" :class="{'listChange': currentPage == '旅遊回憶'}">
-            <span class="blog-content-memory-number">1</span>
-            <span class="blog-content-title">旅遊回憶</span>
+          <li class="mx-2 p-2" v-on:click="getBlogJournal(1)" :class="{'listChange': currentPage == '旅遊回憶'}">
+            <span class="blog-content-memory-number">{{ page.journalPage }}</span>
+            <span class="blog-content-title"> 旅遊回憶</span>
           </li>
-          <li class="mx-2 p-2" v-on:click="currentPage = '行程'" :class="{'listChange': currentPage == '行程'}">
-            <span class="blog-content-tour-number">1</span>
-            <span class="blog-content-title">行程</span>
+          <li class="mx-2 p-2" v-on:click="getBlogPlan(1)" :class="{'listChange': currentPage == '行程'}">
+            <span class="blog-content-tour-number">{{ page.planPage }}</span>
+            <span class="blog-content-title"> 行程</span>
           </li>
           <li class="mx-2 p-2" v-on:click="currentPage = '景點收藏'" :class="{'listChange': currentPage == '景點收藏'}">
             <span class="blog-content-place-number">2</span>
@@ -74,92 +90,95 @@
           </li>
         </ul>
         <!-- 簡介 -->
-        <div class="mt-2">
-          <ckeditor :editor="editor" :config="editorConfig" v-model="BloggerData.UserIntro" v-if="vistorId == BloggerData.UserId"></ckeditor>
-          <div v-html="BloggerData.UserIntro" v-else></div>
-        </div>
-        <div class="d-flex py-2 mt-3">
-          <div>行程</div>
-          <div class="more ms-auto" id="tourMore">更多</div>
-          <!-- click切到行程的頁面 -->
-        </div>
-        <div v-for="(item, index) in BloggerData.BlogPlanCard">
-          <div class="row my-3 blog-card" v-show="2 > index">
-            <!-- 如果是在簡介頁面，則只顯示最多兩個 -->
-            <div class="col-4 col-xl-3 position-relative pe-0">
-              <a :href=`../${item.AccountId}/trips/${item.TripId}`>
-                <img src="https://picsum.photos/300/250/?random=2" class="w-100 h-100 rounded">
-                <p class="m-0 position-absolute text-white blog-card-day">
-                  {{ item.TotalDate }} 天
-                </p>
-              </a>
-            </div>
-            <div class="col-8 col-xl-9 d-flex flex-column justify-content-between">
-              <div class="blog-card-content flex-grow-1 d-flex flex-column">
-                <a :href=`../${item.AccountId}/trips/${item.TripId}` style="text-decoration: none; color: #000;" >
-                  <div class="blog-card-title">
-                    {{ item.Title }}
-                  </div>
-                  <div class="blog-card-intro mt-2">
-                    {{ item.Intro }}
-                  </div>
-                </a>
-              </div>
-              <div class="blog-card-author d-flex align-self-start">
-                <div class="blog-card-author-img me-2" style="background-image: url();"></div>
-                <div class="blog-card-author-name"></div>
-              </div>
-              <div class="d-flex align-items-end">
-                <p class="m-0 blog-card-other">
-                  <span class="blog-card-other">{{ item.StartDate }} - {{ item.EndDate }}</span>
-                  <span class="blog-card-other-interval">|</span>
-                  <span class="blog-card-other-info">
-                    <span class="blog-card-other-info-popular">{{ item.Popular }}</span>人氣,
-                    <span class="blog-card-other-info-like">{{ item.Like }}</span>讚
-                  </span>
-                </p>
-                <i class="far fa-heart ms-auto blog-card-love"></i>
-              </div>
-            </div>
+        <div v-if="currentPage == '簡介'" style="min-height: 1310px;">
+          <div class="mt-2" >
+            <ckeditor :editor="editor" :config="editorConfig" v-model="BloggerData.UserIntro" v-if="vistorId == BloggerData.UserId"></ckeditor>
+            <div v-html="BloggerData.UserIntro" v-else></div>
           </div>
-        </div>
-        <!-- card template -->
-        <!-- <p>card template</p> -->
-        <!-- <div class="row my-3 blog-card">
-        <div class="col-4 col-xl-3 position-relative pe-0">
-          <img src="https://picsum.photos/300/250/?random=1" class="w-100 h-100 rounded">
-          <p class="m-0 position-absolute text-white blog-card-day">
-            1 天
-          </p>
-        </div>
-        <div class="col-8 col-xl-9 d-flex flex-column justify-content-between">
-          <div class="blog-card-content flex-grow-1 d-flex flex-column">
-            <div class="blog-card-title">
-              宅宅勇闖新加坡
-            </div>
-            <div class="blog-card-intro mt-2">
-              Lorem ipsum dolor sit, amet consectetur adipisicing elit. Voluptate quis non aspernatur ut beatae nobis, ratione reiciendis at a enim eius fugiat amet dolore cum optio maxime atque facere vero!Lorem ipsum dolor sit, amet consectetur adipisicing elit. Voluptate quis non aspernatur ut beatae nobis, ratione reiciendis at a enim eius fugiat amet dolore cum optio maxime atque facere vero!
-            </div>
+          <div>
           </div>
-          <div class="blog-card-author d-flex align-self-start">
-            <div class="blog-card-author-img me-2" style="background-image: url(/image/blog-card-author.jpg);"></div>
-            <div class="blog-card-author-name">Elva Poon</div>
+          <div class="d-flex py-2 mt-3" v-if="BloggerData.BlogProductCard.length !== 0">
+            <div style="font-weight: bold; font-size: 18px;">商品</div>
+            <div class="more ms-auto" id="tourMore" >更多</div>
           </div>
-          <div class="d-flex align-items-end">
-            <p class="m-0 blog-card-other">
-              <span class="blog-card-other me-1">Oct 18, 2019 - Oct 23, 2019</span>
-              <span class="blog-card-other-interval">|</span>
-              <span class="blog-card-other-info">
-                <span class="blog-card-other-info-popular ms-1">167</span>人氣, 
-                <span class="blog-card-other-info-like">2</span>讚
-              </span>
-            </p>
-            <i class="far fa-heart ms-auto blog-card-love"></i>
+          <product-card :card-data="BloggerData.BlogProductCard"></product-card>
+          <div class="d-flex py-2 mt-3" v-if="BloggerData.BlogPlanCard.length !== 0">
+            <div style="font-weight: bold; font-size: 18px;">行程</div>
+            <div class="more ms-auto" id="tourMore" @click="getBlogPlan(1)">更多</div>
           </div>
+          <plan-journal-card :card-data="BloggerData.BlogPlanCard" v-on:update-like="updateLike" :visitor="vistorId"></plan-journal-card>
+          <div class="d-flex py-2 mt-3" v-if="BloggerData.BlogJournalCard.length !== 0">
+            <div style="font-weight: bold; font-size: 18px;">旅遊回憶</div>
+            <div class="more ms-auto" id="tourMore" @click="getBlogJournal(1)">更多</div>
+          </div>
+          <plan-journal-card :card-data="BloggerData.BlogJournalCard" v-on:update-like="updateLike" :visitor="vistorId"></plan-journal-card>
         </div>
-      </div> -->
-        <!-- <hr> -->
+        <div v-if="currentPage !== '簡介'" style="min-height: 1310px; position: relative;">
+          <loading :loading="loading" style="position: absolute;"></loading>
+          <!-- Product -->
+          <div v-if="currentPage == '商品'"></div>
 
+          <!-- Plan -->
+          <div v-if="currentPage == '行程'">
+            <plan-journal-card :card-data="selectBlogCard.selectBlogPlanCard" v-on:update-like="updateLike"  :visitor="vistorId"></plan-journal-card>
+          </div>
+          <!-- Journal -->
+          <div v-if="currentPage == '旅遊回憶'">
+            <plan-journal-card :card-data="selectBlogCard.selectBlogJournalCard" v-on:update-like="updateLike" :visitor="vistorId"></plan-journal-card>
+          </div>
+          
+          <!-- 景點收藏，一次顯示20個 -->
+          <div></div>
+
+          <!-- Like -->
+          <div v-if="currentPage == '讚'">
+            <!-- checkbox -->
+
+            <!-- Product -->
+            <div class="d-flex py-2 mt-3">
+              <div>商品</div>
+            </div>
+            <div></div>
+            <!-- Plan -->
+            <div class="d-flex py-2 mt-3">
+              <div>行程</div>
+            </div>
+            <div></div>
+            <!-- Journal -->
+            <div class="d-flex py-2 mt-3">
+              <div>旅遊回憶</div>
+            </div>
+            <div></div>
+          </div>
+          <!-- fans -->
+          <div></div>
+
+          <!-- trace  -->
+          <div></div>
+
+          <!-- pagnition (不做成元件) -->
+          <!--  -->
+          <div class="d-flex justify-content-center">
+            <nav aria-label="Page navigation example">
+              <ul class="pagination">
+                <li class="page-item" :disable="currentSelectPageInfo.current == 1" :style="{'cursor': currentSelectPageInfo.current == 1 ? 'not-allowed' : 'pointer'}">
+                  <span class="page-link" href="#" aria-label="Previous">
+                    <span aria-hidden="true" :class="{'page-disable': currentSelectPageInfo.current == 1}">&laquo;</span>
+                  </span>
+                </li>
+                <li class="page-item" v-for="item in currentSelectPageInfo.total" :class="{'active': item == currentSelectPageInfo.current}" v-on:click.stop="changeData(item)" style="cursor: pointer">
+                  <span class="page-link" href="#">{{ item }}</span>
+                </li>
+                <li class="page-item" :disable="currentSelectPageInfo.total == currentSelectPageInfo.current" :style="{'cursor': currentSelectPageInfo.current == currentSelectPageInfo.total ? 'not-allowed' : 'pointer'}">
+                  <span class="page-link" href="#" aria-label="Next" >
+                    <span aria-hidden="true" :class="{'page-disable': currentSelectPageInfo.current == currentSelectPageInfo.total}">&raquo;</span>
+                  </span>
+                </li>
+              </ul>
+            </nav>
+          </div>
+
+        </div>
         <!-- card template -->
         <template id="cardTemplate">
           <div class="row my-3 blog-card">
@@ -194,55 +213,15 @@
                   <span class="blog-card-other-interval">|</span>
                   <span class="blog-card-other-like">167人氣, 2讚</span>
                 </p>
-                <i class="far fa-heart ms-auto blog-card-love"></i>
+                <i class="far fa-heart ms-auto blog-card-love" ></i>
               </div>
             </div>
           </div>
         </template>
-
-        <!-- fans template -->
-        <!-- <p>fans template</p> -->
-        <!-- 商品 -->
-        <div class="blog-content-intro" style="display: block;">
-          <!-- <div class="d-flex py-2">
-          <div>商品</div>
-          <div class="more ms-auto" id="productMore">更多</div>
-        </div>
-        <div class="row my-3 blog-card">
-          <div class="col-4 col-xl-3 position-relative pe-0">
-            <img src="https://picsum.photos/300/250/?random=1" class="w-100 h-100 rounded">
-            <p class="m-0 position-absolute text-white blog-card-day"></p>
-          </div>
-          <div class="col-8 col-xl-9 d-flex flex-column justify-content-between">
-            <div class="blog-card-content flex-grow-1 d-flex flex-column">
-              <div class="blog-card-title">
-                台北 | 袖珍博物館門票
-              </div>
-              <div class="blog-card-intro mt-2"></div>
-            </div>
-            <div class="blog-card-author d-flex align-self-start">
-              <div class="blog-card-author-img me-2" style="background-image: url();"></div>
-              <div class="blog-card-author-name"></div>
-            </div>
-            <div class="d-flex align-items-end">
-              <p class="m-0 blog-card-other">
-                <span class="blog-card-other"></span>
-                <span class="blog-card-other-interval"></span>
-                <span class="blog-card-other-info">
-                  <span class="blog-card-other-info-popular">167</span>人氣, 
-                  <span class="blog-card-other-info-like">2</span>讚
-                </span>
-              </p>
-              <i class="far fa-heart ms-auto blog-card-love"></i>
-            </div>
-          </div>
-        </div>
-        <hr> -->
           <!-- 行程 -->
 
-          <hr>
           <!-- 景點收藏 -->
-          <div class="d-flex py-2">
+          <!-- <div class="d-flex py-2">
             <div>景點收藏</div>
             <div class="more ms-auto" id="tourMore">更多</div>
           </div>
@@ -304,217 +283,8 @@
               </div>
             </div>
           </div>
-          <hr>
+          <hr> -->
           <!-- 旅遊回憶 -->
-          <div class="d-flex py-2">
-            <div>旅遊回憶</div>
-            <div class="more ms-auto" id="memoryMore">更多</div>
-          </div>
-          <div class="row my-3 blog-card">
-            <div class="col-4 col-xl-3 position-relative pe-0">
-              <img src="https://picsum.photos/300/250/?random=3" class="w-100 h-100 rounded">
-              <p class="m-0 position-absolute text-white blog-card-day">
-              </p>
-            </div>
-            <div class="col-8 col-xl-9 d-flex flex-column justify-content-between">
-              <div class="blog-card-content flex-grow-1 d-flex flex-column">
-                <div class="blog-card-title">
-                  宅宅勇闖新加坡
-                </div>
-                <div class="blog-card-intro mt-2">
-                  這週團隊到新加坡參展, 在台灣的我們看到照片...實在是覺得奇葩...為何很多點都有一個宅宅在那裡寫程式, 明明美景當前...我們真是服了他
-                  <br>ps. Funliday 工程師真的很辛苦阿, 我們少少人但每天要服務好幾萬個使用者, 有機會幫我們多多推廣
-                </div>
-              </div>
-              <div class="blog-card-author d-flex align-self-start">
-                <!--  -->
-                <div class="blog-card-author-img me-2"></div>
-                <div class="blog-card-author-name"></div>
-              </div>
-              <div class="d-flex align-items-end">
-                <p class="m-0 blog-card-other">
-                  <span class="blog-card-other">Oct 18, 2019</span>
-                  <span class="blog-card-other-interval">|</span>
-                  <span class="blog-card-other-info">
-                    <span class="blog-card-other-info-popular">167</span>人氣,
-                    <span class="blog-card-other-info-like">2</span>讚
-                  </span>
-                </p>
-                <i class="far fa-heart ms-auto blog-card-love"></i>
-              </div>
-            </div>
-          </div>
-          <hr>
-        </div>
-        <div class="blog-content-product" style="display: none;"></div>
-        <div class="blog-content-memory" style="display: none;">
-          <div class="row my-3 blog-card">
-            <div class="col-4 col-xl-3 position-relative pe-0">
-              <img src="https://picsum.photos/300/250/?random=3" class="w-100 h-100 rounded">
-              <p class="m-0 position-absolute text-white blog-card-day">
-              </p>
-            </div>
-            <div class="col-8 col-xl-9 d-flex flex-column justify-content-between">
-              <div class="blog-card-content flex-grow-1 d-flex flex-column">
-                <div class="blog-card-title">
-                  宅宅勇闖新加坡
-                </div>
-                <div class="blog-card-intro mt-2">
-                  這週團隊到新加坡參展, 在台灣的我們看到照片...實在是覺得奇葩...為何很多點都有一個宅宅在那裡寫程式, 明明美景當前...我們真是服了他
-                  <br>ps. Funliday 工程師真的很辛苦阿, 我們少少人但每天要服務好幾萬個使用者, 有機會幫我們多多推廣
-                </div>
-              </div>
-              <div class="blog-card-author d-flex align-self-start">
-                <!--  -->
-                <div class="blog-card-author-img me-2"></div>
-                <div class="blog-card-author-name"></div>
-              </div>
-              <div class="d-flex align-items-end">
-                <p class="m-0 blog-card-other">
-                  <span class="blog-card-other">Oct 18, 2019</span>
-                  <span class="blog-card-other-interval">|</span>
-                  <span class="blog-card-other-info">
-                    <span class="blog-card-other-info-popular">167</span>人氣,
-                    <span class="blog-card-other-info-like">2</span>讚
-                  </span>
-                </p>
-                <i class="far fa-heart ms-auto blog-card-love"></i>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="blog-content-tour" style="display: none;">
-          <div class="row my-3 blog-card">
-            <div class="col-4 col-xl-3 position-relative pe-0">
-              <img src="https://picsum.photos/300/250/?random=2" class="w-100 h-100 rounded">
-              <p class="m-0 position-absolute text-white blog-card-day">
-                3 天
-              </p>
-            </div>
-            <div class="col-8 col-xl-9 d-flex flex-column justify-content-between">
-              <div class="blog-card-content flex-grow-1 d-flex flex-column">
-                <div class="blog-card-title">
-                  絶景✨富良野2泊3日のんびり旅
-                </div>
-                <div class="blog-card-intro mt-2">
-                  [第1天] 旭川機場 > Furano Wine House > カンパーナ六花亭 > 森林精靈露台 > Furano Cheese Factory > 富良野農夫市集 > Furano Hotel
-                  [第2天] Furano Hotel > 富田農場 > Hitsujinooka
-                </div>
-              </div>
-              <div class="blog-card-author d-flex align-self-start">
-                <div class="blog-card-author-img me-2" style="background-image: url();"></div>
-                <div class="blog-card-author-name"></div>
-              </div>
-              <div class="d-flex align-items-end">
-                <p class="m-0 blog-card-other">
-                  <span class="blog-card-other">Jul 5, 2021 - Jul 7, 2021</span>
-                  <span class="blog-card-other-interval">|</span>
-                  <span class="blog-card-other-info">
-                    <span class="blog-card-other-info-popular">8</span>人氣,
-                    <span class="blog-card-other-info-like">0</span>讚
-                  </span>
-                </p>
-                <i class="far fa-heart ms-auto blog-card-love"></i>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="blog-content-place" style="display: none;">
-          <div class="row my-3 blog-card">
-            <div class="col-4 col-xl-3 position-relative pe-0">
-              <img src="https://picsum.photos/300/250/?random=7" class="w-100 h-100 rounded">
-              <p class="m-0 position-absolute text-white blog-card-day"></p>
-            </div>
-            <div class="col-8 col-xl-9 d-flex flex-column justify-content-between">
-              <div class="blog-card-content flex-grow-1 d-flex flex-column">
-                <div class="blog-card-title">
-                  歐拉玩日本·金澤景點
-                </div>
-                <div class="blog-card-intro mt-2"></div>
-              </div>
-              <div class="blog-card-author d-flex align-self-start">
-                <div class="blog-card-author-img me-2"></div>
-                <div class="blog-card-author-name"></div>
-              </div>
-              <div class="d-flex align-items-end">
-                <p class="m-0 blog-card-other">
-                  <span class="blog-card-other">Oct 18, 2019</span>
-                  <span class="blog-card-other-interval"></span>
-                  <span class="blog-card-other-info">
-                    <span class="blog-card-other-info-popular">78</span>人氣,
-                    <span class="blog-card-other-info-like">7</span>讚
-                  </span>
-                </p>
-                <i class="far fa-heart ms-auto blog-card-love"></i>
-              </div>
-            </div>
-          </div>
-          <div class="row my-3 blog-card">
-            <div class="col-4 col-xl-3 position-relative pe-0">
-              <img src="https://picsum.photos/300/250/?random=77" class="w-100 h-100 rounded">
-              <p class="m-0 position-absolute text-white blog-card-day"></p>
-            </div>
-            <div class="col-8 col-xl-9 d-flex flex-column justify-content-between">
-              <div class="blog-card-content flex-grow-1 d-flex flex-column">
-                <div class="blog-card-title">
-                  富山 看這篇就對了！
-                </div>
-                <div class="blog-card-intro mt-2"></div>
-              </div>
-              <div class="blog-card-author d-flex align-self-start">
-                <div class="blog-card-author-img me-2"></div>
-                <div class="blog-card-author-name"></div>
-              </div>
-              <div class="d-flex align-items-end">
-                <p class="m-0 blog-card-other">
-                  <span class="blog-card-other">Oct 18, 2019</span>
-                  <span class="blog-card-other-interval"></span>
-                  <span class="blog-card-other-info">
-                    <span class="blog-card-other-info-popular">28</span>人氣,
-                    <span class="blog-card-other-info-like">2</span>讚
-                  </span>
-                </p>
-                <i class="far fa-heart ms-auto blog-card-love"></i>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="blog-content-like" style="display: none;">
-          <div class="row my-3 blog-card">
-            <div class="col-4 col-xl-3 position-relative pe-0">
-              <img src="https://picsum.photos/300/250/?random=1" class="w-100 h-100 rounded">
-              <p class="m-0 position-absolute text-white blog-card-day">
-                1 天
-              </p>
-            </div>
-            <div class="col-8 col-xl-9 d-flex flex-column justify-content-between">
-              <div class="blog-card-content flex-grow-1 d-flex flex-column">
-                <div class="blog-card-title">
-                  2019.10 泰北自駕遊
-                </div>
-                <div class="blog-card-intro mt-2">
-                  bangkok -> Phu Tub Berk -> 素可泰 -> 清邁-> 金三角 -> 清萊 -> pai village -> 清邁
-                </div>
-              </div>
-              <div class="blog-card-author d-flex align-self-start">
-                <div class="blog-card-author-img me-2" style="background-image: url(/image/blog-card-author.jpg);">
-                </div>
-                <div class="blog-card-author-name">Elva Poon</div>
-              </div>
-              <div class="d-flex align-items-end">
-                <p class="m-0 blog-card-other">
-                  <span class="blog-card-other">Oct 18, 2019 - Oct 23, 2019</span>
-                  <span class="blog-card-other-interval">|</span>
-                  <span class="blog-card-other-info">
-                    <span class="blog-card-other-info-popular">167</span>人氣,
-                    <span class="blog-card-other-info-like">2</span>讚
-                  </span>
-                </p>
-                <i class="far fa-heart ms-auto blog-card-love"></i>
-              </div>
-            </div>
-          </div>
-        </div>
         <div class="blog-content-fans" style="display: none;">
           <div class="d-flex align-items-center p-2 personal-list">
             <div class="author-content d-flex align-items-center">
@@ -585,17 +355,149 @@
       </div>
     </div>
   </div>
-  <script src="/js/Blog.js"></script>
+  <!-- <script src="/js/Blog.js"></script> -->
   <script>
+    const planJournalCard = {
+      emits: ['updateLike'],
+      props: ['cardData', 'visitor'],
+      template: `
+        <div v-for="(item, index) in cardData">
+          <div class="row my-3 blog-card">
+            <div class="col-4 col-xl-3 position-relative pe-0">
+              <a :href='link(item)'>
+                <img src="https://picsum.photos/300/250/?random=2" class="w-100 h-100 rounded">
+                <p class="m-0 position-absolute text-white blog-card-day">
+                  {{ item.TotalDate }} 天
+                </p>
+              </a>
+            </div>
+            <div class="col-8 col-xl-9 d-flex flex-column justify-content-between">
+              <div class="blog-card-content flex-grow-1 d-flex flex-column">
+                <a :href='link(item)' style="text-decoration: none; color: #000;" >
+                  <div class="blog-card-title">
+                    {{ item.Title }}
+                  </div>
+                  <div class="blog-card-intro mt-2">
+                    <p v-html="item.Intro"></p>
+                  </div>
+                </a>
+              </div>
+              <div class="blog-card-author d-flex align-self-start">
+                <div class="blog-card-author-img me-2" style="background-image: url();"></div>
+                <div class="blog-card-author-name"></div>
+              </div>
+              <div class="d-flex align-items-end">
+                <p class="m-0 blog-card-other">
+                  <span class="blog-card-other">{{ item.StartDate }} - {{ item.EndDate }}</span>
+                  <span class="blog-card-other-interval">|</span>
+                  <span class="blog-card-other-info">
+                    <span class="blog-card-other-info-popular">{{ item.Popular }}</span>人氣,
+                    <span class="blog-card-other-info-like">{{ item.Like }}</span>讚
+                  </span>
+                </p>
+                <i class="fa-heart ms-auto blog-card-love" :style="{'color': item.LikeOrNot ? '#ff4477' : '#000'}" :class="{ 'fas': item.LikeOrNot, 'far': !item.LikeOrNot}" v-on:click="updateLike(item)" v-if="visitor != item.UserId"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      `,
+      methods: {
+        link(item){
+          let state = item.Type == '行程' ? 'trips' : 'journals'
+          return `${item.AccountId}/${state}/${item.TripId}`
+        },
+        updateLike(item){
+          item.LikeOrNot = !item.LikeOrNot
+          this.$emit('updateLike', item)
+        }
+      },
+    }
+    const productCard = {
+      props: ['cardData'],
+      template: `
+        <div v-for="(item, index) in cardData">
+          <div class="row my-3 blog-card" v-show="2 > index">
+            <!-- 如果是在簡介頁面，則只顯示最多兩個 -->
+            <div class="col-4 col-xl-3 position-relative pe-0">
+              <a :href='link(item)'>
+                <img src="https://picsum.photos/300/250/?random=2" class="w-100 h-100 rounded">
+              </a>
+            </div>
+            <div class="col-8 col-xl-9 d-flex flex-column justify-content-between">
+              <div class="blog-card-content flex-grow-1 d-flex flex-column">
+                <a :href='link(item)' style="text-decoration: none; color: #000;" >
+                  <div class="blog-card-title">
+                    {{ item.Title }}
+                  </div>
+                </a>
+              </div>
+              <div class="blog-card-author d-flex align-self-start">
+                <div class="blog-card-author-img me-2" style="background-image: url();"></div>
+                <div class="blog-card-author-name"></div>
+              </div>
+              <div class="d-flex align-items-end">
+                <p class="m-0 blog-card-other">
+                  <span class="blog-card-other-info">
+                    <span class="blog-card-other-info-popular">{{ item.Popular }}</span>人氣,
+                    <span class="blog-card-other-info-like">{{ item.Like }}</span>讚
+                  </span>
+                </p>
+                <i class="far fa-heart ms-auto blog-card-love"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      `,
+      methods: {
+        link(item){
+          return `${item.AccountId}/products/${item.TripId}`
+        }
+      },
+    }
+    const loading = {
+      props: ['loading'],
+      template: `
+        <div class="Loading-container" style="background-color: #fff; position: absolute" v-if="loading">
+          <div class="sk-fading-circle" style="top: 70px; left: calc(50%); position: absolute">
+            
+            <div class="sk-fading-circle1 sk-child-first"></div>
+            <div class="sk-fading-circle2 sk-child-first"></div>
+            <div class="sk-fading-circle3 sk-child-first"></div>
+            <div class="sk-fading-circle4 sk-child-first"></div>
+            <div class="sk-fading-circle5 sk-child-first"></div>
+            <div class="sk-fading-circle6 sk-child-first"></div>
+            <div class="sk-fading-circle7 sk-child-first"></div>
+            <div class="sk-fading-circle8 sk-child-first"></div>
+            <div class="sk-fading-circle9 sk-child-first"></div>
+            <div class="sk-fading-circle10 sk-child-first"></div>
+            <div class="sk-fading-circle11 sk-child-first"></div>
+            <div class="sk-fading-circle12 sk-child-first"></div>
+          </div>
+        </div>
+      `
+    }
     const App = {
       data() {
         return {
+          initialLoading: false,
+          loading: false,
           currentPage: '簡介', 
-          listName: ['簡介', '商品', '旅遊回憶', '行程', '景點收藏', '讚', '粉絲', '追蹤中'],
           accountId: 'SHERRY', // 讀Razor
           vistorId: '1', // 進來看的人  讀Razor
           urls: {
-            url_GetBloggerVM: 'https://localhost:44392/api/blogapi/GetBloggerVM'
+            url_GetBlog: 'https://localhost:44392/api/blogapi/GetBlog',
+            url_GetTotalCardNumerByState: 'https://localhost:44392/api/blogapi/GetTotalCardNumerByState/',
+            url_GetBlogPlan: 'https://localhost:44392/api/blogapi/GetBlogPlan',
+            url_GetBlogJournal: 'https://localhost:44392/api/blogapi/GetBlogJournal/'
+          },
+          currentSelectPageInfo: {
+            total: 0,
+            current: 1
+          },
+          page: {
+            productPage: 0,
+            planPage: 0,
+            journalPage: 0
           },
           editor: ClassicEditor,
           editorData: '',
@@ -618,39 +520,129 @@
               ]
             }
           },
-          BloggerData: {},
+          selectBlogCard: {
+            selectBlogPlanCard: [],
+            selectBlogJournalCard: [],
+            selectBlogProductCard: []
+          },
+          
+          BloggerData: {
+            BlogProductCard: [],
+            BlogPlanCard: [],
+            BlogJournalCard: []
+          },
           BlogCard: []
         }
       },
       methods: {
         getData() {
+          
           // console.log(this.urls.url_GetBloggerVM, this.accountId);
           
           // this.accountId = 'SHERRY'
           // console.log(this.accountId);
-          axios.get(`${this.urls.url_GetBloggerVM}/?accountId=${this.accountId}&id=${this.vistorId}`).then(res => {
+          this.initialLoading = true
+          document.querySelector('body').style.overflow = 'hidden';
+          axios.get(`${this.urls.url_GetBlog}/?accountId=${this.accountId}&id=${this.vistorId}`).then(res => {
             console.log(res);
             this.BloggerData = res.data
-            this.newListName = [...new Set(this.BloggerData.BlogCard.map(x => x.Type))]
-            console.log(aa);
-            
+            this.$nextTick(() => {
+              this.initialLoading = false
+              document.querySelector('body').style.overflow = 'auto';
+            });
           })
+        },
+        changeData(page){
+          if (this.currentSelectPageInfo.current !== page){
+            if (this.currentPage == '行程'){
+              this.getBlogPlan(page)
+            }
+            else if(this.currentPage == '旅遊回憶'){
+              this.getBlogJournal(page)
+            }
+          }
+        },
+        intitialScroll(){
+          window.scrollTo({
+            top: 265,
+            left: 0,
+            behavior: 'instant'
+          })
+        },
+        getBlogPlan(page){
+          this.currentPage = '行程'
+          this.intitialScroll();
+          this.loading = true
+          axios.get(`${this.urls.url_GetTotalCardNumerByState}?accountId=${this.accountId}&state=0`).then(res => {
+            this.page.total = Math.ceil(res.data / 6)
+            console.log(res.data);
+            this.currentSelectPageInfo.total = this.page.total
+            this.currentSelectPageInfo.current = page
+            console.log(this.page.total);
+              axios.get(`${this.urls.url_GetBlogPlan}/?accountId=${this.accountId}&id=${this.vistorId}&page=${page}`).then(res => {
+              console.log(res);
+              this.selectBlogCard.selectBlogPlanCard = res.data
+              this.loading = false
+            })
+          })
+        },
+        getBlogJournal(page){
+          this.currentPage = '旅遊回憶'
+          this.intitialScroll();
+          this.loading = true
+          axios.get(`${this.urls.url_GetTotalCardNumerByState}?accountId=${this.accountId}&state=2`).then(res => {
+            this.page.total = Math.ceil(res.data / 6)
+            console.log(res.data);
+            
+            this.currentSelectPageInfo.total = this.page.total
+            this.currentSelectPageInfo.current = page
+            console.log(this.page.total);
+              axios.get(`${this.urls.url_GetBlogJournal}/?accountId=${this.accountId}&id=${this.vistorId}&page=${page}`).then(res => {
+              console.log(res);
+              this.selectBlogCard.selectBlogJournalCard = res.data
+              this.loading = false
+            })
+          })
+        },
+        updateLike(item){
+          console.log(item);
+        },
+        minusIndex(){
+          if (this.index - 1 >= 0){
+            this.index = this.index - 1
+            this.selectData = this.rawData[this.index]
+          }
+        },
+        addIndex(){
+          if (this.index + 1 < this.rawData.length ){
+            this.index = this.index + 1
+            this.selectData = this.rawData[this.index]
+          }
         },
         Trace(OwnerId, FansId){
           console.log(OwnerId, FansId);
           this.BloggerData.TraceOrNot = !this.BloggerData.TraceOrNot
+        },
+        getInitialCradNumber(){
+          axios.get(`${this.urls.url_GetTotalCardNumerByState}?accountId=${this.accountId}&state=0`).then(res => {
+            this.page.planPage = res.data
+          })
+          axios.get(`${this.urls.url_GetTotalCardNumerByState}?accountId=${this.accountId}&state=2`).then(res => {
+            this.page.journalPage = res.data
+          })
+          axios.get(`${this.urls.url_GetTotalCardNumerByState}?accountId=${this.accountId}&state=3`).then(res => {
+            this.page.productPage = res.data
+          })
         }
       },
-      computed:{
-        newListName(){
-          console.log(this.BloggerData.BlogCard.map(x => x.Type));
-          
-          let aa = [...new Set(this.BloggerData.BlogCard.map(x => x.Type))];
-          console.log(aa);
-          return
-        }
+      components: {
+        planJournalCard,
+        productCard,
+        loading
       },
       mounted() {
+        // this.intitialScroll();
+        this.getInitialCradNumber();
         this.getData();
       },
     }
