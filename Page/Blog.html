@@ -41,15 +41,15 @@
       </div>
   </div>
     <div class="position-relative">
-      <div class="blog-banner" :style="{backgroundImage: `url(${BloggerData.CoverImage})`}">
+      <div class="blog-banner" :style="{backgroundImage: `url(${bloggerData.CoverImage})`}">
       </div>
       <div class="d-flex flex-column align-items-center position-absolute user-details">
-        <div class="user-icon mb-1" :style="{backgroundImage: `url(${BloggerData.UserPhoto})`}"></div>
-        <p class="user-name m-0 fs-4">{{ BloggerData.UserName }}</p>
-        <p class="user-id fs-6 mb-2">@{{ BloggerData.AccountId }}</p>
+        <div class="user-icon mb-1" :style="{backgroundImage: `url(${bloggerData.UserPhoto})`}"></div>
+        <p class="user-name m-0 fs-4">{{ bloggerData.UserName }}</p>
+        <p class="user-id fs-6 mb-2">@{{ bloggerData.AccountId }}</p>
         <!-- 自己的部落格不會有 -->
-        <button class="blogger-trace" v-show="(vistorId !== null) && (vistorId != BloggerData.UserId)" :class="{'tracing': BloggerData.TraceOrNot}" v-on:click="Trace(BloggerData.UserId, vistorId)">
-          {{ BloggerData.TraceOrNot ? '追蹤中' : '追蹤' }}
+        <button class="blogger-trace" v-show="(visitorId !== null) && (visitorId != bloggerData.UserId)" :class="{'tracing': bloggerData.TraceOrNot}" v-on:click="updateTrace(bloggerData.UserId, bloggerData)">
+          {{ bloggerData.TraceOrNot ? '追蹤中' : '追蹤' }}
         </button>
         
       </div>
@@ -76,13 +76,13 @@
             <span class="blog-content-place-number">2</span>
             <span class="blog-content-title">景點收藏</span>
           </li>
-          <li class="mx-2 p-2" v-on:click="currentPage = '讚'" :class="{'listChange': currentPage == '讚'}">
-            <span class="blog-content-like-number">1</span>
+          <li class="mx-2 p-2" v-on:click="getBlogLike()" :class="{'listChange': currentPage == '讚'}">
+            <span class="blog-content-like-number">{{ bloggerLikeData.length }}</span>
             <span class="blog-content-title">讚</span>
           </li>
-          <li class="mx-2 p-2" v-on:click="currentPage = '粉絲'" :class="{'listChange': currentPage == '粉絲'}">
-            <span class="blog-content-fans-number">3</span>
-            <span class="blog-content-title">粉絲</span>
+          <li class="mx-2 p-2" v-on:click="getFans(1)" :class="{'listChange': currentPage == '粉絲'}">
+            <span class="blog-content-fans-number">{{ page.fansPage }}</span>
+            <span class="blog-content-title"> 粉絲</span>
           </li>
           <li class="mx-2 p-2" v-on:click="currentPage = '追蹤中'" :class="{'listChange': currentPage == '追蹤中'}">
             <span class="blog-content-follow-number">0</span>
@@ -91,27 +91,27 @@
         </ul>
         <!-- 簡介 -->
         <div v-if="currentPage == '簡介'" style="min-height: 1310px;">
-          <div class="mt-2" >
-            <ckeditor :editor="editor" :config="editorConfig" v-model="BloggerData.UserIntro" v-if="vistorId == BloggerData.UserId"></ckeditor>
-            <div v-html="BloggerData.UserIntro" v-else></div>
+          <div class="mt-2" style="min-height: 100px; border-bottom: 1px solid #dee2e6; padding-bottom: 100px; padding-top: 10px;">
+            <ckeditor :editor="editor" :config="editorConfig" v-model="bloggerData.UserIntro" v-if="visitorId == bloggerData.UserId"></ckeditor>
+            <div v-html="bloggerData.UserIntro" v-else></div>
           </div>
           <div>
           </div>
-          <div class="d-flex py-2 mt-3" v-if="BloggerData.BlogProductCard.length !== 0">
+          <div class="d-flex py-2 mt-3" v-if="bloggerData.BlogProductCard.length !== 0">
             <div style="font-weight: bold; font-size: 18px;">商品</div>
             <div class="more ms-auto" id="tourMore" >更多</div>
           </div>
-          <product-card :card-data="BloggerData.BlogProductCard"></product-card>
-          <div class="d-flex py-2 mt-3" v-if="BloggerData.BlogPlanCard.length !== 0">
+          <product-card :card-data="bloggerData.BlogProductCard"></product-card>
+          <div class="d-flex py-2 mt-3" v-if="bloggerData.BlogPlanCard.length !== 0">
             <div style="font-weight: bold; font-size: 18px;">行程</div>
             <div class="more ms-auto" id="tourMore" @click="getBlogPlan(1)">更多</div>
           </div>
-          <plan-journal-card :card-data="BloggerData.BlogPlanCard" v-on:update-like="updateLike" :visitor="vistorId"></plan-journal-card>
-          <div class="d-flex py-2 mt-3" v-if="BloggerData.BlogJournalCard.length !== 0">
+          <plan-journal-card :card-data="bloggerData.BlogPlanCard" v-on:update-like="updateLike" :visitor="visitorId"></plan-journal-card>
+          <div class="d-flex py-2 mt-3" v-if="bloggerData.BlogJournalCard.length !== 0">
             <div style="font-weight: bold; font-size: 18px;">旅遊回憶</div>
             <div class="more ms-auto" id="tourMore" @click="getBlogJournal(1)">更多</div>
           </div>
-          <plan-journal-card :card-data="BloggerData.BlogJournalCard" v-on:update-like="updateLike" :visitor="vistorId"></plan-journal-card>
+          <plan-journal-card :card-data="bloggerData.BlogJournalCard" v-on:update-like="updateLike" :visitor="visitorId"></plan-journal-card>
         </div>
         <div v-if="currentPage !== '簡介'" style="min-height: 1310px; position: relative;">
           <loading :loading="loading" style="position: absolute;"></loading>
@@ -120,38 +120,54 @@
 
           <!-- Plan -->
           <div v-if="currentPage == '行程'">
-            <plan-journal-card :card-data="selectBlogCard.selectBlogPlanCard" v-on:update-like="updateLike"  :visitor="vistorId"></plan-journal-card>
+            <plan-journal-card :card-data="selectBlogCard.selectBlogPlanCard" v-on:update-like="updateLike"  :visitor="visitorId"></plan-journal-card>
           </div>
           <!-- Journal -->
           <div v-if="currentPage == '旅遊回憶'">
-            <plan-journal-card :card-data="selectBlogCard.selectBlogJournalCard" v-on:update-like="updateLike" :visitor="vistorId"></plan-journal-card>
+            <plan-journal-card :card-data="selectBlogCard.selectBlogJournalCard" v-on:update-like="updateLike" :visitor="visitorId"></plan-journal-card>
           </div>
           
           <!-- 景點收藏，一次顯示20個 -->
           <div></div>
 
           <!-- Like -->
-          <div v-if="currentPage == '讚'">
+          <div style="margin-top: 10px;" v-if="currentPage == '讚'">
             <!-- checkbox -->
 
             <!-- Product -->
-            <div class="d-flex py-2 mt-3">
+            <div>
               <div>商品</div>
+              <product-card :card-data="bloggerLikeData.BlogProductLikeCard"></product-card>
             </div>
-            <div></div>
             <!-- Plan -->
-            <div class="d-flex py-2 mt-3">
+            <div>
               <div>行程</div>
+              <plan-journal-card :card-data="bloggerLikeData.BlogPlanLikeCard" v-on:update-like="updateLike"  :visitor="visitorId"></plan-journal-card>
             </div>
-            <div></div>
+
             <!-- Journal -->
-            <div class="d-flex py-2 mt-3">
+            <div>
               <div>旅遊回憶</div>
+              <plan-journal-card :card-data="bloggerLikeData.BlogJournalLikeCard" v-on:update-like="updateLike" :visitor="visitorId"></plan-journal-card>
             </div>
-            <div></div>
           </div>
           <!-- fans -->
-          <div></div>
+          <div v-if="currentPage == '粉絲'" style="min-height: 1310px;">
+            <div class="d-flex align-items-center p-2 personal-list" v-for="item in blogFans">
+              <a :href='item.AccountId' style="text-decoration: none;">
+                <div class="author-content d-flex align-items-center">
+                  <div class="author-content-img">
+                    <img :src="item.UserPhoto" alt="" class="h-100">
+                  </div>
+                  <div class="author-content-name ms-2" style="color: #000">{{ item.UserName }}</div>
+                </div>
+              </a>
+              <div class="author-track ms-auto" :class="{'tracing': item.TraceOrNot}" v-if="item.UserId != visitorId" v-on:click="updateTrace(item.UserId, item)" >
+                {{ item.TraceOrNot ? '追蹤中' : '追蹤' }}
+              </div>
+            </div>
+            
+          </div>
 
           <!-- trace  -->
           <div></div>
@@ -483,12 +499,18 @@
           loading: false,
           currentPage: '簡介', 
           accountId: 'SHERRY', // 讀Razor
-          vistorId: '1', // 進來看的人  讀Razor
+          visitorId: '1', // 進來看的人  讀Razor
+
           urls: {
             url_GetBlog: 'https://localhost:44392/api/blogapi/GetBlog',
             url_GetTotalCardNumerByState: 'https://localhost:44392/api/blogapi/GetTotalCardNumerByState/',
+            url_GetBlogFansNumber: 'https://localhost:44392/api/blogapi/GetBlogFansNumber/',
             url_GetBlogPlan: 'https://localhost:44392/api/blogapi/GetBlogPlan',
-            url_GetBlogJournal: 'https://localhost:44392/api/blogapi/GetBlogJournal/'
+            url_GetBlogJournal: 'https://localhost:44392/api/blogapi/GetBlogJournal/',
+            url_UpdateLike: 'https://localhost:44392/api/blogapi/UpdateLike',
+            url_UpdateTrace: 'https://localhost:44392/api/blogapi/UpdateTrace',
+            url_GetBlogLike: 'https://localhost:44392/api/blogapi/GetBlogLike/',
+            url_GetFans: 'https://localhost:44392/api/blogapi/GetBlogFans/'
           },
           currentSelectPageInfo: {
             total: 0,
@@ -497,7 +519,8 @@
           page: {
             productPage: 0,
             planPage: 0,
-            journalPage: 0
+            journalPage: 0,
+            fansPage: 0
           },
           editor: ClassicEditor,
           editorData: '',
@@ -526,11 +549,17 @@
             selectBlogProductCard: []
           },
           
-          BloggerData: {
+          bloggerData: {
             BlogProductCard: [],
             BlogPlanCard: [],
             BlogJournalCard: []
           },
+          bloggerLikeData: {
+            BlogProductCard: [],
+            BlogPlanCard: [],
+            BlogJournalCard: []
+          },
+          blogFans: [],
           BlogCard: []
         }
       },
@@ -543,9 +572,9 @@
           // console.log(this.accountId);
           this.initialLoading = true
           document.querySelector('body').style.overflow = 'hidden';
-          axios.get(`${this.urls.url_GetBlog}/?accountId=${this.accountId}&id=${this.vistorId}`).then(res => {
+          axios.get(`${this.urls.url_GetBlog}/?accountId=${this.accountId}&id=${this.visitorId}`).then(res => {
             console.log(res);
-            this.BloggerData = res.data
+            this.bloggerData = res.data
             this.$nextTick(() => {
               this.initialLoading = false
               document.querySelector('body').style.overflow = 'auto';
@@ -569,17 +598,25 @@
             behavior: 'instant'
           })
         },
+        getFans(page){
+          axios.get(`${this.urls.url_GetFans}/?accountId=${this.accountId}&id=${this.visitorId}&page=${page}`).then(res => {
+            console.log(res);
+            this.currentSelectPageInfo.total = Math.ceil(res.data / 6)
+            this.currentSelectPageInfo.current = page
+            this.currentPage = '粉絲'
+            this.blogFans = res.data.BlogFans
+          })
+        },
         getBlogPlan(page){
           this.currentPage = '行程'
           this.intitialScroll();
           this.loading = true
           axios.get(`${this.urls.url_GetTotalCardNumerByState}?accountId=${this.accountId}&state=0`).then(res => {
-            this.page.total = Math.ceil(res.data / 6)
             console.log(res.data);
-            this.currentSelectPageInfo.total = this.page.total
+            this.currentSelectPageInfo.total = Math.ceil(res.data / 6)
             this.currentSelectPageInfo.current = page
             console.log(this.page.total);
-              axios.get(`${this.urls.url_GetBlogPlan}/?accountId=${this.accountId}&id=${this.vistorId}&page=${page}`).then(res => {
+              axios.get(`${this.urls.url_GetBlogPlan}/?accountId=${this.accountId}&id=${this.visitorId}&page=${page}`).then(res => {
               console.log(res);
               this.selectBlogCard.selectBlogPlanCard = res.data
               this.loading = false
@@ -591,21 +628,38 @@
           this.intitialScroll();
           this.loading = true
           axios.get(`${this.urls.url_GetTotalCardNumerByState}?accountId=${this.accountId}&state=2`).then(res => {
-            this.page.total = Math.ceil(res.data / 6)
-            console.log(res.data);
-            
-            this.currentSelectPageInfo.total = this.page.total
+            this.currentSelectPageInfo.total = Math.ceil(res.data / 6)
             this.currentSelectPageInfo.current = page
             console.log(this.page.total);
-              axios.get(`${this.urls.url_GetBlogJournal}/?accountId=${this.accountId}&id=${this.vistorId}&page=${page}`).then(res => {
+              axios.get(`${this.urls.url_GetBlogJournal}/?accountId=${this.accountId}&id=${this.visitorId}&page=${page}`).then(res => {
               console.log(res);
               this.selectBlogCard.selectBlogJournalCard = res.data
               this.loading = false
             })
           })
         },
+        getBlogLike(){
+          this.currentPage = '讚'
+          this.loading = true
+          axios.get(`${this.urls.url_GetBlogLike}/?accountId=${this.accountId}`).then(res => {
+            console.log(res);
+            this.currentSelectPageInfo.current = Math.ceil(res.data / 6)
+            this.bloggerLikeData = res.data
+            console.log(this.bloggerLikeData);
+            
+            this.loading = false
+          })
+        },
         updateLike(item){
           console.log(item);
+          let request = {
+            UserId: this.visitorId,
+            TripId: item.TripId
+          }
+          axios.put(this.urls.url_UpdateLike, request).then(res => {
+            console.log(res);
+            
+          })
         },
         minusIndex(){
           if (this.index - 1 >= 0){
@@ -619,9 +673,17 @@
             this.selectData = this.rawData[this.index]
           }
         },
-        Trace(OwnerId, FansId){
-          console.log(OwnerId, FansId);
-          this.BloggerData.TraceOrNot = !this.BloggerData.TraceOrNot
+        updateTrace(userId, select){
+          let request = {
+            UserId: userId,
+            FollowId: this.visitorId
+          }
+          console.log(request);
+          
+          axios.put(this.urls.url_UpdateTrace, request).then(res => {
+            console.log(res);
+            select.TraceOrNot = !select.TraceOrNot
+          })
         },
         getInitialCradNumber(){
           axios.get(`${this.urls.url_GetTotalCardNumerByState}?accountId=${this.accountId}&state=0`).then(res => {
@@ -632,6 +694,9 @@
           })
           axios.get(`${this.urls.url_GetTotalCardNumerByState}?accountId=${this.accountId}&state=3`).then(res => {
             this.page.productPage = res.data
+          })
+          axios.get(`${this.urls.url_GetBlogFansNumber}?accountId=${this.accountId}`).then(res => {
+            this.page.fansPage = res.data
           })
         }
       },
