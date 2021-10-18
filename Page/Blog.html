@@ -44,7 +44,10 @@
       <div class="blog-banner" :style="{backgroundImage: `url(${bloggerData.CoverImage})`}">
       </div>
       <div class="d-flex flex-column align-items-center position-absolute user-details">
-        <div class="user-icon mb-1" :style="{backgroundImage: `url(${bloggerData.UserPhoto})`}"></div>
+        <input type="file" class="cover-file" style="display:none" ref="userPhoto" v-on:change="getUserPhoto">
+        <div class="user-icon mb-1" :style="{backgroundImage: `url(${bloggerData.UserPhoto})`}" title="bloggerData.UserName" >
+          <i class="fas fa-camera update-user-photo" v-show="visitorId == bloggerData.UserId" v-on:click="callUserPhoto"></i>
+        </div>
         <p class="user-name m-0 fs-4">{{ bloggerData.UserName }}</p>
         <p class="user-id fs-6 mb-2">@{{ bloggerData.AccountId }}</p>
         <!-- 自己的部落格不會有 -->
@@ -73,12 +76,12 @@
             <span class="blog-content-title"> 行程</span>
           </li>
           <li class="mx-2 p-2" v-on:click="currentPage = '景點收藏'" :class="{'listChange': currentPage == '景點收藏'}">
-            <span class="blog-content-place-number">2</span>
-            <span class="blog-content-title">景點收藏</span>
+            <span class="blog-content-place-number">{{ page.attractionPage }}</span>
+            <span class="blog-content-title"> 景點收藏</span>
           </li>
           <li class="mx-2 p-2" v-on:click="getBlogLike()" :class="{'listChange': currentPage == '讚'}">
-            <span class="blog-content-like-number">{{ bloggerLikeData.length }}</span>
-            <span class="blog-content-title">讚</span>
+            <span class="blog-content-like-number">{{ page.likePage }}</span>
+            <span class="blog-content-title"> 讚</span>
           </li>
           <li class="mx-2 p-2" v-on:click="getFans(1)" :class="{'listChange': currentPage == '粉絲'}">
             <span class="blog-content-fans-number">{{ page.fansPage }}</span>
@@ -91,9 +94,9 @@
         </ul>
         <!-- 簡介 -->
         <div v-if="currentPage == '簡介'" style="min-height: 1310px;">
-          <div class="mt-2" style="min-height: 100px; border-bottom: 1px solid #dee2e6; padding-bottom: 100px; padding-top: 10px;">
+          <div class="mt-2" style="border-bottom: 1px solid #dee2e6; padding-bottom: 20px; padding-top: 10px;" :class="{'intro-edit': visitorId == bloggerData.UserId}">
             <ckeditor :editor="editor" :config="editorConfig" v-model="bloggerData.UserIntro" v-if="visitorId == bloggerData.UserId"></ckeditor>
-            <div v-html="bloggerData.UserIntro" v-else></div>
+            <div style="max-height: 180px; overflow: auto;" v-html="bloggerData.UserIntro" v-else></div>
           </div>
           <div>
           </div>
@@ -128,7 +131,16 @@
           </div>
           
           <!-- 景點收藏，一次顯示20個 -->
-          <div></div>
+          <div style="margin-top: 10px;" v-if="currentPage == '景點收藏'" >
+            <a :href=`/posi/${item.PlaceName}` class="attraction-collection" v-for="item in totalAttraction">
+              <div style="margin-left: 10px;">
+                {{ item.PlaceName }}
+              </div>
+              <div class="attraction-collection-img">
+                <img :src="item.PlaceImage" alt="">
+              </div>
+            </a>
+          </div>
 
           <!-- Like -->
           <div style="margin-top: 10px;" v-if="currentPage == '讚'">
@@ -193,49 +205,7 @@
               </ul>
             </nav>
           </div>
-
         </div>
-        <!-- card template -->
-        <template id="cardTemplate">
-          <div class="row my-3 blog-card">
-            <div class="col-4 col-xl-3 position-relative">
-              <img src="https://picsum.photos/300/250/?random=1" class="w-100 h-100 rounded">
-              <p class="m-0 position-absolute text-white blog-card-day">
-                1 天
-              </p>
-            </div>
-            <div class="col-8 col-xl-9 d-flex flex-column justify-content-between">
-              <div class="blog-card-content border flex-grow-1 d-flex flex-column">
-                <div class="blog-card-title">
-                  宅宅勇闖新加坡
-                </div>
-                <div class="blog-card-intro mt-2">
-                  Lorem ipsum dolor sit, amet consectetur adipisicing elit. Voluptate quis non aspernatur ut beatae
-                  nobis,
-                  ratione reiciendis at a enim eius fugiat amet dolore cum optio maxime atque facere vero!Lorem ipsum
-                  dolor sit, amet consectetur adipisicing elit. Voluptate quis non aspernatur ut beatae nobis, ratione
-                  reiciendis at a enim eius fugiat amet dolore cum optio maxime atque facere vero!
-                </div>
-              </div>
-              <div class="blog-card-author  d-flex align-self-start">
-                <!--  -->
-                <div class="blog-card-author-img me-2" style="background-image: url(/image/blog-card-author.jpg);">
-                </div>
-                <div class="blog-card-author-name">Elva Poon</div>
-              </div>
-              <div class="d-flex align-items-end border">
-                <p class="m-0 blog-card-other">
-                  <span class="blog-card-other">Oct 18, 2019 - Oct 23, 2019</span>
-                  <span class="blog-card-other-interval">|</span>
-                  <span class="blog-card-other-like">167人氣, 2讚</span>
-                </p>
-                <i class="far fa-heart ms-auto blog-card-love" ></i>
-              </div>
-            </div>
-          </div>
-        </template>
-          <!-- 行程 -->
-
           <!-- 景點收藏 -->
           <!-- <div class="d-flex py-2">
             <div>景點收藏</div>
@@ -398,9 +368,11 @@
                   </div>
                 </a>
               </div>
-              <div class="blog-card-author d-flex align-self-start">
-                <div class="blog-card-author-img me-2" style="background-image: url();"></div>
-                <div class="blog-card-author-name"></div>
+              <div class="blog-card-author">
+                <a :href="item.AccountId" style="text-decoration: none; color: #000" class="d-flex align-self-start align-items-center">
+                  <div class="blog-card-author-img me-2" :style="{'background-image': userImage(item)}"></div>
+                  <div class="blog-card-author-name">{{ item.UserName }}</div>
+                </a>
               </div>
               <div class="d-flex align-items-end">
                 <p class="m-0 blog-card-other">
@@ -422,11 +394,15 @@
           let state = item.Type == '行程' ? 'trips' : 'journals'
           return `${item.AccountId}/${state}/${item.TripId}`
         },
+        userImage(item) {
+          return `url(${item.UserPhoto})`
+        },
         updateLike(item){
           item.LikeOrNot = !item.LikeOrNot
           this.$emit('updateLike', item)
         }
       },
+      
     }
     const productCard = {
       props: ['cardData'],
@@ -447,14 +423,16 @@
                   </div>
                 </a>
               </div>
-              <div class="blog-card-author d-flex align-self-start">
-                <div class="blog-card-author-img me-2" style="background-image: url();"></div>
-                <div class="blog-card-author-name"></div>
+              <div class="blog-card-author d-flex align-self-start align-items-center">
+                <a :href="item.AccountId" style="text-decoration: none; color: #000" class="d-flex align-self-start align-items-center">
+                  <div class="blog-card-author-img me-2" :style="{'background-image': userImage(item)}"></div>
+                  <div class="blog-card-author-name">{{ item.UserName }}</div>
+                </a>
               </div>
               <div class="d-flex align-items-end">
                 <p class="m-0 blog-card-other">
                   <span class="blog-card-other-info">
-                    <span class="blog-card-other-info-popular">{{ item.Popular }}</span>人氣,
+                    <span class="blog-card-other-info-popular" style="margin-left: 0px;">{{ item.Popular }}</span>人氣,
                     <span class="blog-card-other-info-like">{{ item.Like }}</span>讚
                   </span>
                 </p>
@@ -467,6 +445,9 @@
       methods: {
         link(item){
           return `${item.AccountId}/products/${item.TripId}`
+        },
+        userImage(item) {
+          return `url(${item.UserPhoto})`
         }
       },
     }
@@ -495,22 +476,28 @@
     const App = {
       data() {
         return {
+          userPhotoReader: '',
+          userCoverImgReader: '',
           initialLoading: false,
           loading: false,
           currentPage: '簡介', 
           accountId: 'SHERRY', // 讀Razor
+          userId: '', // 用accountId去讀取
           visitorId: '1', // 進來看的人  讀Razor
 
           urls: {
+            url_GetUserId: 'https://localhost:44392/api/blogapi/GetUserId/',
             url_GetBlog: 'https://localhost:44392/api/blogapi/GetBlog',
-            url_GetTotalCardNumerByState: 'https://localhost:44392/api/blogapi/GetTotalCardNumerByState/',
+            url_GetTotalCardNumerByState: 'https://localhost:44392/api/blogapi/GetTotalCardNumberByState/',
+            url_GetTotalLikeCardNumber: 'https://localhost:44392/api/blogapi/GetTotalLikeCardNumber/',
             url_GetBlogFansNumber: 'https://localhost:44392/api/blogapi/GetBlogFansNumber/',
             url_GetBlogPlan: 'https://localhost:44392/api/blogapi/GetBlogPlan',
             url_GetBlogJournal: 'https://localhost:44392/api/blogapi/GetBlogJournal/',
             url_UpdateLike: 'https://localhost:44392/api/blogapi/UpdateLike',
             url_UpdateTrace: 'https://localhost:44392/api/blogapi/UpdateTrace',
             url_GetBlogLike: 'https://localhost:44392/api/blogapi/GetBlogLike/',
-            url_GetFans: 'https://localhost:44392/api/blogapi/GetBlogFans/'
+            url_GetFans: 'https://localhost:44392/api/blogapi/GetBlogFans/',
+            url_GetAttraction: 'https://localhost:44392/api/planapi/GetAttractionCollection/'
           },
           currentSelectPageInfo: {
             total: 0,
@@ -520,7 +507,9 @@
             productPage: 0,
             planPage: 0,
             journalPage: 0,
-            fansPage: 0
+            fansPage: 0,
+            likePage: 0,
+            attractionPage: 0
           },
           editor: ClassicEditor,
           editorData: '',
@@ -543,6 +532,7 @@
               ]
             }
           },
+          totalAttraction: [],
           selectBlogCard: {
             selectBlogPlanCard: [],
             selectBlogJournalCard: [],
@@ -587,6 +577,9 @@
               this.getBlogPlan(page)
             }
             else if(this.currentPage == '旅遊回憶'){
+              this.getBlogJournal(page)
+            }
+            else if(this.currentPage == '景點收藏'){
               this.getBlogJournal(page)
             }
           }
@@ -641,13 +634,22 @@
         getBlogLike(){
           this.currentPage = '讚'
           this.loading = true
-          axios.get(`${this.urls.url_GetBlogLike}/?accountId=${this.accountId}`).then(res => {
+          axios.get(`${this.urls.url_GetBlogLike}/?accountId=${this.accountId}&id=${this.visitorId}`).then(res => {
             console.log(res);
             this.currentSelectPageInfo.current = Math.ceil(res.data / 6)
             this.bloggerLikeData = res.data
             console.log(this.bloggerLikeData);
             
             this.loading = false
+          })
+        },
+        getAttraction(){
+          // this.currentPage = '景點收藏'
+          axios.get(`${this.urls.url_GetAttraction}/${this.userId}`).then(res => {
+            console.log(res);
+            this.totalAttraction = res.data
+            this.page.attractionPage = res.data.length
+            this.currentSelectPageInfo.total = Math.ceil(res.data.length / 20)
           })
         },
         updateLike(item){
@@ -658,7 +660,7 @@
           }
           axios.put(this.urls.url_UpdateLike, request).then(res => {
             console.log(res);
-            
+            item.Like = !item.LikeOrNot ? item.Like - 1 : item.Like + 1
           })
         },
         minusIndex(){
@@ -685,6 +687,7 @@
             select.TraceOrNot = !select.TraceOrNot
           })
         },
+        
         getInitialCradNumber(){
           axios.get(`${this.urls.url_GetTotalCardNumerByState}?accountId=${this.accountId}&state=0`).then(res => {
             this.page.planPage = res.data
@@ -692,12 +695,53 @@
           axios.get(`${this.urls.url_GetTotalCardNumerByState}?accountId=${this.accountId}&state=2`).then(res => {
             this.page.journalPage = res.data
           })
-          axios.get(`${this.urls.url_GetTotalCardNumerByState}?accountId=${this.accountId}&state=3`).then(res => {
+          axios.get(`${this.urls.url_GetTotalCardNumberByState}?accountId=${this.accountId}&state=3`).then(res => {
             this.page.productPage = res.data
           })
           axios.get(`${this.urls.url_GetBlogFansNumber}?accountId=${this.accountId}`).then(res => {
             this.page.fansPage = res.data
           })
+          axios.get(`${this.urls.url_GetTotalLikeCardNumber}?accountId=${this.accountId}&state=3`).then(res => {
+            this.page.likePage = res.data
+          })
+        },
+        getUserId(){
+          axios.get(`${this.urls.url_GetUserId}/?accountId=${this.accountId}`).then(res => {
+            this.userId = res.data
+            this.getAttraction()
+            this.getData();
+          })
+        },
+        callUserPhoto() {
+          console.log(this.$refs.userPhoto);
+          this.$refs.userPhoto.click();
+        },
+        getUserPhoto(e){
+          console.log('test');
+          this.userPhotoReader.readAsDataURL(e.target.files[0])
+        },
+        updateUserPhoto(){
+          console.log('update');
+          let request = {
+            api_key: '819392311777911',
+            file: this.userPhotoReader.result,
+            // reader.result：base64
+            api_secret: 'vWFjIgauRBwpAcELX8a6hve-WZY',
+            upload_preset: 'g0uupmf7'
+          }
+          console.log(request);
+          
+        },
+        callUserCoverImg() {
+          console.log(this.$refs.userPhoto);
+          this.$refs.userPhoto.click();
+        },
+        getUserCoverImg(e){
+          console.log('test');
+          this.userCoverImgReader.readAsDataURL(e.target.files[0])
+        },
+        updateUserCoverImg(){
+          console.log('update');
         }
       },
       components: {
@@ -707,8 +751,12 @@
       },
       mounted() {
         // this.intitialScroll();
+        this.getUserId();
         this.getInitialCradNumber();
-        this.getData();
+        this.userPhotoReader = new FileReader()
+        this.userPhotoReader.addEventListener('load', this.updateUserPhoto)
+        this.userCoverImgReader = new FileReader()
+        this.userCoverImgReader.addEventListener('load', this.updateUserPhoto)
       },
     }
     Vue.createApp(App).use(CKEditor).mount('#app')
