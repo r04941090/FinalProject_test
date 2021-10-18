@@ -18,6 +18,8 @@
   <script src="https://cdn.jsdelivr.net/npm/@ckeditor/ckeditor5-vue@2.0.1/dist/ckeditor.min.js"></script>
   <script src="/js/ckeditor.js"></script>
   <link rel="stylesheet" href="/css/Loading.css">
+  <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue-sweetalert2@5.0.2/dist/vue-sweetalert.umd.min.js"></script>
   <title>Document</title>
 </head>
 
@@ -42,11 +44,13 @@
   </div>
     <div class="position-relative">
       <div class="blog-banner" :style="{backgroundImage: `url(${bloggerData.CoverImage})`}">
+        <input type="file" class="cover-file" style="display:none" ref="userCoverImg" v-on:change="getUserCoverImg">
+        <i class="fas fa-camera update-user-photo" style="top: 350px; right: 10px;" v-show="visitorId == bloggerData.UserId" v-on:click="callUserCoverImg" style="top: 350px; left: 1210px"></i>
       </div>
       <div class="d-flex flex-column align-items-center position-absolute user-details">
         <input type="file" class="cover-file" style="display:none" ref="userPhoto" v-on:change="getUserPhoto">
         <div class="user-icon mb-1" :style="{backgroundImage: `url(${bloggerData.UserPhoto})`}" title="bloggerData.UserName" >
-          <i class="fas fa-camera update-user-photo" v-show="visitorId == bloggerData.UserId" v-on:click="callUserPhoto"></i>
+          <i class="fas fa-camera update-user-photo" style="top: 87px; left: 87px;" v-show="visitorId == bloggerData.UserId" v-on:click="callUserPhoto"></i>
         </div>
         <p class="user-name m-0 fs-4">{{ bloggerData.UserName }}</p>
         <p class="user-id fs-6 mb-2">@{{ bloggerData.AccountId }}</p>
@@ -95,8 +99,8 @@
         <!-- 簡介 -->
         <div v-if="currentPage == '簡介'" style="min-height: 1310px;">
           <div class="mt-2" style="border-bottom: 1px solid #dee2e6; padding-bottom: 20px; padding-top: 10px;" :class="{'intro-edit': visitorId == bloggerData.UserId}">
-            <ckeditor :editor="editor" :config="editorConfig" v-model="bloggerData.UserIntro" v-if="visitorId == bloggerData.UserId"></ckeditor>
-            <div style="max-height: 180px; overflow: auto;" v-html="bloggerData.UserIntro" v-else></div>
+            <ckeditor :editor="editor" :config="editorConfig" v-model="bloggerData.UserIntro" v-show="visitorId == bloggerData.UserId" v-on:blur="UpdateIntro()" v-on:focus="GetOriginIntro(bloggerData.UserIntro)"></ckeditor>
+            <div style="max-height: 180px; overflow: auto;" v-html="bloggerData.UserIntro" v-show="visitorId !== bloggerData.UserId"></div>
           </div>
           <div>
           </div>
@@ -483,12 +487,16 @@
           currentPage: '簡介', 
           accountId: 'SHERRY', // 讀Razor
           userId: '', // 用accountId去讀取
-          visitorId: '1', // 進來看的人  讀Razor
+          visitorId: '5', // 進來看的人  讀Razor
 
           urls: {
+            url_UploadImageCloudinary: 'https://api.cloudinary.com/v1_1/ditncduk1/upload',
+            url_UpdatePhoto: 'https://localhost:44392/api/blogapi/UpdatePhoto',
+            url_UpdateCoverImage: 'https://localhost:44392/api/blogapi/UpdateCoverImage',
+            url_UpdateIntro: 'https://localhost:44392/api/blogapi/UpdateIntro',
             url_GetUserId: 'https://localhost:44392/api/blogapi/GetUserId/',
             url_GetBlog: 'https://localhost:44392/api/blogapi/GetBlog',
-            url_GetTotalCardNumerByState: 'https://localhost:44392/api/blogapi/GetTotalCardNumberByState/',
+            url_GetTotalCardNumberByState: 'https://localhost:44392/api/blogapi/GetTotalCardNumberByState/',
             url_GetTotalLikeCardNumber: 'https://localhost:44392/api/blogapi/GetTotalLikeCardNumber/',
             url_GetBlogFansNumber: 'https://localhost:44392/api/blogapi/GetBlogFansNumber/',
             url_GetBlogPlan: 'https://localhost:44392/api/blogapi/GetBlogPlan',
@@ -532,6 +540,7 @@
               ]
             }
           },
+          originIntro: '',
           totalAttraction: [],
           selectBlogCard: {
             selectBlogPlanCard: [],
@@ -604,7 +613,7 @@
           this.currentPage = '行程'
           this.intitialScroll();
           this.loading = true
-          axios.get(`${this.urls.url_GetTotalCardNumerByState}?accountId=${this.accountId}&state=0`).then(res => {
+          axios.get(`${this.urls.url_GetTotalCardNumberByState}?accountId=${this.accountId}&state=0`).then(res => {
             console.log(res.data);
             this.currentSelectPageInfo.total = Math.ceil(res.data / 6)
             this.currentSelectPageInfo.current = page
@@ -620,7 +629,7 @@
           this.currentPage = '旅遊回憶'
           this.intitialScroll();
           this.loading = true
-          axios.get(`${this.urls.url_GetTotalCardNumerByState}?accountId=${this.accountId}&state=2`).then(res => {
+          axios.get(`${this.urls.url_GetTotalCardNumberByState}?accountId=${this.accountId}&state=2`).then(res => {
             this.currentSelectPageInfo.total = Math.ceil(res.data / 6)
             this.currentSelectPageInfo.current = page
             console.log(this.page.total);
@@ -689,10 +698,10 @@
         },
         
         getInitialCradNumber(){
-          axios.get(`${this.urls.url_GetTotalCardNumerByState}?accountId=${this.accountId}&state=0`).then(res => {
+          axios.get(`${this.urls.url_GetTotalCardNumberByState}?accountId=${this.accountId}&state=0`).then(res => {
             this.page.planPage = res.data
           })
-          axios.get(`${this.urls.url_GetTotalCardNumerByState}?accountId=${this.accountId}&state=2`).then(res => {
+          axios.get(`${this.urls.url_GetTotalCardNumberByState}?accountId=${this.accountId}&state=2`).then(res => {
             this.page.journalPage = res.data
           })
           axios.get(`${this.urls.url_GetTotalCardNumberByState}?accountId=${this.accountId}&state=3`).then(res => {
@@ -706,10 +715,13 @@
           })
         },
         getUserId(){
-          axios.get(`${this.urls.url_GetUserId}/?accountId=${this.accountId}`).then(res => {
+          axios.get(`${this.urls.url_GetUserId}?accountId=${this.accountId}`).then(res => {
+            console.log(res);
+            
             this.userId = res.data
             this.getAttraction()
             this.getData();
+            this.getInitialCradNumber();
           })
         },
         callUserPhoto() {
@@ -722,27 +734,98 @@
         },
         updateUserPhoto(){
           console.log('update');
+          let image;
           let request = {
             api_key: '819392311777911',
             file: this.userPhotoReader.result,
             // reader.result：base64
             api_secret: 'vWFjIgauRBwpAcELX8a6hve-WZY',
-            upload_preset: 'g0uupmf7'
+            upload_preset: 'g0uupmf7',
+            folder: 'UserPhoto'
           }
           console.log(request);
-          
+          axios.post(this.urls.url_UploadImageCloudinary, request).then(res => {
+            console.log(res);
+            image = res.data.url
+            axios.put(this.urls.url_UpdatePhoto, {
+              UserId: this.userId,
+              Photo: res.data.url
+            }).then(res => {
+              if (res.data.IsSuccessful){
+                this.notification('success', '上傳成功')
+                this.bloggerData.UserPhoto = image
+              }
+              console.log(res);
+            })
+          })
         },
         callUserCoverImg() {
-          console.log(this.$refs.userPhoto);
-          this.$refs.userPhoto.click();
+          console.log(this.$refs.userCoverImg);
+          this.$refs.userCoverImg.click();
         },
         getUserCoverImg(e){
-          console.log('test');
           this.userCoverImgReader.readAsDataURL(e.target.files[0])
         },
         updateUserCoverImg(){
-          console.log('update');
-        }
+          let image;
+          let request = {
+            api_key: '819392311777911',
+            file: this.userCoverImgReader.result,
+            // reader.result：base64
+            api_secret: 'vWFjIgauRBwpAcELX8a6hve-WZY',
+            upload_preset: 'g0uupmf7',
+            folder: 'UserCoverImage'
+          }
+          axios.post(this.urls.url_UploadImageCloudinary, request).then(res => {
+            image = res.data.url
+            axios.put(this.urls.url_UpdateCoverImage, {
+              UserId: this.userId,
+              Photo: res.data.url
+            }).then(res => {
+              if (res.data.IsSuccessful){
+                this.notification('success', '上傳成功')
+                this.bloggerData.CoverImage = image
+              }
+            })
+          })
+        },
+        GetOriginIntro(originIntro){
+          this.originIntro = originIntro
+        },
+        UpdateIntro(){
+          if (this.bloggerData.UserIntro != this.originIntro){
+            axios.put(this.urls.url_UpdateIntro, {
+              UserId: this.userId,
+              UserIntro: this.bloggerData.UserIntro
+            }).then(res => {
+              if (res.data.IsSuccessful) {
+                this.notification('success', '修改成功')
+              }
+              else{
+                this.notification('error', '修改失敗')
+                this.bloggerData.UserIntro = this.originIntro
+              }
+            })
+          }
+        },
+        notification(type, title) {
+          // Use sweetalert2
+          const Toast = Swal.mixin({
+            toast: true,
+            position: 'bottom',
+            showConfirmButton: false,
+            timer: 1500,
+            // timerProgressBar: true,
+            didOpen: (toast) => {
+              toast.addEventListener('mouseenter', Swal.stopTimer)
+              toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+          })
+          Toast.fire({
+            icon: type,
+            title: title
+          })
+        },
       },
       components: {
         planJournalCard,
@@ -752,11 +835,10 @@
       mounted() {
         // this.intitialScroll();
         this.getUserId();
-        this.getInitialCradNumber();
         this.userPhotoReader = new FileReader()
         this.userPhotoReader.addEventListener('load', this.updateUserPhoto)
         this.userCoverImgReader = new FileReader()
-        this.userCoverImgReader.addEventListener('load', this.updateUserPhoto)
+        this.userCoverImgReader.addEventListener('load', this.updateUserCoverImg)
       },
     }
     Vue.createApp(App).use(CKEditor).mount('#app')
