@@ -16,13 +16,15 @@
 <body>
 
   <div id="app">
+    {{ test }}
+    <input type="text" v-model="test">
     <div @mouseover="AAA" class="border d-inline-block" @mouseleave="BBB" style="padding: 10px;">
       <i class="fas fa-shopping-cart"></i>
     </div>
     <div v-show="show" class="border" style="width: 200px; position: absolute; top: 40px;"  @mouseleave="BBB" @mouseover="AAA">
       Lorem ipsum dolor sit amet consectetur, adipisicing elit. Nobis aut 
     </div>
-    <div class="" style="z-index: 1000; margin-top: 300px;">
+    <div class="" style="z-index: 1000; margin-top: 200px;">
       <span>購物車數量：</span>
       <span class="data">{{total}}</span>
     </div>
@@ -34,10 +36,10 @@
   </div>
   <script>
 
-    const App = {
+    var App = {
       data() {
         return {
-          test: '',
+          test: '123123',
           show: false,
           total: 1
         }
@@ -62,7 +64,6 @@
         test: {
           handler: function () {
             console.log('aaaa');
-
           }
         }
       }
@@ -77,10 +78,13 @@
         change() {
           console.log(document.querySelector('.data'));
           // 取得購物車的數量
-          document.querySelector('.data').textContent = this.test2;
-          axios.post(url, request).then(res => {
-            axio.get
-          })
+          App.data().test = this.test2
+          console.log(this.test2, App.$data);
+          
+          // document.querySelector('.data').textContent = this.test2;
+          // axios.post(url, request).then(res => {
+          //   axio.get
+          // })
         }
       },
     }
