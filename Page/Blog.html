@@ -176,27 +176,27 @@
               <img src="https://res.cloudinary.com/ditncduk1/image/upload/v1634544588/Blogger/qenyuljzeb96gzbfzh9f.svg" alt="">
               <div style="margin-top: 10px;">尚無公開資訊</div>
             </div>
-            <el-radio-group v-model="selectLike">
-              <el-radio :label="1" :disable="BlogPlanLikeCardNumber == 0">行程</el-radio>
-              <el-radio :label="2" :disable="BlogJournalLikeCardNumber == 0">旅遊回憶</el-radio>
-              <el-radio :label="3" :disable="BlogProductLikeCardNumber == 0">商品</el-radio>
+            <el-radio-group v-model="selectLike" v-on:change="selectLikeChange">
+              <el-radio :label="1" :disable="bloggerLikeDataNumber.BlogPlanLikeCardNumber == 0">行程</el-radio>
+              <el-radio :label="2" :disable="bloggerLikeDataNumber.BlogJournalLikeCardNumber == 0">旅遊回憶</el-radio>
+              <el-radio :label="3" :disable="bloggerLikeDataNumber.BlogProductLikeCardNumber == 0">商品</el-radio>
             </el-radio-group>
             <!-- Product -->
             <div v-if="selectLike == 3">
               <div>商品</div>
-              <product-card :card-data="bloggerLikeData.BlogProductLikeCard" v-on:update-like="updateLike" :visitor="visitorId"></product-card>
+              <product-card :card-data="bloggerLikeData.BlogProductSelectLikeCard" v-on:update-like="updateLike" :visitor="visitorId"></product-card>
             </div>
 
             <!-- Plan -->
             <div v-if="selectLike == 1">
               <div>行程</div>
-              <plan-journal-card :card-data="bloggerLikeData.BlogPlanLikeCard" v-on:update-like="updateLike" :visitor="visitorId"></plan-journal-card>
+              <plan-journal-card :card-data="bloggerLikeData.BlogPlanSelectLikeCard" v-on:update-like="updateLike" :visitor="visitorId"></plan-journal-card>
             </div>
 
             <!-- Journal -->
             <div v-if="selectLike == 2">
               <div>旅遊回憶</div>
-              <plan-journal-card :card-data="bloggerLikeData.BlogJournalLikeCard" v-on:update-like="updateLike" :visitor="visitorId"></plan-journal-card>
+              <plan-journal-card :card-data="bloggerLikeData.BlogJournalSelectLikeCard" v-on:update-like="updateLike" :visitor="visitorId"></plan-journal-card>
             </div>
 
           </div>
@@ -529,8 +529,11 @@
           // 有按讚的資料
           bloggerLikeData: {
             BlogProductLikeCard: {},
+            BlogProductSelectLikeCard: {},
             BlogPlanLikeCard: {},
-            BlogJournalLikeCard: {}
+            BlogPlanSelectLikeCard: {},
+            BlogJournalLikeCard: {},
+            BlogJournalSelectLikeCard: {}
           },
           bloggerLikeDataNumber: {
             BlogProductLikeCardNumber: 0,
@@ -574,8 +577,20 @@
               this.getBlogTrace(page)
             }
             else if(this.currentPage == '讚'){
-              console.log('讚讚');
-              
+              if (this.selectLike == 1){
+                // 行程
+                last = page == this.currentSelectPageInfo.total ? this.bloggerLikeData.BlogPlanLikeCard.length : 5
+                this.bloggerLikeData.BlogPlanSelectLikeCard = this.bloggerLikeData.BlogPlanLikeCard.slice((page - 1) * 5, last)
+              }
+              else if(this.selectLike == 2){
+                last = page == this.currentSelectPageInfo.total ? this.bloggerLikeData.BlogJournalLikeCard.length : 5
+                this.bloggerLikeData.BlogJournalSelectLikeCard = this.bloggerLikeData.BlogJournalLikeCard.slice((page - 1) * 5, last)
+              }
+              else{
+                last = page == this.currentSelectPageInfo.total ? this.bloggerLikeData.BlogProductLikeCard.length : 5
+                this.bloggerLikeData.BlogProductSelectLikeCard = this.bloggerLikeData.BlogProductLikeCard.slice((page - 1) * 5, last)
+              }
+              this.currentSelectPageInfo.current = page
             }
           }
         },
@@ -664,23 +679,25 @@
               if (this.selectLike == 1){
                 // plan
                 this.currentSelectPageInfo.total = Math.ceil(this.bloggerLikeData.BlogPlanLikeCard.length / 5)
+                this.bloggerLikeData.BlogPlanSelectLikeCard = this.bloggerLikeData.BlogPlanLikeCard.slice(0, 5)
               }
               else if (this.selectLike == 2){
+                // journal
                 this.currentSelectPageInfo.total = Math.ceil(this.bloggerLikeData.BlogJournalLikeCard.length / 5)
+                this.bloggerLikeData.BlogJournalSelectLikeCard = this.bloggerLikeData.BlogJournalLikeCard.slice(0, 5)
               }
               else{
+                // product
                 this.currentSelectPageInfo.total = Math.ceil(this.bloggerLikeData.BlogProductLikeCard.length / 5)
+                this.bloggerLikeData.BlogProductSelectLikeCard = this.bloggerLikeData.BlogProductLikeCard.slice(0, 5)
               }
             }
             this.bloggerLikeDataNumber.BlogProductLikeCardNumber = this.bloggerLikeData.BlogProductLikeCard.length
             this.bloggerLikeDataNumber.BlogPlanLikeCardNumber = this.bloggerLikeData.BlogPlanLikeCard.length
             this.bloggerLikeDataNumber.BlogJournalLikeCardNumber = this.bloggerLikeData.BlogJournalLikeCard.length
+            this.currentSelectPageInfo.current = 1
             this.loading = false
           })
-        },
-        changeSelectLike(){
-          console.log('change');
-          
         },
         getAttraction(page){
           this.currentPage = '景點收藏'
@@ -692,6 +709,20 @@
             this.currentSelectPageInfo.current = page
             this.loading = false
           })
+        },
+        selectLikeChange(){
+          console.log('aaa');
+          if (this.selectLike == 1){
+            // 行程
+            this.bloggerLikeData.BlogPlanSelectLikeCard = this.bloggerLikeData.BlogPlanLikeCard.slice(0, 5)
+          }
+          else if(this.selectLike == 2){
+            this.bloggerLikeData.BlogJournalSelectLikeCard = this.bloggerLikeData.BlogJournalLikeCard.slice(0, 5)
+            console.log(this.bloggerLikeData.BlogJournalSelectLikeCard);
+          }
+          else{
+            this.bloggerLikeData.BlogProductSelectLikeCard = this.bloggerLikeData.BlogProductLikeCard.slice(0, 5)
+          }
         },
         updateLike(item){
           console.log(item);
@@ -735,11 +766,9 @@
           this.$refs.userPhoto.click();
         },
         getUserPhoto(e){
-          console.log('test');
           this.userPhotoReader.readAsDataURL(e.target.files[0])
         },
         updateUserPhoto(){
-          console.log('update');
           let image;
           let request = {
             api_key: '819392311777911',
@@ -749,9 +778,7 @@
             upload_preset: 'g0uupmf7',
             folder: 'UserPhoto'
           }
-          console.log(request);
           axios.post(this.urls.url_UploadImageCloudinary, request).then(res => {
-            console.log(res);
             image = res.data.url
             axios.put(this.urls.url_UpdatePhoto, {
               UserId: this.userId,
@@ -761,7 +788,6 @@
                 this.notification('success', '上傳成功')
                 this.bloggerData.UserPhoto = image
               }
-              console.log(res);
             })
           })
         },
@@ -838,13 +864,17 @@
           if (this.selectLike == 1){
             // plan
             this.currentSelectPageInfo.total = Math.ceil(this.bloggerLikeData.BlogPlanLikeCard.length / 5)
+            this.bloggerLikeData.BlogPlanSelectLikeCard = this.bloggerLikeData.BlogPlanLikeCard.slice(0, 5)
           }
           else if (this.selectLike == 2){
             this.currentSelectPageInfo.total = Math.ceil(this.bloggerLikeData.BlogJournalLikeCard.length / 5)
+            this.bloggerLikeData.BlogJournalSelectLikeCard = this.bloggerLikeData.BlogJournalLikeCard.slice(0, 5)
           }
           else{
             this.currentSelectPageInfo.total = Math.ceil(this.bloggerLikeData.BlogProductLikeCard.length / 5)
+            this.bloggerLikeData.BlogProductSelectLikeCard = this.bloggerLikeData.BlogProductLikeCard.slice(0, 5)
           }
+          this.currentSelectPageInfo.current = 1
         }
       },
       components: {
@@ -853,7 +883,6 @@
         loading
       },
       mounted() {
-        // this.intitialScroll();
         this.getData();
         this.userPhotoReader = new FileReader()
         this.userPhotoReader.addEventListener('load', this.updateUserPhoto)
