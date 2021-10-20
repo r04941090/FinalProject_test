@@ -229,7 +229,7 @@
   box-shadow: 0 0 3px 1px rgb(51 51 51 / 30%);
   text-decoration: none;
   color: #000;
-  margin: 10px 0px;
+  margin: 13px 0px;
 }
 .update-user-photo{
   position: absolute;
@@ -260,6 +260,10 @@
   align-items: center;
   justify-content: center;
   margin: 160px 0px;
+}
+.el-button{
+  padding: 5px !important;
+  min-height: 10px !important;
 }
 @media screen and (min-width: 992px) {
   .blog-card-intro {

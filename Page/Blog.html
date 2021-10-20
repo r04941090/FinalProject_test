@@ -160,14 +160,24 @@
               <img src="https://res.cloudinary.com/ditncduk1/image/upload/v1634544590/Blogger/jcpspdpfl3rtyibxjbur.svg" alt="">
               <div style="margin-top: 10px;">尚未收藏景點</div>
             </div>
-            <a :href=`/posi/${item.PlaceName}` class="attraction-collection" v-for="item in totalAttraction">
-              <div style="margin-left: 10px;">
-                {{ item.PlaceName }}
-              </div>
-              <div class="attraction-collection-img">
-                <img :src="item.PlaceImage" alt="">
-              </div>
-            </a>
+            <div style="position: relative;" v-for="item in totalAttraction">
+              <a :href=`/posi/${item.PlaceName}` class="attraction-collection">
+                <div class="attraction-collection-img">
+                  <img :src="item.PlaceImage" alt="">
+                </div>
+                <div style="margin-right: 30px;">
+                  {{ item.PlaceName }}
+                </div>
+              </a>
+              <el-popconfirm title="確定刪除此景點嗎？" v-on:Confirm="deleteItem(item)" style="position: absolute; top: -7px; right: -7px;" v-show="visitorId == bloggerData.UserId">
+                <template #reference>
+                  <el-button style="border-radius: 20px;">
+                    <i class="fas fa-trash-alt" ></i>
+                  </el-button>
+                </template>
+              </el-popconfirm>
+            </div>
+            
           </div>
 
           <!-- Like -->
@@ -176,7 +186,7 @@
               <img src="https://res.cloudinary.com/ditncduk1/image/upload/v1634544588/Blogger/qenyuljzeb96gzbfzh9f.svg" alt="">
               <div style="margin-top: 10px;">尚無公開資訊</div>
             </div>
-            <el-radio-group v-model="selectLike" v-on:change="selectLikeChange">
+            <el-radio-group v-model="selectLike" v-on:change="selectLikeChange" v-if="totalAttraction.length != 0">
               <el-radio :label="1" :disable="bloggerLikeDataNumber.BlogPlanLikeCardNumber == 0">行程</el-radio>
               <el-radio :label="2" :disable="bloggerLikeDataNumber.BlogJournalLikeCardNumber == 0">旅遊回憶</el-radio>
               <el-radio :label="3" :disable="bloggerLikeDataNumber.BlogProductLikeCardNumber == 0">商品</el-radio>
@@ -246,9 +256,17 @@
                 </div>
               </div>  
               <div class="d-flex justify-content-center" v-if="currentPage == '追蹤中'">
-                <nav aria-label="Page navigation example">
+                <!-- https://element.eleme.io/#/zh-CN/component/pagination -->
+                <el-pagination
+                  background
+                  layout="prev, pager, next"
+                  :total="currentSelectPageInfo.total * 10"
+                  :current-page="currentSelectPageInfo.current"
+                  v-on:current-change="pageChange">
+                </el-pagination>
+                <!-- <nav aria-label="Page navigation example">
                   <ul class="pagination">
-                    <li class="page-item" :disable="currentSelectPageInfo.current == 1" :style="{'cursor': currentSelectPageInfo.current == 1 ? 'not-allowed' : 'pointer'}">
+                    <li class="page-item" :disable="currentSelectPageInfo.current == 1" :style="{'cursor': currentSelectPageInfo.current == 1 ? 'not-allowed' : 'pointer'}" v-on:click="minusPage">
                       <span class="page-link" href="#" aria-label="Previous">
                         <span aria-hidden="true" :class="{'page-disable': currentSelectPageInfo.current == 1}">&laquo;</span>
                       </span>
@@ -256,13 +274,13 @@
                     <li class="page-item" v-for="item in currentSelectPageInfo.total" :class="{'active': item == currentSelectPageInfo.current}" v-on:click.stop="changeData(item)" style="cursor: pointer">
                       <span class="page-link" href="#">{{ item }}</span>
                     </li>
-                    <li class="page-item" :disable="currentSelectPageInfo.total == currentSelectPageInfo.current" :style="{'cursor': currentSelectPageInfo.current == currentSelectPageInfo.total ? 'not-allowed' : 'pointer'}">
+                    <li class="page-item" :disable="currentSelectPageInfo.total == currentSelectPageInfo.current" :style="{'cursor': currentSelectPageInfo.current == currentSelectPageInfo.total ? 'not-allowed' : 'pointer'}" v-on:click="addPage">
                       <span class="page-link" href="#" aria-label="Next" >
                         <span aria-hidden="true" :class="{'page-disable': currentSelectPageInfo.current == currentSelectPageInfo.total}">&raquo;</span>
                       </span>
                     </li>
                   </ul>
-                </nav>
+                </nav> -->
               </div>
             </div>
             
@@ -288,9 +306,17 @@
           <!--  -->
           <div class="d-flex justify-content-center" v-if="(currentSelectPageInfo.total !== 0) && (currentPage != '追蹤中')">
             <!-- v-if="currentSelectPageInfo.total !== 0" -->
-            <nav aria-label="Page navigation example">
+            <el-pagination
+              background
+              layout="prev, pager, next"
+              :total="currentSelectPageInfo.total * 10"
+              :current-page="currentSelectPageInfo.current"
+              v-on:current-change="pageChange"
+              v-if="currentSelectPageInfo.total !== 0">
+            </el-pagination>
+            <!-- <nav aria-label="Page navigation example">
               <ul class="pagination">
-                <li class="page-item" :disable="currentSelectPageInfo.current == 1" :style="{'cursor': currentSelectPageInfo.current == 1 ? 'not-allowed' : 'pointer'}">
+                <li class="page-item" :disable="currentSelectPageInfo.current == 1" :style="{'cursor': currentSelectPageInfo.current == 1 ? 'not-allowed' : 'pointer'}" v-on:click="minusPage">
                   <span class="page-link" href="#" aria-label="Previous">
                     <span aria-hidden="true" :class="{'page-disable': currentSelectPageInfo.current == 1}">&laquo;</span>
                   </span>
@@ -298,13 +324,13 @@
                 <li class="page-item" v-for="item in currentSelectPageInfo.total" :class="{'active': item == currentSelectPageInfo.current}" v-on:click.stop="changeData(item)" style="cursor: pointer">
                   <span class="page-link" href="#">{{ item }}</span>
                 </li>
-                <li class="page-item" :disable="currentSelectPageInfo.total == currentSelectPageInfo.current" :style="{'cursor': currentSelectPageInfo.current == currentSelectPageInfo.total ? 'not-allowed' : 'pointer'}">
+                <li class="page-item" :disable="currentSelectPageInfo.total == currentSelectPageInfo.current" :style="{'cursor': currentSelectPageInfo.current == currentSelectPageInfo.total ? 'not-allowed' : 'pointer'}" v-on:click="addPage">
                   <span class="page-link" href="#" aria-label="Next" >
                     <span aria-hidden="true" :class="{'page-disable': currentSelectPageInfo.current == currentSelectPageInfo.total}">&raquo;</span>
                   </span>
                 </li>
               </ul>
-            </nav>
+            </nav> -->
           </div>
         </div>
       </div>
@@ -454,24 +480,22 @@
           userCoverImgReader: '',
           initialLoading: false,
           loading: false,
-          currentPage: '簡介', 
+          currentPage: '簡介',
           accountId: 'SHERRY', // 讀Razor
-          userId: '', // 用accountId去讀取
-          visitorId: '5', // 進來看的人  讀Razor
+          visitorId: '5', // 進來看的人  讀Razor (有可能為本人)
 
           urls: {
             url_UploadImageCloudinary: 'https://api.cloudinary.com/v1_1/ditncduk1/upload',
             url_UpdatePhoto: 'https://localhost:44392/api/blogapi/UpdatePhoto',
             url_UpdateCoverImage: 'https://localhost:44392/api/blogapi/UpdateCoverImage',
             url_UpdateIntro: 'https://localhost:44392/api/blogapi/UpdateIntro',
-            url_GetUserId: 'https://localhost:44392/api/blogapi/GetUserId/',
             url_GetBlog: 'https://localhost:44392/api/blogapi/GetBlog',
-            url_GetBlogNumberViewModel:'https://localhost:44392/api/blogapi/GetBlogNumberViewModel/',
+            url_GetBlogNumberViewModel:'https://localhost:44392/api/blogapi/GetBlogNumberViewModel',
             url_GetBlogTrace: 'https://localhost:44392/api/blogapi/GetBlogTrace',
             url_GetRecommendBlogTrace: 'https://localhost:44392/api/blogapi/GetRecommendBlogTrace/',
-            url_GetBlogPlan: 'https://localhost:44392/api/blogapi/GetBlogPlan',
-            url_GetBlogJournal: 'https://localhost:44392/api/blogapi/GetBlogJournal/',
-            url_GetBlogProduct: 'https://localhost:44392/api/blogapi/GetBlogProduct/',
+            url_GetBlogPlan: 'https://localhost:44392/api/blogapi/GetBlogPlan/',
+            url_GetBlogJournal: 'https://localhost:44392/api/blogapi/GetBlogJournal',
+            url_GetBlogProduct: 'https://localhost:44392/api/blogapi/GetBlogProduct',
             url_GetAttractionCollection: 'https://localhost:44392/api/blogapi/GetAttractionCollection/',
             url_GetRecommendBlogTrace: 'https://localhost:44392/api/blogapi/GetRecommendBlogTrace',
             url_UpdateLike: 'https://localhost:44392/api/blogapi/UpdateLike',
@@ -479,7 +503,8 @@
             url_GetBlogLike: 'https://localhost:44392/api/blogapi/GetBlogLike/',
             url_GetFans: 'https://localhost:44392/api/blogapi/GetBlogFans/',
             url_GetAttraction: 'https://localhost:44392/api/planapi/GetAttractionCollection/',
-            
+            url_DeleteAttractionCollection: 'https://localhost:44392/api/blogapi/DeleteAttractionCollection',
+            url_GetAttractionCollectionNumber: 'https://localhost:44392/api/blogapi/GetAttractionCollectionNumber'
           },
           currentSelectPageInfo: {
             total: 0,
@@ -548,9 +573,13 @@
         }
       },
       methods: {
+        pageChange(value){
+          console.log(value);
+          this.changeData(value)
+        },
         getData() {
           this.initialLoading = true
-          axios.get(`${this.urls.url_GetBlogNumberViewModel}?accountId=${this.accountId}`).then(res => {
+          axios.get(`${this.urls.url_GetBlogNumberViewModel}/?accountId=${this.accountId}`).then(res => {
             this.blogItemsNumber = res.data
             document.querySelector('body').style.overflow = 'hidden';
             axios.get(`${this.urls.url_GetBlog}/?accountId=${this.accountId}&id=${this.visitorId}`).then(res => {
@@ -563,8 +592,7 @@
           })
         },
         changeData(page){
-          if (this.currentSelectPageInfo.current !== page){
-            if (this.currentPage == '行程'){
+          if (this.currentPage == '行程'){
               this.getBlogPlan(page)
             }
             else if(this.currentPage == '旅遊回憶'){
@@ -592,7 +620,6 @@
               }
               this.currentSelectPageInfo.current = page
             }
-          }
         },
         intitialScroll(){
           window.scrollTo({
@@ -614,7 +641,7 @@
           this.currentPage = '行程'
           this.intitialScroll();
           this.loading = true
-          axios.get(`${this.urls.url_GetBlogPlan}/?accountId=${this.accountId}&id=${this.visitorId}&page=${page}`).then(res => {
+          axios.get(`${this.urls.url_GetBlogPlan}?accountId=${this.accountId}&id=${this.visitorId}&page=${page}`).then(res => {
             console.log(res);
             this.currentSelectPageInfo.total = Math.ceil(this.blogItemsNumber.TripNumber / 6)
             this.currentSelectPageInfo.current = page
@@ -668,6 +695,7 @@
         },
         getBlogLike(){
           this.currentPage = '讚'
+          this.currentSelectPageInfo.total = 0
           this.intitialScroll();
           this.loading = true
           axios.get(`${this.urls.url_GetBlogLike}/?accountId=${this.accountId}&id=${this.visitorId}`).then(res => {
@@ -737,20 +765,34 @@
             item.Like = !item.LikeOrNot ? item.Like - 1 : item.Like + 1
           })
         },
-        minusIndex(){
-          if (this.index - 1 >= 0){
-            this.index = this.index - 1
-            this.selectData = this.rawData[this.index]
+        minusPage(){
+          console.log();
+          
+          // if (this.currentSelectPageInfo.current - 1 >= 0){
+          //   this.currentSelectPageInfo.current = this.currentSelectPageInfo.current - 1
+          // }
+        },
+        addPage(){
+          if (this.currentSelectPageInfo.current < this.currentSelectPageInfo.total ){
+            this.currentSelectPageInfo.current = this.currentSelectPageInfo.current + 1
           }
         },
-        addIndex(){
-          if (this.index + 1 < this.rawData.length ){
-            this.index = this.index + 1
-            this.selectData = this.rawData[this.index]
-          }
+        deleteItem(item){
+          console.log(item);
+          axios.delete(`${this.urls.url_DeleteAttractionCollection}/?accountId=${this.accountId}&id=${item.AttractionsCollectionId}`).then(res => {
+            if (res.data.IsSuccessful){
+              this.notification('success', '刪除成功')
+              axios.get(`${this.urls.url_GetAttractionCollectionNumber}/?accountId=${this.accountId}`).then(res => {
+                this.blogItemsNumber.AttractionNumber = res.data
+                this.currentSelectPageInfo.total = res.data
+                this.getAttraction(this.currentSelectPageInfo.current)
+              })
+            }
+          })
         },
         updateTrace(userId, select){
           let request = {
+            // userId為要追蹤的人
             UserId: userId,
             FollowId: this.visitorId
           }
@@ -781,7 +823,7 @@
           axios.post(this.urls.url_UploadImageCloudinary, request).then(res => {
             image = res.data.url
             axios.put(this.urls.url_UpdatePhoto, {
-              UserId: this.userId,
+              UserId: this.visitorId,
               Photo: res.data.url
             }).then(res => {
               if (res.data.IsSuccessful){
@@ -811,7 +853,7 @@
           axios.post(this.urls.url_UploadImageCloudinary, request).then(res => {
             image = res.data.url
             axios.put(this.urls.url_UpdateCoverImage, {
-              UserId: this.userId,
+              UserId: this.visitorId,
               Photo: res.data.url
             }).then(res => {
               if (res.data.IsSuccessful){
@@ -827,7 +869,7 @@
         UpdateIntro(){
           if (this.bloggerData.UserIntro != this.originIntro){
             axios.put(this.urls.url_UpdateIntro, {
-              UserId: this.userId,
+              UserId: this.visitorId,
               UserIntro: this.bloggerData.UserIntro
             }).then(res => {
               if (res.data.IsSuccessful) {
@@ -875,6 +917,10 @@
             this.bloggerLikeData.BlogProductSelectLikeCard = this.bloggerLikeData.BlogProductLikeCard.slice(0, 5)
           }
           this.currentSelectPageInfo.current = 1
+        },
+        'currentSelectPageInfo.current': function(){
+          // console.log(this.currentSelectPageInfo.current);
+          this.changeData(this.currentSelectPageInfo.current)
         }
       },
       components: {
