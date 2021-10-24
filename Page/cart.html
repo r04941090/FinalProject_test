@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="https://unpkg.com/vue@next"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+    crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+  <link rel="stylesheet" href="/css/shopping_cart.css">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.3/css/all.css"
+    integrity="sha384-SZXxX4whJ79/gErwcOYf+zWLeJdY/qpuqC4cAa9rOGUstPomtqpuNWT9wdPEn2fk" crossorigin="anonymous">
+  <script src="//unpkg.com/element-plus/dist/index.full.js"></script>
+  <link rel="stylesheet" href="//unpkg.com/element-plus/dist/index.css">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.3/css/all.css"
+    integrity="sha384-SZXxX4whJ79/gErwcOYf+zWLeJdY/qpuqC4cAa9rOGUstPomtqpuNWT9wdPEn2fk" crossorigin="anonymous">
+  <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
+  <link rel="stylesheet" href="/css/Loading.css">
+  <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue-sweetalert2@5.0.2/dist/vue-sweetalert.umd.min.js"></script>
+  <style>
+    
+  </style>
+</head>
+
+<body>
+  <div class="container" id="cart">
+    <div class="Loading-container h-100" style="background-color: #fff;" v-if="loading">
+      <div class="sk-fading-circle">
+        <div class="sk-fading-circle1 sk-child-first"></div>
+        <div class="sk-fading-circle2 sk-child-first"></div>
+        <div class="sk-fading-circle3 sk-child-first"></div>
+        <div class="sk-fading-circle4 sk-child-first"></div>
+        <div class="sk-fading-circle5 sk-child-first"></div>
+        <div class="sk-fading-circle6 sk-child-first"></div>
+        <div class="sk-fading-circle7 sk-child-first"></div>
+        <div class="sk-fading-circle8 sk-child-first"></div>
+        <div class="sk-fading-circle9 sk-child-first"></div>
+        <div class="sk-fading-circle10 sk-child-first"></div>
+        <div class="sk-fading-circle11 sk-child-first"></div>
+        <div class="sk-fading-circle12 sk-child-first"></div>
+      </div>
+    </div>
+    <div>
+      <ol class="breadcrumb mt-3 mb-3">
+        <li class="breadcrumb-item">購物車</li>
+        <li class="breadcrumb-item">填寫資料與付款</li>
+        <li class="breadcrumb-item">訂購完成</li>
+      </ol>
+    </div>
+    <div class="cart">
+      <div class="cart-main">
+        <div class="cart-title border-bottom">
+          <h1>購物車</h1>
+        </div>
+        <div v-if="CartDetailsVM.CartDetailsModel.length !== 0">
+          <div class="cart-item-group">
+            <!-- v-for -->
+            <div>
+              <div class="cart-item pt-4 pb-4 " v-for="item in CartDetailsVM.CartDetailsModel">
+                <div class="row ">
+                  <div class=" d-flex col-5  col-md-3 col-lg-2">
+                    <div class="checkbox me-2">
+                      <input class="input-checkbox" type="checkbox" v-model="item.ChooseOrNot" checked="checked"
+                        v-on:change="checkOne(item)">
+                    </div>
+                    <div class="cart-img">
+                      <a :href=`TripWay/product/${item.TripId}`>
+                        <img :src="item.Photo" alt="">
+                      </a>
+                    </div>
+                  </div>
+                  <div class="cart-detail col-7  col-md-9 col-lg-10 ">
+                    <div class="row d-flex justify-content-between" style="height: 100%;">
+                      <div class="col-lg-4 d-flex flex-column justify-content-between">
+                        <a class="cart-detail-title d-block" :href=`TripWay/product/${item.TripId}`
+                          style="text-decoration: none;">
+                          <span>{{ item.Title }}</span>
+                        </a>
+                        <span class="cart-detail-des">{{ item.Date.split('T')[0] }}</span>
+                      </div>
+                      <div class="count col-lg-4 ms-3">
+                        {{ item.TicketOption }} x {{ item.Quantity }}
+                      </div>
+                      <div class="item-price d-flex justify-content-end col-lg-2">
+                        <span class="pe-3">TWD {{ (item.UnitPrice * item.Quantity) }}</span>
+                      </div>
+                      <div class="like col-lg-1">
+                        <el-popconfirm title="確定刪除此商品嗎？" v-on:Confirm="DeleteItem(item)">
+                          <template #reference>
+                            <el-button style="border-radius: 20px;">
+                              <i class="fas fa-trash-alt"></i>
+                            </el-button>
+                          </template>
+                        </el-popconfirm>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="pay-area border-top">
+            <div class="cart-select d-flex">
+              <div class="select">
+                <input id="check-all" type="checkbox" value="" v-on:click="checkAll()" id="all-select" v-model="selectAll"
+                  checked>
+                <label class="all-select" for="all-select">
+                  <span style="padding-left: 10px;">全選</span>
+                </label>
+              </div>
+            </div>
+            <div class="cart-price d-flex justify-content-end pb-3 pe-3">
+              <div class="price d-flex align-items-center ms-3 me-3">
+                TWD {{ totalPrice }}
+                <!-- @* <span>@Model.CartDatas.Sum(x=>x.UniPrice)</span>*@ -->
+              </div>
+              <a class="checkout" href="payment">前往結帳</a>
+            </div>
+          </div>
+        </div>
+        <div class="noProduct" v-if="CartDetailsVM.CartDetailsModel.length == 0" style="height: 380px;">
+          <img src="https://res.cloudinary.com/ditncduk1/image/upload/v1634544588/Blogger/qenyuljzeb96gzbfzh9f.svg" alt="">
+          <div style="margin-top: 10px;">購物車尚無資料</div>
+        </div>
+      </div>
+    </div>
+    <div class="continue d-flex justify-content-end mt-3 mb-3">
+      <a href="experiences">繼續購物 ></a>
+
+    </div>
+    <div class="product-area" v-if="CartDetailsVM.CartDetailsModel.length !== 0">
+      <h1 class="recommend-title">
+        多數旅客還買了以下商品
+      </h1>
+      <div class="row d-flex d-xl-none">
+        <div class="col-12 col-md-4 intro my-2" v-for="item in CartDetailsVM.ProductCardModel">
+          <a href="~/home/product/@p.TripId" class="travelplan-intro-image">
+            <img :src="item.CoverImage" alt="">
+          </a>
+          <a href="~/home/product/@p.TripId" class="travelplan-intro">
+            <div class="mb-auto">
+              <span></span>
+              <p class="title" style="margin-top: 5px;">{{ item.Title }}</p>
+            </div>
+            <div class="d-flex box">
+              <div class="popular-box">
+                <div class="d-flex">
+                  <img
+                    src="https://assets.funliday.com/users/5d382858c563710014ab0582/avatar-e3cbe8a2-74de-44fe-8556-80d1090023c1"
+                    alt="">
+                  <p class="ps-2 sup-name">funlidy planner</p>
+                </div>
+                <p class="like pt-1">
+                  {{ item.Popular }} 人氣, 8讚
+                </p>
+              </div>
+              <div class="heart-box">
+                <span id="heart"></span>
+              </div>
+            </div>
+          </a>
+        </div>
+      </div>
+      <div class="swiper mySwiper d-xl-flex pb-3 d-none">
+        <div class="swiper-wrapper">
+          <div class="swiper-slide" v-for="item in CartDetailsVM.ProductCardModel">
+            <div class="col-12 intro my-2">
+              <a :href=`TripWay/product/${item.TripId}` class="travelplan-intro-image">
+                <img :src="item.CoverImage" alt="">
+              </a>
+              <div class="travelplan-intro">
+                <div class="mb-auto">
+                  <span></span>
+                  <p class="title" style="margin-top: 5px;">{{ item.Title }}</p>
+                </div>
+                <div class="d-flex box">
+                  <div class="popular-box">
+                    <a class="d-flex product-user" style="text-decoration: none; cursor: pointer; margin-top: 5px;"
+                      href="TripWay">
+                      <img
+                        src="https://assets.funliday.com/users/5d382858c563710014ab0582/avatar-e3cbe8a2-74de-44fe-8556-80d1090023c1"
+                        alt="">
+                      <p class="ps-2 sup-name">Funlidy Planner</p>
+                    </a>
+                    <p class="like pt-1">
+                      {{ item.Popular }} 人氣,{{ item.like }} 讚
+                    </p>
+                  </div>
+                  <div class="heart-box">
+                    <span id="heart"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="swiper-button-next"></div>
+        <div class="swiper-button-prev"></div>
+        <div class="swiper-pagination"></div>
+      </div>
+    </div>
+  </div>
+  <script>
+    const cart = {
+      data() {
+        return {
+          loading: false,
+          userId: 5, // razor
+          selectAll: true,
+          totalPrice: 0,
+          urls: {
+            url_GetCartDetailsVM: 'https://localhost:44392/api/productapi/GetCartDetailsVM/5',
+            url_ChooseChange: 'https://localhost:44392/api/productapi/ChooseChange/',
+            url_DeleteCart: 'https://localhost:44392/api/productapi/DeleteProduct/',
+            url_ChooseChangeAll: 'https://localhost:44392/api/productapi/ChooseChangeAll/'
+          },
+          CartDetailsVM: {
+            CartDetailsModel: {},
+            ProductCardModel: {}
+          },
+          test: ''
+        }
+      },
+      methods: {
+        // 載入中
+        getData() {
+          this.loading = true
+          document.querySelector('body').style.overflow = 'hidden';
+          axios.get(this.urls.url_GetCartDetailsVM).then(res => {
+            console.log(res);
+            this.CartDetailsVM = res.data
+            console.log(res.data);
+            this.calculateTotalPrice();
+            this.CartDetailsVM.CartDetailsModel.forEach(item => {
+              if (!item.ChooseOrNot) {
+                this.selectAll = false
+                return
+              }
+            });
+            this.$nextTick(() => {
+              console.log('es');
+              this.initSwiper()
+              this.loading = false
+              document.querySelector('body').style.overflow = 'auto';
+            })
+            // 載入完
+          })
+        },
+        checkOne(item) {
+          console.log(item);
+          axios.put(`${this.urls.url_ChooseChange}${item.CartId}`).then(res => {
+            this.calculateTotalPrice();
+            if (this.CartDetailsVM.CartDetailsModel.filter(x => x.ChooseOrNot == true).length == this.CartDetailsVM.CartDetailsModel.length) {
+              this.selectAll = true
+            }
+            else {
+              this.selectAll = false
+            }
+            console.log(res);
+          })
+        },
+        checkAll() {
+          axios.put(`${this.urls.url_ChooseChangeAll}${this.userId}`).then(res => {
+            console.log(res);
+            this.CartDetailsVM.CartDetailsModel.forEach(item => {
+              item.ChooseOrNot = this.selectAll
+            });
+            this.calculateTotalPrice();
+          })
+        },
+        DeleteItem(item) {
+          console.log(item);
+          axios.delete(`${this.urls.url_DeleteCart}${item.CartId}`).then(res => {
+            console.log(res);
+            if (res.data) {
+              this.CartDetailsVM.CartDetailsModel = this.CartDetailsVM.CartDetailsModel.filter(x => x.CartId != item.CartId);
+              this.Notification('刪除成功', 'success')
+              this.calculateTotalPrice();
+            }
+            else{
+              this.Notification('刪除失敗', 'error')
+            }
+          })
+        },
+        calculateTotalPrice() {
+          let select = this.CartDetailsVM.CartDetailsModel.filter(x => x.ChooseOrNot == true).map(x => x.Quantity * x.UnitPrice)
+          console.log(select);
+
+          if (select.length !== 0) {
+            this.totalPrice = select.reduce((a, b) => a + b).toLocaleString()
+          }
+          else {
+            this.totalPrice = 0
+          }
+        },
+        initSwiper() {
+          console.log('test');
+
+          var swiper = new Swiper(".mySwiper", {
+            slidesPerView: 3,
+            spaceBetween: 30,
+            slidesPerGroup: 3,
+            loop: true,
+            loopFillGroupWithBlank: true,
+            pagination: {
+              el: ".swiper-pagination",
+              clickable: true,
+            },
+            navigation: {
+              nextEl: ".swiper-button-next",
+              prevEl: ".swiper-button-prev",
+            },
+          });
+        },
+        Notification(message, type) {
+          const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-right',
+            showConfirmButton: false,
+            timer: 2000,
+            // timerProgressBar: true,
+            didOpen: (toast) => {
+              toast.addEventListener('mouseenter', Swal.stopTimer)
+              toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+          })
+          Toast.fire({
+            icon: type,
+            title: message
+          })
+          //ElNotification({
+          //    message: message,
+          //    type: type,
+          //    duration: 2000,
+          //    position: 'bottom-right'
+          //})
+        },
+      },
+      watch: {
+        // selectAll:{
+        //   deep: true,
+        //   handler: function(){
+        //     console.log('asd');
+
+        //     this.CartDetailsVM.CartDetailsModel.forEach(item => {
+        //       if (!item.ChooseOrNot){
+        //         this.selectAll = false
+        //         return
+        //       }
+        //     });
+        //   }
+        // }
+      },
+      mounted() {
+        this.getData();
+      }
+    }
+    Vue.createApp(cart).use(ElementPlus).mount('#cart')
+  </script>
+</body>
+
+</html>

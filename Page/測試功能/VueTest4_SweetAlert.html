@@ -29,8 +29,10 @@
         showAlert() {
           // Use sweetalert2
           const Toast = Swal.mixin({
+            width: '265px',
+            height: '100px',
             toast: true,
-            position: 'bottom',
+            position: 'top-right',
             showConfirmButton: false,
             timer: 1500,
             // timerProgressBar: true,
@@ -42,7 +44,7 @@
 
           Toast.fire({
             icon: 'success',
-            title: '上傳成功'
+            title: '已成功加入購物車'
           })
         },
       },

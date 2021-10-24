@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
+  <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.css" />
+
+  <!-- Load polyfills to support older browsers -->
+  <script src="//polyfill.io/v3/polyfill.min.js?features=es2015%2CIntersectionObserver" crossorigin="anonymous"></script>
+
+  <!-- Load Vue followed by BootstrapVue -->
+  <script src="//unpkg.com/vue@latest/dist/vue.min.js"></script>
+  <script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.js"></script>
+
+  <!-- Load the following for BootstrapVueIcons support -->
+  <script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue-icons.min.js"></script>
+</head>
+<body>
+  <div id="app">
+    <b-table striped hover :items="items" :fields="fields">
+      <template #cell(Image)="row">
+        <img :src="row.value" alt="" class="w-25">
+      </template>
+    </b-table>
+  </div>
+  <script>
+    let app = new Vue({
+      el: '#app',
+      data: {
+        // fields: [
+        //   'Id', 'Image', 'Name'
+        // ],
+        fields:[
+          {key:'Id', label: '#'},
+          {key: 'Image', label: '##'}
+        ],
+        items: [
+          {
+            Name: "皮卡丘",
+            NickName: "皮皮",
+            Type: "鼠寶可夢",
+            Image: "https://assets.pokemon.com/assets/cms2/img/pokedex/detail/025.png",
+            Hp: 35,
+            Speed: 90,
+            Attack: 55,
+            Defanse: 40,
+            SpAttack: 50,
+            SpDefense: 50,
+          },
+          {
+            Name: "皮卡丘2",
+            NickName: "皮皮",
+            Type: "鼠寶可夢",
+            Image: "https://assets.pokemon.com/assets/cms2/img/pokedex/detail/024.png",
+            Hp: 35,
+            Speed: 90,
+            Attack: 55,
+            Defanse: 40,
+            SpAttack: 50,
+            SpDefense: 50,
+          },
+          {
+            Name: "皮卡丘3",
+            NickName: "皮皮",
+            Type: "鼠寶可夢",
+            Image: "https://assets.pokemon.com/assets/cms2/img/pokedex/detail/026.png",
+            Hp: 35,
+            Speed: 90,
+            Attack: 55,
+            Defanse: 40,
+            SpAttack: 50,
+            SpDefense: 50,
+          },
+        ]
+      }
+    })
+  </script>
+</body>
+</html>

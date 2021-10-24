@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <!-- Add this to <head> -->
+
+  <!-- Load required Bootstrap and BootstrapVue CSS -->
+  <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
+  <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.css" />
+
+  <!-- Load polyfills to support older browsers -->
+  <script src="//polyfill.io/v3/polyfill.min.js?features=es2015%2CIntersectionObserver" crossorigin="anonymous"></script>
+
+  <!-- Load Vue followed by BootstrapVue -->
+  <script src="//unpkg.com/vue@latest/dist/vue.min.js"></script>
+  <script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.js"></script>
+
+  <!-- Load the following for BootstrapVueIcons support -->
+  <script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue-icons.min.js"></script>
+  <style>
+    .tab-content{
+      height: 500px;
+      overflow-y: auto;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="container">
+      <div class="row">
+        <div>
+          <h1>註冊成為會員</h1>
+          <!-- Tabs with card integration -->
+          <b-card no-body>
+            <b-tabs v-model="tabIndex" small card fill>
+              <b-tab title="隱私政策" title-item-class="none-click">
+                I'm the first fading tab
+                <b-card>
+                  Lorem, ipsum dolor sit amet consectetur adipisicing elit. Eaque nam consequuntur autem qui ab alias dolores architecto neque saepe maxime iste obcaecati odit incidunt numquam omnis, tempore quos modi iusto.
+                  Lorem, ipsum dolor sit amet consectetur adipisicing elit. Eaque nam consequuntur autem qui ab alias dolores architecto neque saepe maxime iste obcaecati odit incidunt numquam omnis, tempore quos modi iusto.
+                  Lorem, ipsum dolor sit amet consectetur adipisicing elit. Eaque nam consequuntur autem qui ab alias dolores architecto neque saepe maxime iste obcaecati odit incidunt numquam omnis, tempore quos modi iusto.
+                  Lorem, ipsum dolor sit amet consectetur adipisicing elit. Eaque nam consequuntur autem qui ab alias dolores architecto neque saepe maxime iste obcaecati odit incidunt numquam omnis, tempore quos modi iusto.
+                  Lorem, ipsum dolor sit amet consectetur adipisicing elit. Eaque nam consequuntur autem qui ab alias dolores architecto neque saepe maxime iste obcaecati odit incidunt numquam omnis, tempore quos modi iusto.
+                  Lorem, ipsum dolor sit amet consectetur adipisicing elit. Eaque nam consequuntur autem qui ab alias dolores architecto neque saepe maxime iste obcaecati odit incidunt numquam omnis, tempore quos modi iusto.
+                  Lorem, ipsum dolor sit amet consectetur adipisicing elit. Eaque nam consequuntur autem qui ab alias dolores architecto neque saepe maxime iste obcaecati odit incidunt numquam omnis, tempore quos modi iusto.
+                  Lorem, ipsum dolor sit amet consectetur adipisicing elit. Eaque nam consequuntur autem qui ab alias dolores architecto neque saepe maxime iste obcaecati odit incidunt numquam omnis, tempore quos modi iusto.
+                  Lorem, ipsum dolor sit amet consectetur adipisicing elit. Eaque nam consequuntur autem qui ab alias dolores architecto neque saepe maxime iste obcaecati odit incidunt numquam omnis, tempore quos modi iusto.
+                  Lorem, ipsum dolor sit amet consectetur adipisicing elit. Eaque nam consequuntur autem qui ab alias dolores architecto neque saepe maxime iste obcaecati odit incidunt numquam omnis, tempore quos modi iusto.
+                  Lorem, ipsum dolor sit amet consectetur adipisicing elit. Eaque nam consequuntur autem qui ab alias dolores architecto neque saepe maxime iste obcaecati odit incidunt numquam omnis, tempore quos modi iusto.
+                  Lorem, ipsum dolor sit amet consectetur adipisicing elit. Eaque nam consequuntur autem qui ab alias dolores architecto neque saepe maxime iste obcaecati odit incidunt numquam omnis, tempore quos modi iusto.
+                  Lorem, ipsum dolor sit amet consectetur adipisicing elit. Eaque nam consequuntur autem qui ab alias dolores architecto neque saepe maxime iste obcaecati odit incidunt numquam omnis, tempore quos modi iusto.
+                  Lorem, ipsum dolor sit amet consectetur adipisicing elit. Eaque nam consequuntur autem qui ab alias dolores architecto neque saepe maxime iste obcaecati odit incidunt numquam omnis, tempore quos modi iusto.
+                  Lorem, ipsum dolor sit amet consectetur adipisicing elit. Eaque nam consequuntur autem qui ab alias dolores architecto neque saepe maxime iste obcaecati odit incidunt numquam omnis, tempore quos modi iusto.
+                  Lorem, ipsum dolor sit amet consectetur adipisicing elit. Eaque nam consequuntur autem qui ab alias dolores architecto neque saepe maxime iste obcaecati odit incidunt numquam omnis, tempore quos modi iusto.
+                  Lorem, ipsum dolor sit amet consectetur adipisicing elit. Eaque nam consequuntur autem qui ab alias dolores architecto neque saepe maxime iste obcaecati odit incidunt numquam omnis, tempore quos modi iusto.
+                  Lorem, ipsum dolor sit amet consectetur adipisicing elit. Eaque nam consequuntur autem qui ab alias dolores architecto neque saepe maxime iste obcaecati odit incidunt numquam omnis, tempore quos modi iusto.
+                  Lorem, ipsum dolor sit amet consectetur adipisicing elit. Eaque nam consequuntur autem qui ab alias dolores architecto neque saepe maxime iste obcaecati odit incidunt numquam omnis, tempore quos modi iusto.
+                  Lorem, ipsum dolor sit amet consectetur adipisicing elit. Eaque nam consequuntur autem qui ab alias dolores architecto neque saepe maxime iste obcaecati odit incidunt numquam omnis, tempore quos modi iusto.
+                  Lorem, ipsum dolor sit amet consectetur adipisicing elit. Eaque nam consequuntur autem qui ab alias dolores architecto neque saepe maxime iste obcaecati odit incidunt numquam omnis, tempore quos modi iusto.
+                  Lorem, ipsum dolor sit amet consectetur adipisicing elit. Eaque nam consequuntur autem qui ab alias dolores architecto neque saepe maxime iste obcaecati odit incidunt numquam omnis, tempore quos modi iusto.
+                  Lorem, ipsum dolor sit amet consectetur adipisicing elit. Eaque nam consequuntur autem qui ab alias dolores architecto neque saepe maxime iste obcaecati odit incidunt numquam omnis, tempore quos modi iusto.
+                  Lorem, ipsum dolor sit amet consectetur adipisicing elit. Eaque nam consequuntur autem qui ab alias dolores architecto neque saepe maxime iste obcaecati odit incidunt numquam omnis, tempore quos modi iusto.
+                </b-card>
+                <div class="form-group form-check d-flex justify-content-center mt-3">
+                  <input id="checkbox" type="checkbox" class="form-check-input" v-model="signupData.alreadyRead">
+                  <label for="checkbox" class="form-check-label">我已滿18歲</label>
+                </div>
+              </b-tab>
+              <b-tab title="填寫基本資料" title-item-class="none-click">
+                <div class="container">
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label for="">帳號</label>
+                      <input type="text" v-model="signupData.memberInfo.account" :class="{'is-invalud': signupData.memberInfoCheck.accountError}">
+                      <div class="text-danger small mt-1">
+                        {{signupData.memberInfoCheck.accountErrorMsg}}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </b-tab>
+              <b-tab title="上傳大頭貼" title-item-class="none-click">
+                ...
+              </b-tab>
+          </b-card>
+      
+          <!-- Control buttons-->
+          <div class="text-center d-flex justify-content-between mt-3">
+            <b-button @click="tabIndex--">上一步</b-button>
+            <b-button @click="tabIndex++" :disabled="!nextable" v-if="tabIndex &lt 2">下一步</b-button>
+            <b-button @click="tabIndex++" :disabled="!nextable" v-if="tabIndex == 2">註冊</b-button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    let app = new Vue({
+      el: '#app',
+      data: {
+        tabIndex: 0,
+        signupData:{
+          alreadyRead: false,
+          memberInfo: {
+            account: ''
+          },
+          memberInfoCheck:{
+            accountError: false,
+            accountErrorMsg:'error'
+          }
+        }
+      },
+      watch: {
+        'signupData.memberInfo':{
+          immediate: true,
+          deep: true,
+          handler: function(){
+            this.checkMemberInfo()
+          }
+        }
+      },
+      computed: {
+        nextable(){
+          if (this.tabIndex == 0){
+            if (!this.signupData.alreadyRead){
+              return false
+            }
+          }
+          if (this.tabIndex == 1){
+            return !this.checkMemberInfoVerify()
+          }
+          return true
+        }
+      },
+      methods: {
+        linkClass(idx) {
+          if (this.tabIndex === idx) {
+            return ['bg-primary', 'text-light']
+          } else {
+            return ['bg-light', 'text-info']
+          }
+        },
+        checkMemberInfo(){
+          // account
+          if (this.signupData.memberInfo.account == ''){
+            this.signupData.memberInfoCheck.accountError = true;
+            this.signupData.memberInfoCheck.accountErrorMsg = 'error';
+          }
+          else{
+            this.signupData.memberInfoCheck.accountError = false;
+            this.signupData.memberInfoCheck.accountErrorMsg = '';
+          }
+        },
+        checkMemberInfoVerify(){
+          for(let prop in this.signupData.memberInfoCheck){
+            if(this.signupData.memberInfoCheck[prop] == false){
+              return false
+            }
+          }
+          return true;
+        }
+      }
+    })
+  </script>
+</body>
+</html>

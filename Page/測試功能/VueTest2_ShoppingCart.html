@@ -78,18 +78,15 @@
         change() {
           console.log(document.querySelector('.data'));
           // 取得購物車的數量
-          App.data().test = this.test2
-          console.log(this.test2, App.$data);
-          
-          // document.querySelector('.data').textContent = this.test2;
-          // axios.post(url, request).then(res => {
-          //   axio.get
-          // })
+          console.log(header.$data.test);
+          header.$data.test = this.test2
+          console.log(header.$data.test);
         }
       },
     }
-    Vue.createApp(App).mount('#app')
     Vue.createApp(App2).mount('#app2')
+    header = Vue.createApp(App).mount('#app')
+    
   </script>
 </body>
 
