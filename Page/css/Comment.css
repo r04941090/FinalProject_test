@@ -1,0 +1,100 @@
+.comments {
+  border-top: 1px solid #ccc;
+  margin-top: 20px;
+}
+
+.comments-box {
+  position: relative;
+  background: #eee;
+  min-height: 40px;
+  margin-top: 8px;
+  width: 100%;
+  border-radius: 20px;
+}
+
+.comments-box input {
+  width: 100%;
+  padding-left: 44px;
+  padding-right: 100px;
+  background: none;
+  border: none;
+  font-size: 16px;
+  min-height: 40px;
+}
+
+.comments-user {
+  position: absolute;
+  left: 4px;
+  top: 4px;
+  width: 32px;
+  height: 32px;
+}
+.comment-user-name{
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+}
+.comment-user-name:hover{
+  color: #ee3c77;
+}
+.comments-post {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  width: 80px;
+  height: 32px;
+  overflow: hidden;
+  background: #ee3c77;
+  color: #fff;
+  text-align: center;
+  line-height: 32px;
+  border-radius: 20px;
+  cursor: pointer;
+}
+.comment-number{
+  padding: 32px 0px;
+  font-size: 18px;
+}
+.comment-reply-user-img {
+  width: 32px;
+  height: 32px;
+}
+
+.comments-info {
+  width: calc(100% - 56px);
+  margin-left: 8px;
+  
+}
+
+.comment-reply {
+  display: flex;
+  margin-bottom: 5px; 
+  color: #888;
+  font-size: 14px;
+}
+.reply-img{
+  width: 100%; 
+  height: 100%; 
+  border-radius: 200px; 
+  object-fit: cover; 
+  box-shadow: 1px 1px 8px rgba(100, 100, 100, 0.6);
+}
+input:focus{
+  outline: none;
+}
+.delete-comment{
+  position: absolute;
+  right: -2px;
+  width: 60px;
+  padding: 7px;
+  text-align: center;
+  background: #fff;
+  transition: 2s;
+  box-shadow: 0 4px 8px 0 rgb(0 0 0 / 50%);
+  border-radius: 5px;
+  color: rgb(172, 31, 31);
+}
+.delete-show{
+  transform: scale(1);
+  width: 60px;
+}

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>\<!-- Import style -->
+  <link rel="stylesheet" href="//unpkg.com/element-plus/dist/index.css" />
+  <!-- Import Vue 3 -->
+  <script src="//unpkg.com/vue@next"></script>
+  <!-- Import component library -->
+  <script src="//unpkg.com/element-plus"></script>
+</head>
+<body>
+  <div id="app">
+    <div class="demo-date-picker">
+      <div class="block">
+        <span class="demonstration">Default</span>
+        <el-date-picker v-model="value1" type="date" placeholder="Pick a day" value-format="YYYY-MM-DD" :picker-options="">
+        </el-date-picker>
+      </div>
+      {{value1}}
+    </div>
+  </div>
+  <script>
+    const Main = {
+      data(){
+        return {
+          value1: '',
+          value2: '',
+          pickerOptions: {
+            disabledDate(time){
+              return time.getTime() < Date.now() - 8.64e7
+            }
+          }
+        }
+      },
+    }
+    const app = Vue.createApp(Main);
+    app.use(ElementPlus);
+    app.mount("#app");
+  </script>  
+</body>
+</html>

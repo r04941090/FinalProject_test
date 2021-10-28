@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="https://unpkg.com/vue@next"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+</head>
+<body>
+  <div id="app">
+    <button @click="send">test</button>
+  </div>
+  <script>
+    const app = {
+      data(){
+        return {
+
+        }
+      },
+      methods: {
+        send(){
+          const config = {
+            headers: {
+              'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhc2QiLCJqdGkiOiI1ZGI0MGZlMS0xMmYyLTRlYjAtYjg2MC05M2MzMzJiMTUxYTMiLCJuYmYiOjE2MzUyMzg5OTMsImV4cCI6MTYzNTI0MjU5MywiaWF0IjoxNjM1MjM4OTkzLCJpc3MiOiJCdWlsZFNjaG9vbCJ9.YYZN2evdmwdVU4GKf5y0eE_k5HGH3lucVfsD4mVOXaE'
+            }
+          }
+          axios.get('http://localhost:5000/api/Login/Test', config).then(res => {
+            console.log(res);
+            
+          })
+        }
+      },
+    }
+    Vue.createApp(app).mount('#app')
+  </script>
+</body>
+</html>

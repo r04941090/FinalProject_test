@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="https://unpkg.com/vue@next"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+    crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.3/css/all.css" integrity="sha384-SZXxX4whJ79/gErwcOYf+zWLeJdY/qpuqC4cAa9rOGUstPomtqpuNWT9wdPEn2fk" crossorigin="anonymous">
+  <link rel="stylesheet" href="/css/Comment.css">
+</head>
+
+<body>
+  <div class="container" id="comment">
+    <div class="row d-flex">
+      <div class="col-12 col-xl-8 left">
+        <div style="height: 100px; background-color: #fa0; width: 100%;"></div>
+            <div class="comments">
+                <div class="comment-number">留言 ({{totalComment}})</div>
+                <div class="comments-box">
+                    <div class="comments-user">
+                        <img :src="LoginUser.Photo"
+                             alt="" style="width: 100%; border-radius: 100px; overflow: hidden; object-fit: cover; height: 100%;" :title="LoginUser.Name">
+                    </div>
+                    <input type="text" placeholder="留言" v-model="comment" v-on:keyup.enter="sendComment(null, comment)">
+                    <div class="comments-post" v-on:click="sendComment(null, comment)">送出</div>
+                </div>
+                <ul style="list-style: none; padding-left: 0px; margin-top: 20px;">
+                    <li v-for="item in ReadCommentResponse" style="margin-bottom: 20px;" :key="item.CommentId">
+                        <div class="d-flex" style="padding-left: 3px;">
+                            <div class="comment-reply-user-img">
+                                <img :src="item.Blogger.Photo" alt="" class="reply-img" :title="item.Name">
+                            </div>
+                            <div class="d-flex flex-column comments-info">
+                                <div class="d-flex">
+                                    <a class="comment-user-name" style="margin-bottom: 5px; font-weight: bold;" :href=`/${item.Blogger.AccountId}`>{{ item.Blogger.Name }}</a>
+                                    <i class="fas fa-ellipsis-h ms-auto" v-on:click.stop="showDelete(item.CommentId)" style="position: relative; cursor: pointer" v-if="LoginUser.AccountId == item.Blogger.AccountId">
+                                        <span class="delete-comment" v-if="item.CommentId == deleteCommentId" v-on:click="deleteComment(item)" :class="{'delete-show': deleteCommentId == item.CommentId}">刪除</span>
+                                    </i>
+                                    <!-- :class="{'delete-show': deleteCommentId == item.CommentId}" -->
+                                </div>
+                                <div class="comment-user-message" style="margin-bottom: 5px;">{{ item.Comment }}</div>
+                                <div class="comment-reply" style="position: relative;">
+                                    <span class="comment-reply-time">{{ item.newTime }}</span>
+                                    <span style="margin-left: 20px; cursor: pointer; font-weight: bold; font-size: 14px;" v-on:click="selectReply(item)">回覆</span>
+                                    <span style="margin-left: auto; cursor: pointer; font-weight: bold;" v-on:click="checkMore(item)" v-if="item.Reply.length !== 0">
+                                        {{ item.show ? '隱藏' : '查看' }}更多回覆
+                                    </span>
+                                </div>
+                                <!-- Reply Box -->
+                                <div class="comments-box" v-if="selectReplyBox == item">
+                                    <div class="comments-user">
+                                        <img :src="LoginUser.Photo" alt="" class="reply-img" :title="LoginUser.Name">
+                                    </div>
+                                    <input type="text" placeholder="留言" v-model="replyComment" v-on:keyup.enter="sendComment(item.CommentId, replyComment)">
+                                    <div class="comments-post" v-on:click="sendComment(item.CommentId, replyComment)">送出</div>
+                                </div>
+                                <ul style="list-style: none; padding-left: 0px;" v-if="item.show" :style="{'margin-top': item.Reply.length == 0 ? '0px' : '20px'}">
+                                    <li v-for="reply in item.Reply" :key="reply.CommentId">
+                                        <div class="d-flex" style="padding-left: 3px;">
+                                            <div class="comment-reply-user-img">
+                                                <img :src="reply.Blogger.Photo" alt="" class="reply-img" :title="item.Name">
+                                            </div>
+                                            <div class="d-flex flex-column comments-info" style="width: calc(100% - 40px);">
+                                                <div class="d-flex">
+                                                    <a class="comment-user-name" style="margin-bottom: 5px; font-weight: bold; " :href=`/${reply.Blogger.AccountId}`>{{ reply.Blogger.Name }}</a>
+                                                    <i class="fas fa-ellipsis-h ms-auto" v-on:click.stop="showDelete(reply.CommentId)" style="position: relative; cursor: pointer" v-if="LoginUser.AccountId == reply.Blogger.AccountId">
+                                                        <span class="delete-comment" v-if="reply.CommentId == deleteCommentId" v-on:click="deleteComment(reply)">刪除</span>
+                                                    </i>
+                                                </div>
+                                                <div class="comment-user-message" style="margin-bottom: 5px;">{{ reply.Comment }}</div>
+                                                <div class="comment-reply">
+                                                    <span class="comment-reply-time">{{ reply.newTime }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+      <div class="col-xl-4 border right">
+        {{test}}
+        Lorem, ipsum dolor sit amet consectetur adipisicing elit. Sit hic labore quod voluptatum iusto rem, suscipit
+        illo eos, praesentium quidem ratione tempore? Non sunt nemo, soluta ducimus impedit sapiente. Obcaecati?
+      </div>
+    </div>
+  </div>
+  <script>
+    const comment = {
+      data() {
+        return {
+          test: 123,
+          userId: 5,
+          tripId: 139,
+          totalComment: 10,
+          showReplyMessageId: 0,
+          selectReplyBox: '',
+          replyComment: '',
+          deleteCommentId: '',
+          comment: '',
+          due_date: new Date(2020, 8, 28, 10, 20, 10, 100),
+          LoginUser: {
+            Name: '',
+            Photo: '',
+            AccountId: ''
+          },
+          ReadCommentResponse: [],
+          urls: {
+            url_GetComments: 'https://localhost:44392/api/commentapi/GetComments',
+            url_AddComment: 'https://localhost:44392/api/commentapi/AddComment',
+            url_DeleteCommemt: 'https://localhost:44392/api/commentapi/DeleteComment'
+          }
+        }
+      },
+      methods: {
+        getComment() {
+          console.log(Date.parse(this.due_date));
+          console.log(this.timeago(Math.floor(this.due_date)));
+          console.log(this.due_date);
+          let request = {
+            TripId: this.tripId,
+            UserId: this.userId
+          }
+          axios.post(this.urls.url_GetComments, request).then(res => {
+            console.log(res.data);
+            this.ReadCommentResponse = res.data.ReadCommentResponse
+            this.ReadCommentResponse.forEach(item => {
+              item.show = false
+              // let date = this.parseTime(item)
+              console.log(item);
+              item.newTime  = this.timeago(Date.parse(this.parseTime(item)))
+              item.Reply.forEach(reply => {
+                reply.newTime = this.timeago(Date.parse(this.parseTime(reply)))
+              })
+            })
+            this.LoginUser = res.data.LoginUser
+            console.log(this.ReadCommentResponse);
+            
+          })
+        },
+        showDelete(commentId){
+          console.log(commentId);
+          
+          this.deleteCommentId = commentId
+          console.log('this.deleteCommentId', this.deleteCommentId);
+          
+        },
+        sendComment(commentId, comment){
+          console.log(commentId, comment);
+          let request = {
+            TripId: this.tripId,
+            ConnectTo: commentId,
+            UserId: this.userId,
+            Comment: comment
+          }
+          console.log(request);
+          axios.post(this.urls.url_AddComment, request).then(res => {
+            console.log(res);
+            
+            if (commentId == null){
+              let request = {
+                CommentId: res.data.CommentId,
+                Blogger: {
+                  Name: this.LoginUser.Name,
+                  Photo: this.LoginUser.Photo,
+                  AccountId: this.LoginUser.AccountId
+                },
+                Comment: comment,
+                Time: res.data.Time.split('.')[0],
+                Reply: []
+              }
+              this.comment = ''
+              this.ReadCommentResponse.splice(0, 0, request);
+              console.log('this.ReadCommentResponse', this.ReadCommentResponse);
+            }
+            else{
+              let request = {
+                CommentId: res.data.CommentId,
+                Blogger: {
+                  Name: this.LoginUser.Name,
+                  Photo: this.LoginUser.Photo,
+                  AccountId: this.LoginUser.AccountId
+                },
+                Comment: comment,
+                Time: res.data.Time.split('.')[0],
+              }
+              this.replyComment = ''
+              console.log(request);
+              console.log(this.ReadCommentResponse.filter(x => x.CommentId == commentId)[0].Reply);
+              this.ReadCommentResponse.filter(x => x.CommentId == commentId)[0].Reply.splice(0, 0, request)
+              this.ReadCommentResponse.filter(x => x.CommentId == commentId)[0].show = true
+            }
+            // this.calculateTotalComment()
+            console.log(res);
+          })
+        },
+        selectReply(item){
+          this.replyComment = ''
+          if (this.selectReplyBox == item ){
+            this.selectReplyBox = ''
+          }
+          else{
+            this.selectReplyBox = item
+          }
+        },
+        deleteComment(comment){
+          let request = {
+            CommentId: comment.CommentId
+          }
+          console.log(request);
+          
+          axios.post(this.urls.url_DeleteCommemt, request).then(res => {
+            console.log(this.ReadCommentResponse.findIndex(x => x.CommentId !== comment.CommentId));
+            
+            if (this.ReadCommentResponse.findIndex(x => x.CommentId == comment.CommentId) == -1){
+              // 代表在下一層
+              this.ReadCommentResponse.forEach(item => {
+                console.log(item);
+                
+                item.Reply = item.Reply.filter(x => x.CommentId != comment.CommentId)
+              })
+            }
+            else{
+              this.ReadCommentResponse = this.ReadCommentResponse.filter(x => x.CommentId !== comment.CommentId)
+            }
+            console.log(this.ReadCommentResponse);
+            // this.calculateTotalComment()
+          })
+        },
+        checkMore(item){
+          console.log(item);
+          console.log(this.ReadCommentResponse);
+          
+          this.ReadCommentResponse.filter(x => x.CommentId == item.CommentId)[0].show = !this.ReadCommentResponse.filter(x => x.CommentId == item.CommentId)[0].show
+        },
+        calculateTotalComment(){
+          let result = 0;
+          console.log(this.ReadCommentResponse.length);
+          
+          this.ReadCommentResponse.forEach(item => {
+            result = result + item.Reply.length
+          })
+          result = result + this.ReadCommentResponse.length
+          this.totalComment = result
+        },
+        parseTime(item){
+          let time = item.Time.split('T')
+          let year = time[0].split('-')[0]
+          let month = time[0].split('-')[1] - 1
+          let day = time[0].split('-')[2]
+          let hour = time[1].split(':')[0]
+          let minute = time[1].split(':')[1]
+          let second = time[1].split(':')[2].split('.')[0]
+          let date = new Date(year, month, day, hour, minute, second)
+          return date
+        },
+        timeago(dateTimeStamp) {   //dateTimeStamp是一個時間毫秒，註意時間戳是秒的形式，在這個毫秒的基礎上除以1000，就是十位數的時間戳。13位數的都是時間毫秒。
+          var minute = 1000 * 60;      //把分，時，天，周，半個月，一個月用毫秒表示
+          var hour = minute * 60;
+          var day = hour * 24;
+          var week = day * 7;
+          var halfamonth = day * 15;
+          var month = day * 30;
+          var year = month * 12;
+          var now = new Date();   //獲取當前時間毫秒
+          var diffValue = now - dateTimeStamp;//時間差
+          if (diffValue < 0) {
+            return;
+          }
+          var minC = diffValue / minute;  //計算時間差的分，時，天，周，月
+          var hourC = diffValue / hour;
+          var dayC = diffValue / day;
+          var weekC = diffValue / week;
+          var monthC = diffValue / month;
+          var yearC = diffValue / year
+
+          if (yearC >= 1) {
+            result = " " + parseInt(yearC) + "年前"
+          }
+          else if (monthC >= 1 && monthC <= 12) {
+            result = " " + parseInt(monthC) + "月前"
+          } else if (weekC >= 1 && weekC <= 3) {
+            result = " " + parseInt(weekC) + "周前"
+          } else if (dayC >= 1 && dayC <= 6) {
+            result = " " + parseInt(dayC) + "天前"
+          } else if (hourC >= 1 && hourC <= 23) {
+            result = " " + parseInt(hourC) + "小時前"
+          } else if (minC >= 1 && minC <= 59) {
+            result = " " + parseInt(minC) + "分鐘前"
+          } else if (diffValue >= 0 && diffValue <= minute) {
+            result = "剛剛"
+          } else {
+            var datetime = new Date();
+            datetime.setTime(dateTimeStamp);
+            var Nyear = datetime.getFullYear();
+            var Nmonth = datetime.getMonth() + 1 < 10 ? "0" + (datetime.getMonth() + 1) : datetime.getMonth() + 1;
+            var Ndate = datetime.getDate() < 10 ? "0" + datetime.getDate() : datetime.getDate();
+            var Nhour = datetime.getHours() < 10 ? "0" + datetime.getHours() : datetime.getHours();
+            var Nminute = datetime.getMinutes() < 10 ? "0" + datetime.getMinutes() : datetime.getMinutes();
+            var Nsecond = datetime.getSeconds() < 10 ? "0" + datetime.getSeconds() : datetime.getSeconds();
+            result = Nyear + "-" + Nmonth + "-" + Ndate
+          }
+          return result;
+        }
+      },
+      watch: {
+        ReadCommentResponse: {
+          deep: true,
+          handler: function(){
+            this.ReadCommentResponse.forEach(item => {
+              item.newTime = this.timeago(Date.parse(this.parseTime(item)))
+              item.Reply.forEach(reply => {
+                reply.newTime = this.timeago(Date.parse(this.parseTime(reply)))
+              })
+            })
+            this.calculateTotalComment()
+          }
+        },
+        totalComment: {
+          deep: true,
+          handler: function(){
+            let result = 0;
+            console.log(this.ReadCommentResponse.length);
+            
+            this.ReadCommentResponse.forEach(item => {
+              result = result + item.Reply.length
+            })
+            result = result + this.ReadCommentResponse.length
+            console.log(result);
+            
+            return result
+          }
+        }
+      },
+      mounted() {
+        this.getComment()
+        document.addEventListener('click', (e) => {
+          console.log(e.target);
+          console.log(this.$el);
+          if (e.target.innerText != '刪除'){
+            this.deleteCommentId = ''
+          }
+        })
+        setTimeout(() => {
+          this.ReadCommentResponse.forEach(item => {
+            // let date = this.parseTime(item)
+            item.newTime  = this.timeago(Date.parse(this.parseTime(item)))
+            item.Reply.forEach(reply => {
+              reply.newTime = this.timeago(Date.parse(this.parseTime(reply)))
+            })
+          })
+        }, 60000);
+      },
+      components: {
+        // replyMessageBox,
+        // messageBox
+      }
+    }
+    Vue.createApp(comment).mount('#comment')
+  </script>
+</body>
+
+</html>
