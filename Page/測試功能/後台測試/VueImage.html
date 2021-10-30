@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="https://unpkg.com/vue/dist/vue.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+  <!-- 引入组件库 -->
+  <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+  <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
+  <script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.js"></script>
+  <!-- Load the following for BootstrapVueIcons support -->
+  <script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue-icons.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+
+</head>
+<body>
+  <div id="app">
+    <input type="file" ref="fileTest" v-on:change="GetImg">
+    <button v-on:click="upload">send</button>
+    <div class="d-flex">
+      <div class="d-flex flex-column border">
+        <!-- <div style="width: 200px; height: 200px;">
+          <img src="" alt="">
+        </div> -->
+        <div class="demo-image__preview">
+          <el-image 
+            style="width: 300px; height: 300px"
+            :preview-src-list="srcList"
+            :src="url"
+            :fit="'none'">
+          </el-image>
+        </div>
+      </div>
+      <el-upload
+        class="upload-demo"
+        action="https://jsonplaceholder.typicode.com/posts/"
+        :on-change="handleChange"
+        :file-list="fileList"
+        v-on:click="test"
+        > 
+        <el-button size="small" type="primary" >点击上传</el-button>
+        <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
+      </el-upload>
+    </div>
+  </div>
+  <script>
+    var app = new Vue({
+      el: '#app',
+      data:{
+        uploadUrl: 'http://localhost:5000/api/productapi/uploadImage',
+        reader: '',
+        url: 'https://res.cloudinary.com/ditncduk1/image/upload/v1634353000/Blogger/as1dolzfjhesb2aprllh.png',
+        srcList: [],
+        fileList: [
+          {
+            name: 'food.jpeg',
+            url: 'https://res.cloudinary.com/ditncduk1/image/upload/v1634544588/Blogger/qenyuljzeb96gzbfzh9f.svg'
+          }, 
+          {
+            name: 'food2.jpeg',
+            url: 'https://res.cloudinary.com/ditncduk1/image/upload/v1634544043/Blogger/g3miq63yx1seaepzcb7p.svg'
+          }]
+      },
+      methods: {
+        upload(){
+          this.$refs.fileTest.click();
+        },
+        GetImg(e){
+          this.reader.readAsDataURL(e.target.files[0])
+        },
+        handleChange(file, fileList) {
+          console.log(file);
+          console.log(fileList);
+          
+          // this.fileList = fileList.slice(-3);
+        },
+        test(){
+          console.log('aaa');
+        },
+        getImgList(){
+          this.fileList.forEach(item => {
+            this.srcList.push(item.url)
+            console.log(this.srcList);
+          })
+          this.url = this.srcList[0]
+        },
+        sendImage(folder){
+          let request = {
+            Image: this.reader.result,
+            Folder: folder
+          }
+          axios.post(this.uploadUrl, request).then(res => {
+            console.log(res);
+          })
+        },
+        // GetCoverImg(e) {
+        //   console.log(e.target.files[0]);
+        //   this.coverImageReader.readAsDataURL(e.target.files[0])
+        // },
+      },
+      mounted() {
+        this.reader = new FileReader();
+        this.reader.onload = () => {
+          this.sendImage("testAA")
+        }
+        this.getImgList();
+      },
+    })
+  </script>
+</body>
+</html>

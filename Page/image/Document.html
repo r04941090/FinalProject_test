@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<!-- saved from url=(0104)http://127.0.0.1:5502/%E6%B8%AC%E8%A9%A6%E5%8A%9F%E8%83%BD/%E5%BE%8C%E5%8F%B0%E6%B8%AC%E8%A9%A6/Tab.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link type="text/css" rel="stylesheet" href="./Document_files/bootstrap.min.css">
+  <link type="text/css" rel="stylesheet" href="./Document_files/bootstrap-vue.min.css">
+
+  <!-- Load polyfills to support older browsers -->
+  <script src="./Document_files/polyfill.min.js.下載" crossorigin="anonymous"></script>
+
+  <!-- Load Vue followed by BootstrapVue -->
+  <script src="./Document_files/vue.min.js.下載"></script>
+  <script src="./Document_files/bootstrap-vue.min.js.下載"></script>
+
+  <!-- Load the following for BootstrapVueIcons support -->
+  <script src="./Document_files/bootstrap-vue-icons.min.js.下載"></script>
+  <style>
+    .tab-content {
+      height: 500px;
+      overflow-y: auto;
+    }
+  </style>
+<input type="hidden" id="_w_tusk"><script type="text/javascript" src="chrome-extension://dbjbempljhcmhlfpfacalomonjpalpko/scripts/inspector.js"></script></head>
+
+<body cz-shortcut-listen="true" class="modal-open" data-modal-open-count="1">
+  <div id="app"><div><button type="button" class="btn btn-secondary">Launch centered modal</button> <!----></div>
+    1
+    <div class="container"><div class="row"><div class="col-6"><div class="card"><!----><!----><div class="tabs" id="__BVID__4"><!----><div class="card-header"><ul role="tablist" class="nav nav-tabs card-header-tabs nav-fill" id="__BVID__4__BV_tab_controls_"><!----><li role="presentation" class="nav-item"><a id="__BVID__5___BV_tab_button__" role="tab" tabindex="-1" aria-selected="false" aria-setsize="3" aria-posinset="1" aria-controls="__BVID__5" href="http://127.0.0.1:5502/%E6%B8%AC%E8%A9%A6%E5%8A%9F%E8%83%BD/%E5%BE%8C%E5%8F%B0%E6%B8%AC%E8%A9%A6/Tab.html#" target="_self" class="nav-link">行程介紹</a></li><li role="presentation" class="nav-item"><a role="tab" aria-selected="true" aria-setsize="3" aria-posinset="2" href="http://127.0.0.1:5502/%E6%B8%AC%E8%A9%A6%E5%8A%9F%E8%83%BD/%E5%BE%8C%E5%8F%B0%E6%B8%AC%E8%A9%A6/Tab.html#" target="_self" class="nav-link active" id="__BVID__7___BV_tab_button__" aria-controls="__BVID__7">景點編輯</a></li><li role="presentation" class="nav-item"><a role="tab" tabindex="-1" aria-selected="false" aria-setsize="3" aria-posinset="3" href="http://127.0.0.1:5502/%E6%B8%AC%E8%A9%A6%E5%8A%9F%E8%83%BD/%E5%BE%8C%E5%8F%B0%E6%B8%AC%E8%A9%A6/Tab.html#" target="_self" class="nav-link" id="__BVID__9___BV_tab_button__" aria-controls="__BVID__9">場次與票券編輯</a></li><!----></ul></div><div class="tab-content" id="__BVID__4__BV_tab_container_"><div role="tabpanel" aria-hidden="true" class="tab-pane card-body" id="__BVID__5" aria-labelledby="__BVID__5___BV_tab_button__" style="display: none;"><p class="card-text"></p></div> <div role="tabpanel" aria-hidden="false" class="tab-pane active card-body" id="__BVID__7" aria-labelledby="__BVID__7___BV_tab_button__"><p class="card-text"></p></div> <div role="tabpanel" aria-hidden="true" class="tab-pane card-body" id="__BVID__9" aria-labelledby="__BVID__9___BV_tab_button__" style="display: none;"><p class="card-text"></p></div><!----></div></div><!----><!----></div></div></div></div></div>
+    <script>
+      let app = new Vue({
+        el: '#app',
+        data: {
+          tabIndex: 0
+        }
+      })
+    </script>
+<!-- Code injected by live-server -->
+<script type="text/javascript">
+	// <![CDATA[  <-- For SVG support
+	if ('WebSocket' in window) {
+		(function () {
+			function refreshCSS() {
+				var sheets = [].slice.call(document.getElementsByTagName("link"));
+				var head = document.getElementsByTagName("head")[0];
+				for (var i = 0; i < sheets.length; ++i) {
+					var elem = sheets[i];
+					var parent = elem.parentElement || head;
+					parent.removeChild(elem);
+					var rel = elem.rel;
+					if (elem.href && typeof rel != "string" || rel.length == 0 || rel.toLowerCase() == "stylesheet") {
+						var url = elem.href.replace(/(&|\?)_cacheOverride=\d+/, '');
+						elem.href = url + (url.indexOf('?') >= 0 ? '&' : '?') + '_cacheOverride=' + (new Date().valueOf());
+					}
+					parent.appendChild(elem);
+				}
+			}
+			var protocol = window.location.protocol === 'http:' ? 'ws://' : 'wss://';
+			var address = protocol + window.location.host + window.location.pathname + '/ws';
+			var socket = new WebSocket(address);
+			socket.onmessage = function (msg) {
+				if (msg.data == 'reload') window.location.reload();
+				else if (msg.data == 'refreshcss') refreshCSS();
+			};
+			if (sessionStorage && !sessionStorage.getItem('IsThisFirstTime_Log_From_LiveServer')) {
+				console.log('Live reload enabled.');
+				sessionStorage.setItem('IsThisFirstTime_Log_From_LiveServer', true);
+			}
+		})();
+	}
+	else {
+		console.error('Upgrade your browser. This Browser is NOT supported WebSocket for Live-Reloading.');
+	}
+	// ]]>
+</script>
+
+<div id="modal-center___BV_modal_outer_" style="position: absolute; z-index: 1050;"><div id="modal-center" role="dialog" aria-labelledby="modal-center___BV_modal_title_" aria-describedby="modal-center___BV_modal_body_" class="modal fade show" aria-modal="true" style="display: block;"><div class="modal-dialog modal-md modal-dialog-centered"><span tabindex="0"></span><div id="modal-center___BV_modal_content_" tabindex="-1" class="modal-content"><header id="modal-center___BV_modal_header_" class="modal-header"><h5 id="modal-center___BV_modal_title_" class="modal-title">BootstrapVue</h5><button type="button" aria-label="Close" class="close" style="
+    background: #fff;
+    border: none;
+    font-size: 19px;
+    font-weight: bold;
+">×</button></header><div id="modal-center___BV_modal_body_" class="modal-body"><p class="my-4">Vertically centered modal!</p></div><footer id="modal-center___BV_modal_footer_" class="modal-footer"><button type="button" class="btn btn-secondary">Cancel</button><button type="button" class="btn btn-primary">OK</button></footer></div><span tabindex="0"></span></div></div><div id="modal-center___BV_modal_backdrop_" class="modal-backdrop"></div></div></body></html>

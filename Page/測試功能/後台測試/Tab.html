@@ -29,6 +29,32 @@
 
 <body>
   <div id="app">
+    <div>
+      <b-button v-b-modal.modal-center>Launch centered modal</b-button>
+    
+      <b-modal id="modal-center" centered title="BootstrapVue">
+        <div class="container" style="width: 1000px;">
+          <div class="row">
+            <div class="col-6">
+              <b-card no-body >
+                <b-tabs card fill v-model="tabIndex">
+                  <b-tab title="行程介紹">
+                    <b-card-text></b-card-text>
+                  </b-tab>
+                  <b-tab title="景點編輯"  active>
+                    <b-card-text></b-card-text>
+                  </b-tab>
+                  <b-tab title="場次與票券編輯">
+                    <b-card-text></b-card-text>
+                  </b-tab>
+                </b-tabs>
+              </b-card>
+            </div>
+          </div>
+        </div>
+      </div>
+      </b-modal>
+    </div>
     {{ tabIndex }}
     <div class="container">
       <div class="row">
