@@ -6,13 +6,15 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
-  <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+  
   <link
     href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
     rel="stylesheet">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.3/css/all.css"
     integrity="sha384-SZXxX4whJ79/gErwcOYf+zWLeJdY/qpuqC4cAa9rOGUstPomtqpuNWT9wdPEn2fk" crossorigin="anonymous">
   <link href="/css/sb-admin-2.css" rel="stylesheet" />
+  
+  
   <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
   <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.css" />
 
@@ -27,6 +29,11 @@
   <!-- Load the following for BootstrapVueIcons support -->
   <script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue-icons.min.js"></script>
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.3/css/all.css" integrity="sha384-SZXxX4whJ79/gErwcOYf+zWLeJdY/qpuqC4cAa9rOGUstPomtqpuNWT9wdPEn2fk" crossorigin="anonymous">
+  <!-- vue2 -->
+  <script src="https://cdn.jsdelivr.net/npm/@ckeditor/ckeditor5-vue2@1.0.5/dist/ckeditor.min.js"></script>
+  <!-- custom ckeditor -->
+  <script src="/js/ckeditor.js"></script>
+  
   <style>
     .breadcrumb {
       background: none;
@@ -47,13 +54,27 @@
       background-color: #fff;
     }
     .off-shelf-btn:focus{
-      box-shadow: 0 0 0 0.2rem rgb(249 154 0 / 50%) !important;
+      box-shadow: 0 0 0 0.2rem rgb(238 60 119 / 50%) !important;
     }
     .card-header-tabs .nav-link{
       color: #666 !important;
     }
     .card-header-tabs .nav-link.active{
       color: #0d6efd !important;
+    }
+    .intro .ck-editor__editable_inline {
+      height: 300px;
+    }
+    .policy .ck-editor__editable_inline {
+      height: 300px;
+    }
+    .product-add{
+      border: none; 
+      border-radius: 5px; 
+      font-size: 16px; 
+      margin-left: 5px; 
+      margin-right: 40px; 
+      padding: 5px 10px;
     }
   </style>
 </head>
@@ -297,7 +318,7 @@
                 </h6>
                 <a class="dropdown-item d-flex align-items-center" href="#">
                   <div class="dropdown-list-image mr-3">
-                    <img class="rounded-circle" src="img/undraw_profile_1.svg" alt="...">
+                    <img class="rounded-circle" src="" alt="...">
                     <div class="status-indicator bg-success"></div>
                   </div>
                   <div class="font-weight-bold">
@@ -310,7 +331,7 @@
                 </a>
                 <a class="dropdown-item d-flex align-items-center" href="#">
                   <div class="dropdown-list-image mr-3">
-                    <img class="rounded-circle" src="img/undraw_profile_2.svg" alt="...">
+                    <img class="rounded-circle" src="" alt="...">
                     <div class="status-indicator"></div>
                   </div>
                   <div>
@@ -323,7 +344,7 @@
                 </a>
                 <a class="dropdown-item d-flex align-items-center" href="#">
                   <div class="dropdown-list-image mr-3">
-                    <img class="rounded-circle" src="img/undraw_profile_3.svg" alt="...">
+                    <img class="rounded-circle" src="" alt="...">
                     <div class="status-indicator bg-warning"></div>
                   </div>
                   <div>
@@ -392,11 +413,14 @@
               <b-breadcrumb :items="items" text="select" style="background-color: none;">
               </b-breadcrumb>
               <b-tabs card fill v-model="tabIndex">
-                <b-tab title="行程介紹" active>
+                <b-tab title="行程介紹">
                   <template #title>
                     <strong><b-icon-newspaper class="mr-1"></b-icon-newspaper>行程介紹</strong>
                   </template>
                   <b-card-text>
+                    <div class="intro" style="margin-bottom: 30px;">
+                      <ckeditor :editor="ckEditor.editor" v-model="ckEditor.editorData" :config="ckEditor.editorConfig"></ckeditor>
+                    </div>
                   </b-card-text>
                 </b-tab>
                 <b-tab title="景點編輯" >
@@ -408,14 +432,164 @@
                   </b-card-text>
                   
                 </b-tab>
-                <b-tab title="場次與票券資訊" >
+                <b-tab title="場次與票券資訊" active>
                   <template #title>
                     <strong><b-icon-cash class="mr-2"></b-icon-cash>場次與票券資訊</strong>
                   </template>
                   <b-card-text>
-                    
+                    <div class="row d-flex justify-content-center">
+                      <div class="col-10 border">
+                        <div class="product-session">
+                          <p style="font-size: 28px" class="d-flex align-items-center justify-content-between">
+                            <span style="font-weight: bold;">場次</span>
+                            <b-button class="product-add" v-b-modal.modal-ticket-info v-on:click="selectItem = ''">
+                              <i class="far fa-plus-square"></i>
+                              新增
+                            </b-button>
+                          </p>
+                          <div>
+                            <b-table :items="sessionInfo.session" :fields="sessionInfo.sessionField" >
+                              <template #cell(actions)="row">
+                                <b-button size="sm" class="mr-2" v-b-modal.modal-ticket-info v-on:click="selectItem = row.item">
+                                  <i class="fas fa-pencil-alt" ></i>
+                                  編輯
+                                </b-button>
+                                <b-button class="off-shelf-btn" size="sm" v-b-modal.modal-delete-session style="background-color: #ee3c77; border: none;"  v-on:click="showDeleteSession(row.item)">
+                                  <i class="fas fa-trash-alt"></i>
+                                  刪除
+                                </b-button> 
+                              </template>
+                            </b-table>
+                            <!-- <ul>
+                              <li style="margin: 10px 0px">
+                                <span style="font-size: 18px; margin-right: 10px;">台東火車站 10:00</span>
+                                <i class="fas fa-pencil-alt border p-2 rounded-circle me-1" style="cursor: pointer"></i>
+                                <i class="fas fa-trash-alt border p-2 rounded-circle" style="cursor: pointer"></i>
+                              </li>
+                              <li>
+                                <span style="font-size: 18px; margin-right: 10px;">台東火車站 12:00</span>
+                                <i class="fas fa-pencil-alt border p-2 rounded-circle me-1" style="cursor: pointer"></i>
+                                <i class="fas fa-trash-alt border p-2 rounded-circle" style="cursor: pointer"></i>
+                              </li>
+                            </ul> -->
+                          </div>
+                        </div>
+                        <hr>
+                        <div class="product-ticket">
+                          <p style="font-size: 28px; font-weight: bold;">票券選項</p>
+                          <div>
+                            <p style="font-size: 28px" class="d-flex align-items-center justify-content-between">
+                              <span style="font-size: 22px;">一般</span>
+                              <b-button class="product-add">
+                                <i class="far fa-plus-square"></i>
+                                新增
+                              </b-button>
+                            </p>
+                            <div>
+                              <b-table :items="normalTicketInfo.normalTicket" :fields="normalTicketInfo.normalTicketField">
+                                <template #cell(actions)="row">
+                                  <b-button size="sm" class="mr-2" >
+                                    <i class="fas fa-pencil-alt"></i>
+                                    編輯
+                                  </b-button>
+                                  <b-button class="off-shelf-btn" size="sm"  v-b-modal.modal-delete-ticket style="background-color: #ee3c77; border: none;" v-on:click="showDeleteTicket(row.item)">
+                                    <i class="fas fa-trash-alt"></i>
+                                    刪除
+                                  </b-button> 
+                                </template>
+                              </b-table>
+                            </div>
+                          </div>
+                          <div>
+                            <p style="font-size: 28px" class="d-flex align-items-center justify-content-between">
+                              <span style="font-size: 22px;">加選項目</span>
+                              <button class="product-add">
+                                <i class="far fa-plus-square"></i>
+                                新增
+                              </button>
+                            </p>
+                            <div>
+                              <b-table :items="additionalTicketInfo.additionalTicket" :fields="additionalTicketInfo.additionalTicketField">
+                                <template #cell(actions)="row">
+                                  <b-button size="sm" class="mr-2">
+                                    <i class="fas fa-pencil-alt"></i>
+                                    編輯
+                                  </b-button>
+                                  <b-button class="off-shelf-btn" size="sm"  v-b-modal.modal-delete-ticket style="background-color: #ee3c77; border: none;" v-on:click="showDeleteTicket(row.item)">
+                                    <i class="fas fa-trash-alt"></i>
+                                    刪除
+                                  </b-button> 
+                                </template>
+                              </b-table>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <b-modal id="modal-ticket-info" centered title="場次資訊" ref="ticket-info">
+                      <div class="d-flex align-items-center">
+                        <i class="fas fa-exclamation-circle" style="margin-right: 10px; color: #fa0; font-size: 20px;"></i>
+                        <div>{{ selectItem == '' ? '新增' : '修改' }}場次：</div>
+                      </div>
+                      <p style="margin: 15px 0px 5px 0px;">名稱：</p>
+                      <p style="margin: 15px 0px 5px 0px;">價格：</p>
+                      <template #modal-footer="{ ok, cancel }">
+                        <b-button size="sm" style="background: #fff; color: #666; padding: 5px 15px; border: 1px solid #ccc;" v-on:click="hideTicketInfo()">
+                          取消
+                        </b-button>
+                        <b-button size="sm" v-on:click="updateTicket(selectItem)" style="background: #409eff; color: #fff; border: none; padding: 5px 15px;">
+                          確認
+                        </b-button>
+                      </template>
+                    </b-modal>
+                    <b-modal id="modal-delete-session" centered title="刪除確認" ref="delete-session">
+                      <div class="d-flex align-items-center">
+                        <i class="fas fa-exclamation-circle" style="margin-right: 10px; color: #fa0; font-size: 20px;"></i>
+                        <div>請問是否要刪除場次：</div>
+                      </div>
+                      <p style="margin: 15px 0px 5px 0px;">名稱：「{{ selectItem.Title }}」</p>
+                      <p style="margin: 15px 0px 5px 0px;">時間： {{ selectItem.Time }}</p>
+                      <template #modal-footer="{ ok, cancel }">
+                        <b-button size="sm" style="background: #fff; color: #666; padding: 5px 15px; border: 1px solid #ccc;" v-on:click="hideSession()">
+                          取消
+                        </b-button>
+                        <b-button size="sm" v-on:click="deleteSession(selectItem.SessionId)" style="background: #409eff; color: #fff; border: none; padding: 5px 15px;">
+                          確認
+                        </b-button>
+                      </template>
+                    </b-modal>
+                    <b-modal id="modal-delete-ticket" centered title="刪除確認" ref="delete-ticket">
+                      <div class="d-flex align-items-center">
+                        <i class="fas fa-exclamation-circle" style="margin-right: 10px; color: #fa0; font-size: 20px;"></i>
+                        <div>請問是否要刪除「{{ selectItem.Type == 1 ? '一般' : '加選項目' }}」：</div>
+                      </div>
+                      <p style="margin: 15px 0px 5px 0px;">名稱：「{{ selectItem.Title }}」</p>
+                      <p style="margin: 15px 0px 5px 0px;">價格： {{ selectItem.Price }}</p>
+                      <p style="margin: 15px 0px 5px 0px;">數量上限： {{ selectItem.MaxNumber }}</p>
+                      <template #modal-footer="{ ok, cancel }">
+                        <b-button size="sm" style="background: #fff; color: #666; padding: 5px 15px; border: 1px solid #ccc;" v-on:click="hideTicket()">
+                          取消
+                        </b-button>
+                        <b-button size="sm" v-on:click="deleteTicket(selectItem.ProductDetailsId)" style="background: #409eff; color: #fff; border: none; padding: 5px 15px;">
+                          確認
+                        </b-button>
+                      </template>
+                    </b-modal>
                   </b-card-text>
                   
+                </b-tab>
+                <b-tab title="注意事項">
+                  <template #title>
+                    <strong><b-icon icon="exclamation-circle-fill" class="mr-2"></b-icon>注意事項</strong>
+                  </template>
+                  <b-card-text>
+                    <div class="d-flex mb-2 justify-content-end">
+                      <button style="border: none; background-color: #0b5ed7; color: #fff; border-radius: 5px; padding: 3px 10px" v-on:click="generateDefault"><i class="fas fa-plus-circle" style="margin-right: 5px;" ></i>產生模板</button>
+                    </div>
+                    <div class="policy">
+                      <ckeditor :editor="ckEditor.editor" v-model="ckEditor.editorDataPolicy" :config="ckEditor.editorConfigPolicy"></ckeditor>
+                    </div>
+                  </b-card-text>
                 </b-tab>
               </b-tabs>
             </div>
@@ -439,15 +613,50 @@
     let app = new Vue({
       el: '#product',
       data: {
+        sessionInfo: {
+          session: [
+            { SessionId: 1, Title: '台東火車站', Time: '10:00'},
+            { SessionId: 2, Title: '台東火車站', Time: '12:00'},
+          ],
+          sessionField: [
+            { key: 'Title', label: '名稱', class: 'col-5'},
+            { key: 'Time', label: '時間', sortable: true, class: 'text-center col-4'},
+            { key: 'actions', label: '票券管理', class: 'text-center col-3'}
+          ],
+        },
+        normalTicketInfo: {
+          normalTicket: [
+            { ProductDetailsId: 1, Type: 1, Title: '5歲以上＋動物互動體驗', Price: '200', MaxNumber: 8 },
+            { ProductDetailsId: 2, Type: 1, Title: '65歲以上或持身心障礙手冊者＋動物互動體驗', Price: '150', MaxNumber: 8 },
+          ],
+          normalTicketField: [
+            { key: 'Title', label: '名稱', class: 'col-5'},
+            { key: 'Price', label: '價格', sortable: true, class: 'text-center col-2'},
+            { key: 'MaxNumber', label: '數量上限' , sortable: true, class: 'text-center col-2'},
+            { key: 'actions', label: '票券管理', class: 'text-center col-3'}
+          ],
+        },
+        additionalTicketInfo: {
+          additionalTicket: [
+            { ProductDetailsId: 3, Type: 0, Title: '學生票', Price: '50', MaxNumber: 8 },
+            { ProductDetailsId: 4, Type: 0, Title: '敬老票', Price: '20', MaxNumber: 8 },
+          ],
+          additionalTicketField: [
+            { key: 'Title', label: '名稱', class: 'col-5'},
+            { key: 'Price', label: '價格', sortable: true, class: 'text-center col-2'},
+            { key: 'MaxNumber', label: '數量上限' , sortable: true, class: 'text-center col-2'},
+            { key: 'actions', label: '票券管理', class: 'text-center col-3'}
+          ]
+        },
         tripId: '',
-        selectItem: {},
-        
+        selectItem: '',
+
         totalRows: 1,
         offTableItems:[],
         currentPage: 1,
         perPage: 5,
         pageOptions: [5, 10, 15],
-        tabIndex: 0,
+        tabIndex: 2,
         select: '',
         items: [
           {
@@ -458,9 +667,63 @@
             text: '行程列表',
             href: '#',
           },
-        ]
+        ],
+        ckEditor: {
+          editorData: '',
+          editorDataPolicy: '',
+          editor: ClassicEditor,
+          editorDataPolicyDefault: '<h4><span style="font-size:20px;"><strong>注意事項</strong></span></h4><ul><li> ... </li></ul><h4><span style="font-size:20px;"><strong>取消政策</strong></span></h4><ul><li> ... </li></ul><h4><span style="font-size:20px;"><strong>與客服聯繫</strong></span></h4><ul><li><a href="mailto:TripWay@tripway.com" style="color: #ff4477; text-decoration: none;">tripaway@tripaway.com</a></li></ul>',
+          editorConfig: {
+            placeholder: '請輸入行程介紹內容',
+            fontFamily: {
+              options: [
+                "default",
+                "Ubuntu, Arial, sans-serif",
+                "Ubuntu Mono, Courier New, Courier, monospace",
+                "Microsoft JhengHei"
+              ],
+            },
+            fontSize: {
+              options: [9, 12, "default", 16, 18, 20],
+            },
+            toolbar: {
+                items: [
+                    'heading', '|', 'fontSize', 'fontFamily', '|', 'fontColor', 'fontBackgroundColor', '|', 'bold', 'italic', '|', 'numberedList', 'bulletedList', '|', 'outdent', 'indent', '|', 'undo', 'redo'
+                ]
+            }
+          },
+          editorConfigPolicy: {
+            placeholder: '請輸入注意事項/取消政策/與客服聯繫',
+            fontFamily: {
+              options: [
+                "default",
+                "Ubuntu, Arial, sans-serif",
+                "Ubuntu Mono, Courier New, Courier, monospace",
+                "Microsoft JhengHei"
+              ],
+            },
+            fontSize: {
+              options: [9, 12, "default", 16, 18, 20],
+            },
+            toolbar: {
+                items: [
+                    'heading', '|', 'fontSize', 'fontFamily', '|', 'fontColor', 'fontBackgroundColor', '|', 'bold', 'italic', '|', 'numberedList', 'bulletedList', '|', 'outdent', 'indent', '|', 'undo', 'redo'
+                ]
+            }
+          }
+        }
+        
+      },
+      components: {
+          // Use the <ckeditor> component in this view.
+          ckeditor: CKEditor.component
       },
       methods: {
+        generateDefault(){
+          this.ckEditor.editorDataPolicy = this.ckEditor.editorDataPolicyDefault;
+          console.log(this.ckEditor.editorDataPolicy);
+          
+        },
         init(){
           let breadCrumb = {
             text: '',
@@ -474,13 +737,54 @@
             breadCrumb.text = '修改商品'
           }
           this.items.push(breadCrumb)
+        },
+        showDeleteSession(item){
+          this.selectItem = item
+        },
+        hideSession(){
+          // session cancel
+          this.$refs['delete-session'].hide();
+          this.selectItem = ''
+        },
+        deleteSession(){
+          // api - 刪除Session
+          console.log(this.selectItem.SessionId);
+          this.$refs['delete-session'].hide();
+          this.selectItem = ''
+        },
+        showDeleteTicket(item){
+          this.selectItem = item
+        },
+        hideTicket(){
+          // ticket cancel
+          this.$refs['delete-ticket'].hide();
+          this.selectItem = ''
+        },
+        deleteTicket(){
+          // api - 刪除Ticket
+          console.log(this.selectItem.ProductDetailsId);
+          this.$refs['delete-ticket'].hide();
+          this.selectItem = ''
+        },
+        hideTicketInfo(){
+          // ticket cancel
+          this.$refs['ticket-info'].hide();
+          this.selectItem = ''
+        },
+        updateTicket(item){
+          console.log('update', item);
         }
       },
       mounted() {
         this.init()
       },
     })
+    Vue.use(CKEditor)
   </script>
+  <script src="/js/jquery.min.js"></script>
+  <script src="/js/jquery.easing.min.js"></script>
+  <script src="/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/sb-admin-2.min.js"></script>
 </body>
 
 </html>

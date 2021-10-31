@@ -6,7 +6,6 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
-  <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
   <link
     href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
     rel="stylesheet">
@@ -508,7 +507,7 @@
                 </div>
                 <p style="margin: 15px 0px 5px 0px;">「{{ selectItem.Title }}」</p>
                 <template #modal-footer="{ ok, cancel }">
-                  <b-button size="sm" style="background: #fff; color: #666; padding: 5px 15px; border: 1px solid #ccc;">
+                  <b-button size="sm" style="background: #fff; color: #666; padding: 5px 15px; border: 1px solid #ccc;" v-on:click="hideOffShelf()">
                     取消
                   </b-button>
                   <b-button size="sm" v-on:click="OffShelf(selectItem.TripId)" style="background: #409eff; color: #fff; border: none; padding: 5px 15px;">
@@ -523,7 +522,7 @@
                 </div>
                 <p style="margin: 15px 0px 5px 0px;">「{{ selectItem.Title }}」</p>
                 <template #modal-footer="{ ok, cancel }">
-                  <b-button size="sm" style="background: #fff; color: #666; padding: 5px 15px; border: 1px solid #ccc;">
+                  <b-button size="sm" style="background: #fff; color: #666; padding: 5px 15px; border: 1px solid #ccc;" v-on:click="hidePutShelf()">
                     取消
                   </b-button>
                   <b-button size="sm" v-on:click="PutShelf(selectItem.TripId)" style="background: #409eff; color: #fff; border: none; padding: 5px 15px;">
@@ -973,7 +972,6 @@
           { key: 'actions', label: '商品管理', class: 'text-center' }
         ],
         totalRows: 1,
-        offTableItems:[],
         currentPage: 1,
         perPage: 5,
         pageOptions: [5, 10, 15],
@@ -1006,9 +1004,15 @@
           // api - 行程下架
           this.$refs['off-shef'].hide();
         },
+        hideOffShelf(){
+          this.$refs['off-shef'].hide();
+        },
         PutShelf(TripId){
           console.log(TripId);
           // api - 行程下架
+          this.$refs['put-shef'].hide();
+        },
+        hidePutShelf(){
           this.$refs['put-shef'].hide();
         },
         readProductData(){
