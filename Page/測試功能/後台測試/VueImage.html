@@ -18,7 +18,7 @@
 </head>
 <body>
   <div id="app">
-    <input type="file" ref="fileTest" v-on:change="GetImg">
+    <input type="file" ref="fileTest" v-on:change="GetImg" class="d-none">
     <button v-on:click="upload">send</button>
     <div class="d-flex">
       <div class="d-flex flex-column border">
@@ -74,7 +74,6 @@
         handleChange(file, fileList) {
           console.log(file);
           console.log(fileList);
-          
           // this.fileList = fileList.slice(-3);
         },
         test(){
