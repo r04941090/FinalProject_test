@@ -37,6 +37,9 @@
   <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
   <!-- import JavaScript -->
   <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+  <!-- google map -->
+  <script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCW6Ekw5sZ0JUZfzpMeSteJ6_8aoQRwfws&libraries=places"></script>
   <style>
     .breadcrumb {
       background: none;
@@ -71,6 +74,9 @@
     .policy .ck-editor__editable_inline {
       height: 300px;
     }
+    .place-intro .ck-editor__editable_inline{
+      height: 300px;
+    }
     .product-add{
       border-radius: 5px; 
       font-size: 16px; 
@@ -82,6 +88,20 @@
     }
     .el-input__inner:focus{
       border-color: rgb(14, 182, 14);
+    }
+    .image-list {
+      list-style: none;
+      padding-left: 5px;
+    }
+    .image-list span{
+      overflow:hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      width: 330px;
+      margin: 3px 0px;
+    }
+    .delete-img:hover{
+      color: #ee3c77 !important;
     }
   </style>
 </head>
@@ -430,16 +450,66 @@
                     </div>
                   </b-card-text>
                 </b-tab>
-                <b-tab title="景點編輯" >
+                <b-tab title="景點編輯" active>
                   <template #title>
                     <strong><b-icon-geo-alt-fill class="mr-2"></b-icon-geo-alt-fill>景點編輯</strong>
                   </template>
                   <b-card-text>
-                    
+                    <i class="fa fa-times-rectangle" aria-hidden="true"></i>
                   </b-card-text>
-                  
+                  <div class="row d-flex justify-content-center mt-3 border">
+                    <div class="col-10">
+                      <div class="row">
+                        <div class="col-6">
+                          <div class="d-flex flex-column">
+                            <p style="margin-bottom: 0;">景點名稱</p>
+                            <input type="text" style=" padding: 4px 7px;" placeholder="請輸入景點名稱" ref="searchBox" v-model="placeEdit.placeName">
+                          </div>
+                        </div>
+                        <div class="col-6">
+                          <p style="margin-bottom: 0;">停留時間</p>
+                              <el-time-picker
+                                v-model="placeEdit.stayTime"
+                                :clearable="false"
+                                value-format="HH:mm"
+                                format="HH:mm"
+                                :size="size"
+                                style="width: 100%;">
+                              </el-time-picker>
+                        </div>
+                      </div>
+                      <div class="row" style="margin-top: 15px;">
+                        <div class="col-12">
+                          <div class="border" style="height: 400px;" id="map" ref="map">map</div>
+                        </div>
+                      </div>
+                      <hr>
+                      <div class="row">
+                        <div class="col-6" style="height: 340px;;">
+                          <div style="border: 1px solid red; height: calc(100% - 40px);" >test</div>
+                          <button style="height: 30px; width: 100%; margin-top: 5px;">上傳圖片</button>
+                        </div>
+                        <div class="col-6">
+                          <p style="margin-bottom: 0;">上傳圖片清單 (最多10張)</p>
+                          <ul style="width: 100%; border: 1px solid #fa0;" class="image-list">
+                            <li class="d-flex align-items-center" style="cursor: pointer;" v-for="item in placeEdit.placeImages" :title="item.image">
+                              <i class="fas fa-image" style="margin-right: 10px;"></i>
+                              <span>{{ item.image }}</span>
+                              <i class="fas fa-times delete-img" style=" margin-left: auto; margin-right: 5px; color: #aaa;"></i>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                      <hr>
+                      <div class="row">
+                        <div class="col-12 place-intro" style="margin-top: 10px;">
+                          <ckeditor :editor="ckEditor.editor" v-model="ckEditor.editorDataPlaceIntro" :config="ckEditor.editorConfigPlaceIntro" v-on:focus="ckEditor.editorDataPlaceIntroOrigin = ckEditor.editorDataPlaceIntro" v-on:blur="updatePlaceIntro"></ckeditor>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </b-tab>
-                <b-tab title="場次與票券資訊" active>
+                <b-tab title="場次與票券資訊">
                   <template #title>
                     <strong><b-icon-cash class="mr-2"></b-icon-cash>場次與票券資訊</strong>
                   </template>
@@ -750,11 +820,37 @@
             href: '#',
           },
         ],
+        placeEdit:{
+          mapInfo: {
+            map: '',
+            searchBox: '',
+            marker: '',
+            placesService: '',
+            place_id: '',
+            placeInfos: '',
+            selectImage: '',
+            infowindow: ''
+          },
+          placeName: '',
+          placeCity: '',
+          stayTime: '09:00',
+          placeImages: [
+            { tripImageDetailsId: 1, image: 'https://picsum.photos/200/300/?random=1' },
+            { tripImageDetailsId: 2, image: 'https://picsum.photos/200/300/?random=2' },
+            { tripImageDetailsId: 3, image: 'https://picsum.photos/200/300/?random=3' },
+            { tripImageDetailsId: 4, image: 'https://picsum.photos/200/300/?random=4' },
+            { tripImageDetailsId: 5, image: 'https://picsum.photos/200/300/?random=5' },
+            { tripImageDetailsId: 6, image: 'https://picsum.photos/200/300/?random=6' },
+            { tripImageDetailsId: 7, image: 'https://picsum.photos/200/300/?random=7' },
+          ]
+        },
         ckEditor: {
           editorDataIntro: '',
           editorDataIntroOrgin: '',
           editorDataPolicy: '',
           editorDataPolicyOrigin: '',
+          editorDataPlaceIntro: '',
+          editorDataPlaceIntroOrigin: '',
           editor: ClassicEditor,
           editorDataPolicyDefault: '<h4><span style="font-size:20px;"><strong>注意事項</strong></span></h4><ul><li> ... </li></ul><h4><span style="font-size:20px;"><strong>取消政策</strong></span></h4><ul><li> ... </li></ul><h4><span style="font-size:20px;"><strong>與客服聯繫</strong></span></h4><ul><li><a href="mailto:TripWay@tripway.com" style="color: #ff4477; text-decoration: none;">tripaway@tripaway.com</a></li></ul>',
           editorConfig: {
@@ -778,6 +874,25 @@
           },
           editorConfigPolicy: {
             placeholder: '請輸入注意事項/取消政策/與客服聯繫',
+            fontFamily: {
+              options: [
+                "default",
+                "Ubuntu, Arial, sans-serif",
+                "Ubuntu Mono, Courier New, Courier, monospace",
+                "Microsoft JhengHei"
+              ],
+            },
+            fontSize: {
+              options: [9, 12, "default", 16, 18, 20],
+            },
+            toolbar: {
+                items: [
+                    'heading', '|', 'fontSize', 'fontFamily', '|', 'fontColor', 'fontBackgroundColor', '|', 'bold', 'italic', '|', 'numberedList', 'bulletedList', '|', 'outdent', 'indent', '|', 'undo', 'redo'
+                ]
+            }
+          },
+          editorConfigPlaceIntro: {
+            placeholder: '景點介紹',
             fontFamily: {
               options: [
                 "default",
@@ -821,13 +936,131 @@
           }
           this.items.push(breadCrumb)
         },
+        // --- 初始化地圖 ---
+        initMap() {
+          this.placeEdit.mapInfo.map = new google.maps.Map(this.$refs.map, {
+            zoom: 16,
+            center: { lat: 25.0336752, lng: 121.5648831 },
+            mapTypeControl: false
+            // streetViewControl: false
+          })
+          let that = this
+          console.log(that.$refs.searchBox);
+          
+          this.placeEdit.mapInfo.searchBox = new google.maps.places.SearchBox(this.$refs.searchBox);
+          this.placeEdit.mapInfo.searchBox.addListener('places_changed', () => {
+            this.deleteMarker();
+            const places = this.placeEdit.mapInfo.searchBox.getPlaces();
+            const bounds = new google.maps.LatLngBounds();
+            // 標示出搜尋出來的結果
+            if (places.length == 0) {
+              return;
+            }
+            // Clear out the old markers.
+            // For each place, get the icon, name and location.
+            this.placeEdit.mapInfo.marker = new google.maps.Marker({
+              map: this.placeEdit.mapInfo.map,
+              title: places[0].name,
+              position: places[0].geometry.location,
+            })
+            // 註冊marker的click事件
+            this.placeEdit.mapInfo.marker.addListener("click", () => {
+              this.placeEdit.mapInfo.infowindow.open({
+                anchor: this.placeEdit.mapInfo.marker,
+                map: this.placeEdit.mapInfo.map,
+                shouldFocus: false,
+              });
+            });
+            if (places[0].geometry.viewport) {
+              // Only geocodes have viewport.
+              bounds.union(places[0].geometry.viewport);
+            } else {
+              bounds.extend(places[0].geometry.location);
+            }
+            this.placeEdit.mapInfo.map.fitBounds(bounds);
+            this.getInfo()
+          })
+        },
+        // --- 取得place_id ---
+        getPlace(){
+          return new Promise((resolve, reject) => {
+            var request_id = {
+              query: this.placeEdit.placeName,
+              fields: ['name', 'place_id'],
+            }
+            console.log(request_id, this.placeEdit.mapInfo.placesService);
+            
+            this.placeEdit.mapInfo.placesService.findPlaceFromQuery(request_id, function(results, status){
+              resolve(results);
+            })
+          })
+        },
+        // --- 取得地點的詳細資料 ---
+        getDetail(){
+          return new Promise((resolve, reject) => {
+            var request = {
+            placeId: this.placeEdit.mapInfo.place_id,
+            fields: ['ALL'],
+            // fields: ['name', 'geometry', 'reviews', 'photos', 'opening_hours', 'adr_address', 'address_components'],
+            // https://developers.google.com/maps/documentation/javascript/reference/places-service#PlaceDetailsRequest
+            // only 5 reviews，如果要得到更多則需要購買
+            // 最多就是10張圖片
+            };
+            this.placeEdit.mapInfo.placesService.getDetails(request, function(results, status){
+              resolve(results);
+            })
+          })
+        },
+        getInfo(){
+          this.placeEdit.mapInfo.placesService = new google.maps.places.PlacesService(this.placeEdit.mapInfo.map);
+          console.dir(this.placeEdit.mapInfo.placesService); // 看出PlacesService可用的方法
+          this.getPlace()
+            .then(res => {
+              console.log(res);
+              
+              this.placeEdit.mapInfo.place_id = res[0].place_id
+              this.getDetail()
+                .then(res => {
+                  this.placeEdit.mapInfo.placeInfos = res
+                  this.placeEdit.placeName = res.name
+                  this.placeEdit.placeCity = res.plus_code.compound_code.split(' ')[1]
+                  console.log(this.placeEdit.mapInfo.placeInfos);
+                  console.log(this.placeEdit.placeCity, this.placeEdit.placeName);
+                  // google map info
+                  this.placeEdit.mapInfo.infowindow = new google.maps.InfoWindow({
+                    content: `<div style="padding: 5px; font-weight: bold">${this.placeEdit.placeName}</div>`,
+                  });
+                  this.placeEdit.mapInfo.infowindow.open({
+                    anchor: this.placeEdit.mapInfo.marker,
+                    map: this.placeEdit.mapInfo.map,
+                    shouldFocus: false,
+                  });
+              })
+            })
+        },
+        deleteMarker(){
+          if (this.placeEdit.mapInfo.marker !== ''){
+            this.placeEdit.mapInfo.marker.setMap(null);
+            this.placeEdit.mapInfo.marker = ''
+          }
+        },
         updateIntro(){
           if(this.ckEditor.editorDataIntro !== this.ckEditor.editorDataIntroOrgin){
+            // api - 更新行程介紹
             console.log('updateIntro', this.ckEditor.editorDataIntro);
+          }
+        },
+        updatePlaceIntro(){
+          console.log(this.ckEditor.editorDataPlaceIntro, this.ckEditor.editorDataPlaceIntroOrigin);
+          
+          if(this.ckEditor.editorDataPlaceIntro !== this.ckEditor.editorDataPlaceIntroOrigin){
+            // api - 更新景點介紹
+            console.log('updateIntro', this.ckEditor.editorDataPlaceIntro);
           }
         },
         updatePolicy(){
           if(this.ckEditor.editorDataPolicy !== this.ckEditor.editorDataPolicyoOrgin){
+            // api - 更新取消政策
             console.log('updatePolicy', this.ckEditor.editorDataPolicy);
           }
         },
@@ -867,10 +1100,11 @@
           this.originTicketItem = {...item}
         },
         hideSessionInfo(){
-          // ticket cancel
+          // session cancel
           this.$refs['session-info'].hide();
         },
         hideTicketInfo(){
+          // ticket cancel
           this.$refs['ticket-info'].hide();
         },
         updateSession(item){
@@ -878,19 +1112,14 @@
           else{
             // api - 新增/更新Ticket
             console.log('change', this.sessionItem);
-            
           }
           this.$refs['session-info'].hide();
         },
         updateTicket(item){
-          console.log('sefwefed');
-          console.log(item, this.originTicketItem);
-          
           if (this.originTicketItem.Price == item.Price && this.originTicketItem.Title == item.Title && this.originTicketItem.MaxNumber == item.MaxNumber){}
           else{
             // api - 新增/更新Ticket
             console.log('change', this.ticketItem);
-            
           }
           this.$refs['ticket-info'].hide();
         },
@@ -971,7 +1200,8 @@
         }
       },
       mounted() {
-        this.init()
+        this.init();
+        this.initMap()
       },
     })
     Vue.use(CKEditor)
