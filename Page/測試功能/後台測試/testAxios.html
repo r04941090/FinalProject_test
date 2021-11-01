@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+</head>
+<body>
+  <script type="module">
+    import {req} from "../後台測試/js/api.js";
+    window.onload = function(){
+      let url_get = 'https://localhost:44392/api/planapi/GetPlanDetail/44'
+      let url_put = 'https://localhost:44392/api/planapi/UpdateTrip'
+      let url_delete = 'https://localhost:44392/api/planapi/DeletePlace'
+
+      req('get', url_get).then(res => {
+        console.log(res);
+        
+      })
+      let request = {
+        TripId: 44,
+        TripTitle: "demo",
+        StartDate: "2021-09-30"
+      }
+      req('put', url_put, request).then(res => {
+        console.log(res);
+      })
+      req('delete', url_delete, {id: 1}).then(res => {
+        console.log(res);
+      })
+    }
+  </script>
+</body>
+</html>

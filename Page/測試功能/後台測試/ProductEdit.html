@@ -510,7 +510,6 @@
                         </div>
                       </div>
                       <input type="file" ref="fileCoverImage" v-on:change="getCoverImg" class="d-none">
-                      <input type="file" ref="fileCoverImage" v-on:change="getCoverImg">
                       <b-button style="height: 40px; width: 100%; margin-top: 5px;" v-on:click="uploadCoverImg">
                         <i class="fas fa-cloud-upload-alt me-1"></i>
                         上傳圖片
@@ -985,7 +984,7 @@
           editorDataIntro: '', // 商品介紹
           editorDataIntroOrigin: '',
           selectedType: '', // 商品類型 (去蒐上面的資料),
-          coverImage: ''
+          coverImage: 'https://res.cloudinary.com/ditncduk1/image/upload/v1634174656/Blogger/s6pvhxuphe5wjryog8iu.png'
           // coverImage: 'https://res.cloudinary.com/ditncduk1/image/upload/v1634174656/Blogger/s6pvhxuphe5wjryog8iu.png',
         },
 
@@ -1558,15 +1557,19 @@
             product: { // Product表格
               TripId: this.tripId,
               Policy: this.productPolicyPage.editorDataPolicy,
-              ProductTypeId: this.productionTypeDetails.filter(x => x.productType == productIntroPage.selectedType)[0].productTypeId
+              ProductTypeId: this.productionTypeDetails.filter(x => x.productType == this.productIntroPage.selectedType)[0].productTypeId
             },
-            productSession: [
+            productSession: {
+              Session: this.sessionInfo.session
               // 將session資料新增進去
-            ],
-            productDetails: [
+            },
+            productDetails: {
+              Ticket: this.normalTicketInfo.normalTicket.concat(this.additionalTicketInfo.additionalTicket)
               // 將normalTicket、additionalTicket資料新增進去
-            ]
+            }
           }
+          console.log(requestData);
+          
         }
       },
       watch:{
