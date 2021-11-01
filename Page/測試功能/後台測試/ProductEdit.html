@@ -112,6 +112,10 @@
       max-height: 500px !important;
       max-width: 600px !important;
     }
+    .ck.ck-editor__editable:not(.ck-editor__nested-editable).ck-focused{
+      border: 1px solid #ccc;
+      box-shadow: none;
+    }
   </style>
 </head>
 
@@ -448,18 +452,73 @@
             <div id="product">
               <b-breadcrumb :items="items" text="select" style="background-color: none;">
               </b-breadcrumb>
+              <div class="d-flex align-items-center justify-content-end position-relative mb-2">
+                TotalVerify: {{ !publishStateVerify }}
+                <b-form-checkbox switch size="lg" style="padding-bottom: 5px;" v-model="putShelfOrNot"></b-form-checkbox>
+                <span>立即上架</span>
+                <b-button class="ms-2" variant="outline-primary" :disabled="publishStateVerify" v-on:click="publishProduct">
+                  <i class="fas fa-cloud-upload-alt"></i>
+                  商品發佈
+                </b-button>
+              </div>
+              
+              
               <b-tabs card fill v-model="tabIndex">
-                <b-tab title="行程介紹">
+                <b-tab title="商品介紹" active>
                   <template #title>
-                    <strong><b-icon-newspaper class="mr-1"></b-icon-newspaper>行程介紹</strong>
+                    <strong><b-icon-newspaper class="mr-1"></b-icon-newspaper>商品介紹</strong>
                   </template>
                   <b-card-text>
+                    Verify: {{ pageVerify.productIntroPageVerify }}
                     <div class="intro" style="margin-bottom: 30px; margin-top: 10px;">
-                      <ckeditor :editor="ckEditor.editor" v-model="ckEditor.editorDataIntro" :config="ckEditor.editorConfig" v-on:focus="ckEditor.editorDataIntroOrigin = ckEditor.editorDataIntro" v-on:blur="updateIntro"></ckeditor>
+                      <div class="row mb-3">
+                        <div class="col-6">
+                          <p style="margin: 0px; margin-bottom: 5px; font-size: 20px; font-weight: bold;">商品名稱</p>
+                          <input type="text" class="ps-2 border-none" v-model="productIntroPage.productName" style=" border: 1px solid transparent; width: calc(100% - 30px);" :style="{'border-color': productIntroPageCheck.titleError ? 'red' : 'rgb(14, 182, 14)'}">
+                          <i class="far fa-times-circle" style="font-size: 20px; color: red; margin-left: 5px;"  v-if="productIntroPageCheck.titleError"></i>
+                          <i class="far fa-check-circle" style="font-size: 20px; color: rgb(14, 182, 14); margin-left: 5px;" v-else></i>
+                          <p style="font-size: 14px; color: red; margin: 0;">{{ productIntroPageCheck.titleErrorMsg }}</p>
+                        </div>
+                        <div class="col-6">
+                          <p style="margin: 0px; margin-bottom: 5px; font-size: 20px; font-weight: bold">商品類型</p>
+                          <b-form-select v-model="productIntroPage.selectedType" :options="productTypeOption" size="sm"></b-form-select>
+                        </div>
+                      </div>
+                      <div class="d-flex align-items-center">
+                        <span style="margin: 0px; margin-bottom: 5px; font-size: 20px; font-weight: bold">商品介紹</span>
+                        <span style="font-size: 14px; color: red; margin: 0px 0px 5px 10px;">{{ productIntroPageCheck.introErrorMsg }}</span>
+                        <i class="far fa-times-circle" style="font-size: 20px; color: red; margin-bottom: 5px; margin-left: 5px;"  v-if="productIntroPageCheck.introError"></i>
+                        <i class="far fa-check-circle" style="font-size: 20px; color: rgb(14, 182, 14); margin-bottom: 5px;" v-else></i>
+                      </div>
+                      <div style="border: 1px solid transparent;" :style="{'border-color': productIntroPageCheck.introError ? 'red' : 'rgb(14, 182, 14)'}">
+                        <ckeditor :editor="ckEditor.editor" v-model="productIntroPage.editorDataIntro" :config="ckEditor.editorConfig" v-on:focus="productIntroPage.editorDataIntroOrigin = productIntroPage.editorDataIntro" v-on:blur="updateIntro"  ></ckeditor>
+                      </div>
+                      <hr>
+                      <div class="d-flex align-items-center">
+                        <span style="margin: 0px; font-size: 20px; font-weight: bold">商品封面</span>
+                        <span style="font-size: 14px; color: red; margin: 0; margin-left: 10px;">{{ productIntroPageCheck.coverImageErrorMsg }}</span>
+                        <i class="far fa-times-circle" style="font-size: 20px; color: red; margin-left: 5px;"  v-if="productIntroPageCheck.coverImageError"></i>
+                        <i class="far fa-check-circle" style="font-size: 20px; color: rgb(14, 182, 14);" v-else></i>
+                      </div>
+                      <div class="w-100" style="height: 400px; border: 1px solid transparent" :style="{'border-color': productIntroPageCheck.coverImageError ? 'red' : 'transparent'}">
+                        <div v-if="productIntroPage.coverImage != ''" style="height: 100%;">
+                          <img style="height: 100%; object-fit: cover; width: 100%;" :src="productIntroPage.coverImage" alt="">
+                        </div>
+                        <div class="d-flex flex-column justify-content-center align-items-center h-100" style=" overflow: hidden;" v-else>
+                          <img style="height: 100px; width: 100px;" src="https://res.cloudinary.com/ditncduk1/image/upload/v1634886133/Blogger/evzfcaqrzw2bgpwshlij.png" alt="">
+                          <span class="mt-2">尚無任何圖片</span>
+                        </div>
+                      </div>
+                      <input type="file" ref="fileCoverImage" v-on:change="getCoverImg" class="d-none">
+                      <input type="file" ref="fileCoverImage" v-on:change="getCoverImg">
+                      <b-button style="height: 40px; width: 100%; margin-top: 5px;" v-on:click="uploadCoverImg">
+                        <i class="fas fa-cloud-upload-alt me-1"></i>
+                        上傳圖片
+                      </b-button>
                     </div>
                   </b-card-text>
                 </b-tab>
-                <b-tab title="景點編輯" active>
+                <b-tab title="景點編輯" >
                   <template #title>
                     <strong><b-icon-geo-alt-fill class="mr-2"></b-icon-geo-alt-fill>景點編輯</strong>
                   </template>
@@ -468,14 +527,19 @@
                       <div class="row">
                         <div class="col-6">
                           <div class="d-flex flex-column">
-                            <p style="margin-bottom: 7px; ">景點名稱</p>
-                            <input type="text" style=" padding: 4px 7px;" placeholder="請輸入景點名稱" ref="searchBox" v-model="placeEdit.placeName">
+                            <p style="margin-bottom: 7px; font-size: 20px; font-weight: bold">景點名稱</p>
+                            <div>
+                              <input type="text" style=" padding: 4px 10px; border: 1px solid transparent; width: calc(100% - 30px);" placeholder="請輸入景點名稱" ref="searchBox" v-model="productPlacePage.placeName" :style="{'border-color': productPlacePageCheck.placeNameError ? 'red' : 'rgb(14, 182, 14)'}">
+                              <i class="far fa-times-circle" style="font-size: 20px; color: red; margin-bottom: 5px; margin-left: 5px;"  v-if="productPlacePageCheck.placeNameError"></i>
+                              <i class="far fa-check-circle" style="font-size: 20px; color: rgb(14, 182, 14); margin-bottom: 5px;" v-else></i>
+                            </div>
+                            <p style="font-size: 14px; color: red; margin: 0;">{{ productPlacePageCheck.placeNameErrorMsg }}</p>
                           </div>
                         </div>
                         <div class="col-6">
-                          <p style="margin-bottom: 7px;">停留時間</p>
+                          <p style="margin-bottom: 7px; font-size: 20px; font-weight: bold">停留時間</p>
                               <el-time-picker
-                                v-model="placeEdit.stayTime"
+                                v-model="productPlacePage.stayTime"
                                 :clearable="false"
                                 value-format="HH:mm"
                                 format="HH:mm"
@@ -490,18 +554,22 @@
                         </div>
                       </div>
                       <hr>
-                      <div class="row mb-2">
-                        <div class="col-6" style="height: 340px;;">
-                          <div style="border-radius: 5px; height: calc(100% - 40px); overflow: hidden;">
-                            <div class="demo-image__preview" v-if="placeEdit.placeImages.length !== 0">
+                      <div class="row mb-5">
+                        <div class="col-6" style="height: 360px;;">
+                          <div class="d-flex align-items-center">
+                            <span style="font-size: 14px; color: red; margin: 0; padding-bottom: 5px;">{{ productPlacePageCheck.placeImageErrorMsg }}</span>
+                            <i class="far fa-times-circle" style="font-size: 20px; color: red; margin-bottom: 5px; margin-left: 5px;"  v-if="productPlacePageCheck.placeImageError"></i>
+                            <i class="far fa-check-circle" style="font-size: 20px; color: rgb(14, 182, 14); margin-bottom: 5px;" v-else></i>
+                          </div>
+                          <div style="border-radius: 5px; height: calc(100% - 60px); overflow: hidden; border: 1px solid #ddd;">
+                            <div class="demo-image__preview" v-if="productPlacePage.placeImages.length !== 0">
                               <el-image 
                                 style="width: 100%;"
-                                :src="placeEdit.defaultImage" 
-                                :preview-src-list="placeEdit.placeImages">
+                                :src="productPlacePage.defaultImage" 
+                                :preview-src-list="productPlacePage.placeImages">
                               </el-image>
-                              
                             </div>
-                            <div class="d-flex flex-column justify-content-center align-items-center h-100" v-else>
+                            <div class="d-flex flex-column justify-content-center align-items-center h-100" style=" overflow: hidden;" v-else>
                               <img style="height: 100px; width: 100px;" src="https://res.cloudinary.com/ditncduk1/image/upload/v1634886133/Blogger/evzfcaqrzw2bgpwshlij.png" alt="">
                               <span class="mt-2">尚無任何圖片</span>
                             </div>
@@ -514,10 +582,10 @@
                         </div>
                         <div class="col-6">
                           <p style="margin-bottom: 10px; font-size: 18px; font-weight: bold;">
-                            上傳圖片清單 ( {{ placeEdit.placeImages.length }} / 10 )
+                            上傳圖片清單 ( {{ productPlacePage.placeImages.length }} / 10 )
                           </p>
                           <ul style="width: 100%;" class="image-list">
-                            <li class="d-flex align-items-center" style="cursor: pointer;" v-for="item in placeEdit.placeImagesDetails" :title="item.image" v-on:click="placeEdit.defaultImage = item.image">
+                            <li class="d-flex align-items-center" style="cursor: pointer;" v-for="item in productPlacePage.placeImagesDetails" :title="item.image" v-on:click="productPlacePage.defaultImage = item.image">
                               <i class="fas fa-image" style="margin-right: 10px;"></i>
                               <span style="width: calc(100% - 60px);">{{ item.image }}</span>
                               <i class="fas fa-times delete-img" style=" margin-left: auto; margin-right: 5px; color: #aaa;" v-on:click="deleteImage(item)"></i>
@@ -528,7 +596,14 @@
                       <hr>
                       <div class="row">
                         <div class="col-12 place-intro" style="margin-top: 10px;">
-                          <ckeditor :editor="ckEditor.editor" v-model="ckEditor.editorDataPlaceIntro" :config="ckEditor.editorConfigPlaceIntro" v-on:focus="ckEditor.editorDataPlaceIntroOrigin = ckEditor.editorDataPlaceIntro" v-on:blur="updatePlaceIntro"></ckeditor>
+                          <span style="font-size: 20px; font-weight: bold">景點介紹</span>
+                          <span style="font-size: 14px; color: red; margin: 0; padding-bottom: 5px;">{{ productPlacePageCheck.placeIntroErrorMsg }}</span>
+                          <i class="far fa-times-circle" style="font-size: 20px; color: red; margin-bottom: 5px; margin-left: 5px;"  v-if="productPlacePageCheck.placeIntroError"></i>
+                          <i class="far fa-check-circle" style="font-size: 20px; color: rgb(14, 182, 14); margin-bottom: 5px;" v-else></i>
+                          <div style="border: 1px solid transparent; margin-top: 10px;" :style="{'border-color': productPlacePageCheck.placeIntroError ? 'red' : 'rgb(14, 182, 14)'}">
+                            <ckeditor :editor="ckEditor.editor" v-model="productPlacePage.editorDataPlaceIntro" :config="ckEditor.editorConfigPlaceIntro" v-on:focus="productPlacePage.editorDataPlaceIntroOrigin = productPlacePage.editorDataPlaceIntro" v-on:blur="updatePlaceIntro"></ckeditor>
+                          </div>
+                          
                         </div>
                       </div>
                     </div>
@@ -539,46 +614,15 @@
                     <strong><b-icon-cash class="mr-2"></b-icon-cash>場次與票券資訊</strong>
                   </template>
                   <b-card-text>
+                    Verify: {{ pageVerify.productTicketPageVerify }}
+                    <div class="d-flex align-items-center justify-content-end me-5">
+                      <i class="far fa-times-circle" style="font-size: 20px; color: red;"  v-if="productTicketCheck.productTicketError"></i>
+                      <i class="far fa-check-circle" style="font-size: 20px; color: rgb(14, 182, 14);" v-else></i>
+                      <span style="font-size: 14px; color: red; margin: 0; margin-left: 5px;">{{ productTicketCheck.productTicketErrorMsg }}</span>
+                    </div>
                     <div class="row d-flex justify-content-center mt-3">
                       <div class="col-10">
-                        <div class="product-session" style="margin-bottom: 30px;">
-                          <p style="font-size: 28px" class="d-flex align-items-center justify-content-between">
-                            <span style="font-weight: bold;">場次</span>
-                            <b-button class="product-add" v-b-modal.modal-session-info v-on:click="initialSession" variant="outline-primary">
-                              <i class="far fa-plus-square"></i>
-                              新增
-                            </b-button>
-                          </p>
-                          <div>
-                            <b-table :items="sessionInfo.session" :fields="sessionInfo.sessionField" >
-                              <template #cell(actions)="row">
-                                <!-- 場次與票券資訊 編輯 -->
-                                <b-button size="sm" class="mr-2" v-b-modal.modal-session-info v-on:click="editSessionItem(row.item)">
-                                  <i class="fas fa-pencil-alt" ></i>
-                                  編輯
-                                </b-button>
-                                <b-button class="off-shelf-btn" size="sm" v-b-modal.modal-delete-session style="background-color: #ee3c77; border: none;"  v-on:click="sessionItem = row.value">
-                                  <i class="fas fa-trash-alt"></i>
-                                  刪除
-                                </b-button> 
-                              </template>
-                            </b-table>
-                            <!-- <ul>
-                              <li style="margin: 10px 0px">
-                                <span style="font-size: 18px; margin-right: 10px;">台東火車站 10:00</span>
-                                <i class="fas fa-pencil-alt border p-2 rounded-circle me-1" style="cursor: pointer"></i>
-                                <i class="fas fa-trash-alt border p-2 rounded-circle" style="cursor: pointer"></i>
-                              </li>
-                              <li>
-                                <span style="font-size: 18px; margin-right: 10px;">台東火車站 12:00</span>
-                                <i class="fas fa-pencil-alt border p-2 rounded-circle me-1" style="cursor: pointer"></i>
-                                <i class="fas fa-trash-alt border p-2 rounded-circle" style="cursor: pointer"></i>
-                              </li>
-                            </ul> -->
-                          </div>
-                        </div>
-                        <hr>
-                        <div class="product-ticket" style="margin-top: 30px;">
+                        <div class="product-ticket" style="margin-top: 10px; margin-bottom: 20px;">
                           <p style="font-size: 28px; font-weight: bold;">票券選項</p>
                           <div>
                             <p style="font-size: 28px" class="d-flex align-items-center justify-content-between">
@@ -631,6 +675,31 @@
                                 </template>
                               </b-table>
                             </div>
+                          </div>
+                        </div>
+                        <hr>
+                        <div class="product-session" style="margin-bottom: 10px; margin-top: 20px;" >
+                          <p style="font-size: 28px" class="d-flex align-items-center justify-content-between">
+                            <span style="font-weight: bold;">場次</span>
+                            <b-button class="product-add" v-b-modal.modal-session-info v-on:click="initialSession" variant="outline-primary">
+                              <i class="far fa-plus-square"></i>
+                              新增
+                            </b-button>
+                          </p>
+                          <div>
+                            <b-table :items="sessionInfo.session" :fields="sessionInfo.sessionField" >
+                              <template #cell(actions)="row">
+                                <!-- 場次與票券資訊 編輯 -->
+                                <b-button size="sm" class="mr-2" v-b-modal.modal-session-info v-on:click="editSessionItem(row.item)">
+                                  <i class="fas fa-pencil-alt" ></i>
+                                  編輯
+                                </b-button>
+                                <b-button class="off-shelf-btn" size="sm" v-b-modal.modal-delete-session style="background-color: #ee3c77; border: none;"  v-on:click="sessionItem = row.item">
+                                  <i class="fas fa-trash-alt"></i>
+                                  刪除
+                                </b-button> 
+                              </template>
+                            </b-table>
                           </div>
                         </div>
                       </div>
@@ -731,19 +800,45 @@
                         </b-button>
                       </template>
                     </b-modal>
+                    <!-- publish model -->
+                    <b-modal id="modal-publish" top title="商品發佈確認" ref="publish">
+                      <div class="d-flex align-items-center">
+                        <i class="fas fa-exclamation-circle" style="margin-right: 10px; color: #fa0; font-size: 20px;"></i>
+                        <div>請問是否要刪除「{{ ticketItem.Type == 1 ? '一般' : '加選項目' }}」：</div>
+                      </div>
+                      <p style="margin: 15px 0px 5px 0px;">名稱：「{{ ticketItem.Title }}」</p>
+                      <p style="margin: 15px 0px 5px 0px;">價格： {{ ticketItem.Price }}</p>
+                      <p style="margin: 15px 0px 5px 0px;">數量上限： {{ ticketItem.MaxNumber }}</p>
+                      <template #modal-footer="{ ok, cancel }">
+                        <b-button size="sm" style="background: #fff; color: #666; padding: 5px 15px; border: 1px solid #ccc;" v-on:click="hideTicket()">
+                          取消
+                        </b-button>
+                        <b-button size="sm" v-on:click="deleteTicket(ticketItem.ProductDetailsId)" style="background: #409eff; color: #fff; border: none; padding: 5px 15px;">
+                          確認
+                        </b-button>
+                      </template>
+                    </b-modal>
                   </b-card-text>
-                  
                 </b-tab>
                 <b-tab title="注意事項">
                   <template #title>
                     <strong><b-icon icon="exclamation-circle-fill" class="mr-2"></b-icon>注意事項</strong>
                   </template>
                   <b-card-text>
-                    <div class="d-flex mb-2 justify-content-end">
-                      <b-button style=" border-radius: 5px; padding: 3px 10px" v-on:click="generateDefault" variant="outline-primary"><i class="fas fa-plus-circle" style="margin-right: 5px;" ></i>產生模板</ㄖ>
+                    <div class="d-flex mb-2 align-items-center">
+                      <div class="d-flex align-items-center">
+                        <i class="far fa-times-circle" style="font-size: 20px; color: red;"  v-if="productPolicyCheck.productPolicyError"></i>
+                        <i class="far fa-check-circle" style="font-size: 20px; color: rgb(14, 182, 14);" v-else></i>
+                        <span style="font-size: 14px; color: red; margin: 0; margin-left:5px">{{ productPolicyCheck.productPolicyErrorMsg }}</span>
+                      </div>
+                      <b-button style=" border-radius: 5px; padding: 3px 10px; margin-left: auto;" v-on:click="generateDefault" variant="outline-primary"><i class="fas fa-plus-circle" style="margin-right: 5px;" ></i>產生模板</ㄖ>
                     </div>
                     <div class="policy">
-                      <ckeditor :editor="ckEditor.editor" v-model="ckEditor.editorDataPolicy" :config="ckEditor.editorConfigPolicy" v-on:focus="ckEditor.editorDataPolicyOrigin = ckEditor.editorDataPolicy" v-on:blur="updatePolicy"></ckeditor>
+                      {{pageVerify.productPolicyPageVerify}}
+                      <p style="margin: 0px; margin-bottom: 10px; font-size: 20px; font-weight: bold;">注意事項</p>
+                      <div style="border: 1px solid transparent;" :style="{'border-color': productPolicyCheck.productPolicyError ? 'red' : 'rgb(14, 182, 14)'}">
+                        <ckeditor :editor="ckEditor.editor" v-model="productPolicyPage.editorDataPolicy" :config="ckEditor.editorConfigPolicy" v-on:focus="productPolicyPage.editorDataPolicyOrigin = ckEditor.editorDataPolicy" v-on:blur="updatePolicy"></ckeditor>
+                      </div>
                     </div>
                   </b-card-text>
                 </b-tab>
@@ -772,7 +867,8 @@
         url: {
           url_uploadImage: 'http://localhost:5000/api/productapi/uploadImage'
         },
-        fileReader: '',
+
+        // 場次與票券資訊
         sessionInfo: {
           session: [
             { SessionId: 1, Title: '台東火車站', Time: '10:00'},
@@ -808,9 +904,18 @@
             { key: 'actions', label: '票券管理', class: 'text-end col-3'}
           ]
         },
-        tripId: '',
+        productTypeOption: ['農場', '民宿', '博物館', '海上活動', '山上活動', 'DIY手作'],
+        productionTypeDetails: [
+          { productTypeId: 1, productType: '農場'},
+          { productTypeId: 2, productType: '民宿'},
+          { productTypeId: 3, productType: '博物館'},
+          { productTypeId: 4, productType: '海上活動'},
+          { productTypeId: 5, productType: '山上活動'},
+          { productTypeId: 6, productType: 'DIY手作'},
+        ],
+        tripId: '', // 編輯舊的才會有
         sessionItem: {
-          SessionId: 0,
+          SessionId: '',
           Title: '',
           Time: ''
         },
@@ -821,7 +926,7 @@
         },
         sessionIsVerify: false,
         ticketItem: {
-          ProductDetailsId: 0,
+          ProductDetailsId: '',
           Title: '',
           Price: 100,
           MaxNumber: 8
@@ -844,27 +949,58 @@
             href: '#'
           },
           {
-            text: '行程列表',
+            text: '商品列表',
             href: '#',
           },
         ],
-        placeEdit:{
-          mapInfo: {
-            map: '',
-            searchBox: '',
-            marker: '',
-            placesService: '',
-            place_id: '',
-            placeInfos: '',
-            selectImage: '',
-            infowindow: ''
-          },
-          placeName: '',
-          placeCity: '',
+
+        // 地圖資訊
+        mapInfo: {
+          map: '',
+          searchBox: '',
+          marker: '',
+          placesService: '',
+          place_id: '',
+          placeInfos: '',
+          selectImage: '',
+          infowindow: ''
+        },
+
+        // 各個頁面驗證
+        pageVerify: {
+          productIntroPageVerify: false,
+          productPlacePageCheckVerify: false,
+          productTicketPageVerify: false,
+          productPolicyPageVerify: false
+        },
+
+        // 是否能商品發佈
+        publishStateVerify: true,
+        // 是否立即上架
+        putShelfOrNot: false,
+        // 商品介紹
+        productIntroPage:{
+          productName: '', // 商品名稱
+          productNameOrigin: '', 
+          editorDataIntro: '', // 商品介紹
+          editorDataIntroOrigin: '',
+          selectedType: '', // 商品類型 (去蒐上面的資料),
+          coverImage: ''
+          // coverImage: 'https://res.cloudinary.com/ditncduk1/image/upload/v1634174656/Blogger/s6pvhxuphe5wjryog8iu.png',
+        },
+
+        // 景點編輯的頁面
+        productPlacePage:{
+          tripDetailsId: '', // TripDetails
+          placeName: '', // 景點名稱
+          placeCity: '', // 景點地區
+          placeNameOrigin: '', 
           stayTime: '09:00',
+          editorDataPlaceIntro: '',
+          editorDataPlaceIntroOrigin: '',
+          imageFolder: 'testAAA',
           defaultImage: '',
           selectImage: '',
-          imageFolder: 'testAAA',
           placeImages: [],
           placeImagesDetails: [
             { tripImageDetailsId: 1, image: 'https://picsum.photos/500/600/?random=1' },
@@ -874,19 +1010,45 @@
             { tripImageDetailsId: 5, image: 'https://picsum.photos/500/600/?random=5' },
             { tripImageDetailsId: 6, image: 'https://picsum.photos/500/600/?random=6' },
             { tripImageDetailsId: 7, image: 'https://picsum.photos/500/600/?random=7' },
-          ]
+          ],
         },
-        ckEditor: {
-          editorDataIntro: '',
-          editorDataIntroOrgin: '',
-          editorDataPolicy: '',
-          editorDataPolicyOrigin: '',
-          editorDataPlaceIntro: '',
-          editorDataPlaceIntroOrigin: '',
-          editor: ClassicEditor,
+        
+        // 注意事項
+        productPolicyPage:{
+          editorDataPolicy: '', // 注意事項
+          editorDataPolicyOrigin: '', 
           editorDataPolicyDefault: '<h4><span style="font-size:20px;"><strong>注意事項</strong></span></h4><ul><li> ... </li></ul><h4><span style="font-size:20px;"><strong>取消政策</strong></span></h4><ul><li> ... </li></ul><h4><span style="font-size:20px;"><strong>與客服聯繫</strong></span></h4><ul><li><a href="mailto:TripWay@tripway.com" style="color: #ff4477; text-decoration: none;">tripaway@tripaway.com</a></li></ul>',
+        },
+        productIntroPageCheck:{
+          titleError: false,
+          titleErrorMsg: '',
+          introError: false,
+          introErrorMsg: '',
+          coverImageError: false,
+          coverImageErrorMsg: '',
+        },
+        productPlacePageCheck:{
+          placeNameError: false,
+          placeNameErrorMsg: '',
+          placeImageError: false,
+          placeImageErrorMsg: '',
+          placeIntroError: false,
+          placeIntroErrorMsg: ''
+        },
+        productTicketCheck:{
+          productTicketError: false,
+          productTicketErrorMsg: '',
+        },
+        productPolicyCheck:{
+          productPolicyError: false,
+          productPolicyErrorMsg: '',
+        },
+        
+        // CKEditor
+        ckEditor: {
+          editor: ClassicEditor,
           editorConfig: {
-            placeholder: '請輸入行程介紹內容',
+            placeholder: '請輸入商品介紹內容',
             fontFamily: {
               options: [
                 "default",
@@ -951,8 +1113,8 @@
       },
       methods: {
         generateDefault(){
-          this.ckEditor.editorDataPolicy = this.ckEditor.editorDataPolicyDefault;
-          console.log(this.ckEditor.editorDataPolicy);
+          this.productPolicyPage.editorDataPolicy = this.productPolicyPage.editorDataPolicyDefault;
+          console.log(this.productPolicyPage.editorDataPolicy);
         },
         init(){
           let breadCrumb = {
@@ -967,14 +1129,13 @@
             breadCrumb.text = '修改商品'
           }
           this.items.push(breadCrumb)
-          this.fileReader = new FileReader();
-          this.fileReader.onload = () => {
-            this.sendImage()
-          }
+          this.productIntroPage.selectedType = this.productTypeOption[0]
+          console.log(this.productIntroPage.selectedType);
+          
         },
         // --- 初始化地圖 ---
         initMap() {
-          this.placeEdit.mapInfo.map = new google.maps.Map(this.$refs.map, {
+          this.mapInfo.map = new google.maps.Map(this.$refs.map, {
             zoom: 16,
             center: { lat: 25.0336752, lng: 121.5648831 },
             mapTypeControl: false
@@ -983,27 +1144,29 @@
           let that = this
           console.log(that.$refs.searchBox);
           
-          this.placeEdit.mapInfo.searchBox = new google.maps.places.SearchBox(this.$refs.searchBox);
-          this.placeEdit.mapInfo.searchBox.addListener('places_changed', () => {
+          this.mapInfo.searchBox = new google.maps.places.SearchBox(this.$refs.searchBox);
+          this.mapInfo.searchBox.addListener('places_changed', () => {
             this.deleteMarker();
-            const places = this.placeEdit.mapInfo.searchBox.getPlaces();
+            const places = this.mapInfo.searchBox.getPlaces();
             const bounds = new google.maps.LatLngBounds();
             // 標示出搜尋出來的結果
+            console.log(places);
+            
             if (places.length == 0) {
               return;
             }
             // Clear out the old markers.
             // For each place, get the icon, name and location.
-            this.placeEdit.mapInfo.marker = new google.maps.Marker({
-              map: this.placeEdit.mapInfo.map,
+            this.mapInfo.marker = new google.maps.Marker({
+              map: this.mapInfo.map,
               title: places[0].name,
               position: places[0].geometry.location,
             })
             // 註冊marker的click事件
-            this.placeEdit.mapInfo.marker.addListener("click", () => {
-              this.placeEdit.mapInfo.infowindow.open({
-                anchor: this.placeEdit.mapInfo.marker,
-                map: this.placeEdit.mapInfo.map,
+            this.mapInfo.marker.addListener("click", () => {
+              this.mapInfo.infowindow.open({
+                anchor: this.mapInfo.marker,
+                map: this.mapInfo.map,
                 shouldFocus: false,
               });
             });
@@ -1013,7 +1176,7 @@
             } else {
               bounds.extend(places[0].geometry.location);
             }
-            this.placeEdit.mapInfo.map.fitBounds(bounds);
+            this.mapInfo.map.fitBounds(bounds);
             this.getInfo()
           })
         },
@@ -1021,12 +1184,12 @@
         getPlace(){
           return new Promise((resolve, reject) => {
             var request_id = {
-              query: this.placeEdit.placeName,
+              query: this.productIntroPage.placeName,
               fields: ['name', 'place_id'],
             }
-            console.log(request_id, this.placeEdit.mapInfo.placesService);
+            console.log(request_id, this.mapInfo.placesService);
             
-            this.placeEdit.mapInfo.placesService.findPlaceFromQuery(request_id, function(results, status){
+            this.mapInfo.placesService.findPlaceFromQuery(request_id, function(results, status){
               resolve(results);
             })
           })
@@ -1035,59 +1198,59 @@
         getDetail(){
           return new Promise((resolve, reject) => {
             var request = {
-            placeId: this.placeEdit.mapInfo.place_id,
+            placeId: this.mapInfo.place_id,
             fields: ['ALL'],
             // fields: ['name', 'geometry', 'reviews', 'photos', 'opening_hours', 'adr_address', 'address_components'],
             // https://developers.google.com/maps/documentation/javascript/reference/places-service#PlaceDetailsRequest
             // only 5 reviews，如果要得到更多則需要購買
             // 最多就是10張圖片
             };
-            this.placeEdit.mapInfo.placesService.getDetails(request, function(results, status){
+            this.mapInfo.placesService.getDetails(request, function(results, status){
               resolve(results);
             })
           })
         },
         changeStayTime(){
-          console.log(this.placeEdit.stayTime);
+          console.log(this.productIntroPage.stayTime);
           // api - 更新景點停留時間
         },
         getInfo(){
-          this.placeEdit.mapInfo.placesService = new google.maps.places.PlacesService(this.placeEdit.mapInfo.map);
-          console.dir(this.placeEdit.mapInfo.placesService); // 看出PlacesService可用的方法
+          this.mapInfo.placesService = new google.maps.places.PlacesService(this.mapInfo.map);
+          console.dir(this.mapInfo.placesService); // 看出PlacesService可用的方法
           this.getPlace()
             .then(res => {
               console.log(res);
               
-              this.placeEdit.mapInfo.place_id = res[0].place_id
+              this.mapInfo.place_id = res[0].place_id
               this.getDetail()
                 .then(res => {
-                  this.placeEdit.mapInfo.placeInfos = res
-                  this.placeEdit.placeName = res.name
-                  this.placeEdit.placeCity = res.plus_code.compound_code.split(' ')[1]
-                  console.log(this.placeEdit.mapInfo.placeInfos);
-                  console.log(this.placeEdit.placeCity, this.placeEdit.placeName);
+                  this.mapInfo.placeInfos = res
+                  this.productIntroPage.placeName = res.name
+                  this.productIntroPage.placeCity = res.plus_code.compound_code.split(' ')[1]
+                  console.log(this.mapInfo.placeInfos);
+                  console.log(this.productIntroPage.placeCity, this.productIntroPage.placeName);
                   // google map info
-                  this.placeEdit.mapInfo.infowindow = new google.maps.InfoWindow({
-                    content: `<div style="padding: 5px; font-weight: bold">${this.placeEdit.placeName}</div>`,
+                  this.mapInfo.infowindow = new google.maps.InfoWindow({
+                    content: `<div style="padding: 5px; font-weight: bold">${this.productIntroPage.placeName}</div>`,
                   });
-                  this.placeEdit.mapInfo.infowindow.open({
-                    anchor: this.placeEdit.mapInfo.marker,
-                    map: this.placeEdit.mapInfo.map,
+                  this.mapInfo.infowindow.open({
+                    anchor: this.mapInfo.marker,
+                    map: this.mapInfo.map,
                     shouldFocus: false,
                   });
               })
             })
         },
         deleteMarker(){
-          if (this.placeEdit.mapInfo.marker !== ''){
-            this.placeEdit.mapInfo.marker.setMap(null);
-            this.placeEdit.mapInfo.marker = ''
+          if (this.mapInfo.marker !== ''){
+            this.mapInfo.marker.setMap(null);
+            this.mapInfo.marker = ''
           }
         },
         updateIntro(){
-          if(this.ckEditor.editorDataIntro !== this.ckEditor.editorDataIntroOrgin){
-            // api - 更新行程介紹
-            console.log('updateIntro', this.ckEditor.editorDataIntro);
+          if(this.productIntroPage.editorDataIntro !== this.productIntroPage.editorDataIntroOrigin){
+            // api - 更新商品介紹
+            console.log('updateIntro', this.productIntroPage.editorDataIntro);
             this.notification('更新成功', 'success')
           }
         },
@@ -1100,9 +1263,9 @@
           }
         },
         updatePolicy(){
-          if(this.ckEditor.editorDataPolicy !== this.ckEditor.editorDataPolicyoOrgin){
+          if(this.productPolicyPage.editorDataPolicy !== this.productPolicyPage.editorDataPolicyoOrgin){
             // api - 更新取消政策
-            console.log('updatePolicy', this.ckEditor.editorDataPolicy);
+            console.log('updatePolicy', this.productPolicyPage.editorDataPolicy);
           }
         },
         showDeleteSession(item){
@@ -1114,13 +1277,12 @@
         hideSession(){
           // session cancel
           this.$refs['delete-session'].hide();
-          this.sessionItem = ''
         },
         deleteSession(){
           // api - 刪除Session
           console.log(this.sessionItem.SessionId);
+          this.sessionInfo.session = this.sessionInfo.session.filter(x => x.SessionId !== this.sessionItem.SessionId)
           this.$refs['delete-session'].hide();
-          this.sessionItem = ''
         },
         editSessionItem(item){
           // 紀錄初始值
@@ -1130,11 +1292,18 @@
         hideTicket(){
           // ticket cancel
           this.$refs['delete-ticket'].hide();
-          this.ticketItem = ''
         },
         deleteTicket(){
           // api - 刪除Ticket
           console.log(this.ticketItem.ProductDetailsId);
+          if (this.ticketItem.Type == 0){
+            // 加選項目
+            this.additionalTicketInfo.additionalTicket = this.additionalTicketInfo.additionalTicket.filter(x => x.ProductDetailsId !== this.ticketItem.ProductDetailsId)
+          }
+          else if(this.ticketItem.Type == 1){
+            // 一般
+            this.normalTicketInfo.additionalTicket = this.normalTicketInfo.normalTicket.filter(x => x.ProductDetailsId !== this.ticketItem.ProductDetailsId)
+          }
           this.$refs['delete-ticket'].hide();
         },
         editTicketItem(item){
@@ -1165,11 +1334,13 @@
           this.$refs['session-info'].hide();
         },
         updateTicket(){
+          console.log(this.ticketItem);
+          
           if (this.originTicketItem.Price == this.ticketItem.Price && this.originTicketItem.Title == this.ticketItem.Title && this.originTicketItem.MaxNumber == this.ticketItem.MaxNumber){}
           else{
             // api - 新增/更新Ticket
             console.log('change', this.ticketItem);
-            if (item.Type == 0){
+            if (this.ticketItem.Type == 0){
               // 加選項目
               this.additionalTicketInfo.additionalTicket.forEach(ticket => {
                 if (ticket.ProductDetailsId == this.ticketItem.ProductDetailsId){
@@ -1179,7 +1350,7 @@
                 }
               })
             }
-            else if(item.Type == 1){
+            else if(this.ticketItem.Type == 1){
               // 一般
               this.normalTicketInfo.normalTicket.forEach(ticket => {
                 if (ticket.ProductDetailsId == this.ticketItem.ProductDetailsId){
@@ -1201,7 +1372,7 @@
         },
         initialTicket(){
           this.ticketItem = {
-            ProductDetailsId: 0,
+            ProductDetailsId: '',
             Title: '',
             Price: 100,
             MaxNumber: 8
@@ -1231,26 +1402,80 @@
           }
           this.ticketIsVerify = true
         },
+        productIntroPageCheckVerify(){
+          for(let prop in this.productIntroPageCheck){
+            console.log(prop);
+            
+            if (this.productIntroPageCheck[prop] == true){
+              this.pageVerify.productIntroPageVerify = false;
+              return
+            }
+          }
+          this.pageVerify.productIntroPageVerify = true
+        },
+        productPlacePageCheckVerify(){
+          for(let prop in this.productPlacePageCheck){
+            console.log(prop);
+            
+            if (this.productPlacePageCheck[prop] == true){
+              this.pageVerify.productPlacePageCheckVerify = false;
+              return
+            }
+          }
+          this.pageVerify.productPlacePageCheckVerify = true
+        },
+        productTicketCheckVerify(){
+          console.log(this.productTicketCheck);
+          
+          for(let prop in this.productTicketCheck){
+            console.log(prop);
+            
+            if (this.productTicketCheck[prop] == true){
+              this.pageVerify.productTicketPageVerify = false;
+              return
+            }
+          }
+          this.pageVerify.productTicketPageVerify = true
+          console.log(this.pageVerify.productTicketPageVerify);
+          
+        },
+        productPolicyCheckVerify(){
+          console.log(this.productPolicyCheck);
+          
+          for(let prop in this.productPolicyCheck){
+            if (this.productPolicyCheck[prop] == true){
+              this.pageVerify.productPolicyPageVerify = false;
+              return
+            }
+          }
+          this.pageVerify.productPolicyPageVerify = true
+          console.log(this.pageVerify.productPolicyPageVerify);
+        },
         refreshPlaceImage(){
           let result = []
-          this.placeEdit.placeImagesDetails.forEach(item => {
+          console.log('aaa');
+          console.log(this.productIntroPage.placeImagesDetails);
+          
+          this.productPlacePage.placeImagesDetails.forEach(item => {
             result.push(item.image)
           });
-          this.placeEdit.defaultImage = result[0];
-          this.placeEdit.placeImages = result
+          this.productPlacePage.defaultImage = result[0];
+          this.productPlacePage.placeImages = result
+          console.log(this.productPlacePage.placeImages);
+          
         },
         deleteImage(item){
           // api - 移除圖片
           console.log('deleteImage', item);
-          this.placeEdit.placeImagesDetails = this.placeEdit.placeImagesDetails.filter(x => x.tripImageDetailsId != item.tripImageDetailsId)
-          console.log(this.placeEdit.placeImagesDetails);
+          this.productPlacePage.placeImagesDetails = this.productPlacePage.placeImagesDetails.filter(x => x.tripImageDetailsId != item.tripImageDetailsId)
+          console.log(this.productPlacePage.placeImagesDetails);
           this.refreshPlaceImage()
         },
         getImg(e){
           console.log(e.target.files);
           let convertFiles = Array.from(e.target.files)
           // 判斷總共是否有超過10張
-          if (this.placeEdit.placeImagesDetails.length + convertFiles.length > 10)
+          if (this.productPlacePage.placeImagesDetails.length + convertFiles.length > 10)
           {
             this.notification('上傳圖片超過10張', 'error')
           }
@@ -1264,15 +1489,26 @@
           })
           // this.fileReader.readAsDataURL(e.target.files[0])
         },
+        getCoverImg(e){
+          let reader = new FileReader();
+          reader.readAsDataURL(e.target.files[0])
+          reader.onload = () => {
+            this.sendImage(reader.result)
+          }
+        },
         uploadImg(){
           console.log('uploadImage');
           this.$refs.fileImage.click()
+        },
+        uploadCoverImg(){
+          console.log('uploadCoverImage');
+          this.$refs.fileCoverImage.click()
         },
         sendImage(result){
           let request = {
             Image: result,
             // this.fileReader.result,
-            Folder: this.placeEdit.imageFolder
+            Folder: this.productPlacePage.imageFolder
           }
           console.log(request);
           
@@ -1298,9 +1534,43 @@
               icon: type,
               title: message
           })
-      },
+        },
+        publishProduct(){
+          let requestData = {
+            putShelfOrNot: this.putShelfOrNot,
+            trip: { // Trip表格
+              TripId: this.tripId,
+              Title: this.productIntroPage.productName,
+              TripIntro: this.productIntroPage.editorDataIntro,
+              CoverImage: this.productIntroPage.coverImage
+            },
+            tripDetails: { // TripDetails表格
+              TripDetailsId: this.productPlacePage.tripDetailsId,
+              PlaceCity: this.productPlacePage.placeCity,
+              PlaceName: this.productPlacePage.placeName,
+              PlaceStayTime: this.productPlacePage.stayTime,
+              PlaceContent: this.productPlacePage.editorDataPlaceIntro,
+            },
+            tripImageDetails: { // TripImageDetails表格
+              TripDetailsId: this.productPlacePage.tripDetailsId,
+              Images: this.productPlacePage.placeImages // 陣列
+            },
+            product: { // Product表格
+              TripId: this.tripId,
+              Policy: this.productPolicyPage.editorDataPolicy,
+              ProductTypeId: this.productionTypeDetails.filter(x => x.productType == productIntroPage.selectedType)[0].productTypeId
+            },
+            productSession: [
+              // 將session資料新增進去
+            ],
+            productDetails: [
+              // 將normalTicket、additionalTicket資料新增進去
+            ]
+          }
+        }
       },
       watch:{
+        // sessionItem
         'sessionItem.Title': {
           immediate: true,
           handler: function(){
@@ -1319,6 +1589,7 @@
             this.sessionCheckVerify()
           }
         },
+        // ticketItem
         'ticketItem.Title': {
           immediate: true,
           handler: function(){
@@ -1335,30 +1606,152 @@
             this.ticketCheckVerify()
           }
         },
-        // 'placeEdit.placeImages': {
-        //   immediate: true,
-        //   handler: function(){
-        //     console.log(this.placeEdit.placeImagesDetails);
+        // 商品名稱檢查
+        'productIntroPage.productName': {
+          immediate: true,
+          handler: function(){
+            if (this.productIntroPage.productName == ''){
+              this.productIntroPageCheck.titleError = true;
+              this.productIntroPageCheck.titleErrorMsg = '不可為空白'
+            }
+            else{
+              this.productIntroPageCheck.titleError = false;
+              this.productIntroPageCheck.titleErrorMsg = ''
+            }
+            this.productIntroPageCheckVerify()
+          }
+        },
+        // 商品介紹檢查
+        'productIntroPage.editorDataIntro': {
+          immediate: true,
+          handler: function(){
+            if (this.productIntroPage.editorDataIntro == ''){
+              this.productIntroPageCheck.introError = true;
+              this.productIntroPageCheck.introErrorMsg = '不可為空白'
+            }
+            else{
+              this.productIntroPageCheck.introError = false;
+              this.productIntroPageCheck.introErrorMsg = ''
+            }
+            this.productIntroPageCheckVerify()
+          }
+        },
+        // 商品封面檢查
+        'productIntroPage.coverImage': {
+          immediate: true,
+          handler: function(){
+            if (this.productIntroPage.coverImage == ''){
+              this.productIntroPageCheck.coverImageError = true;
+              this.productIntroPageCheck.coverImageErrorMsg = '封面照片不可為空白'
+            }
+            else{
+              this.productIntroPageCheck.coverImageError = false;
+              this.productIntroPageCheck.coverImageErrorMsg = ''
+            }
+            this.productIntroPageCheckVerify()
+          }
+        },
+        // 商品景點名稱檢查
+        'productPlacePage.placeName': {
+          immediate: true,
+          handler: function(){
+            if (this.productPlacePage.placeName == ''){
+              this.productPlacePageCheck.placeNameError = true;
+              this.productPlacePageCheck.placeNameErrorMsg = '不可為空白'
+            }
+            else{
+              this.productPlacePageCheck.placeNameError = false;
+              this.productPlacePageCheck.placeNameErrorMsg = ''
+            }
+            this.productPlacePageCheckVerify()
+          }
+        },
+        // 商品景點照片檢查
+        'productPlacePage.placeImagesDetails': {
+          immediate: true,
+          deep: true,
+          handler: function(){
+            if (this.productPlacePage.placeImagesDetails.length == 0){
+              this.productPlacePageCheck.placeImageError = true;
+              this.productPlacePageCheck.placeImageErrorMsg = '照片至少上傳 1 張'
+            }
+            else{
+              this.productPlacePageCheck.placeImageError = false;
+              this.productPlacePageCheck.placeImageErrorMsg = ''
+            }
+            this.productPlacePageCheckVerify()
+          }
+        },
+        // 商品景點介紹檢查
+        'productPlacePage.editorDataPlaceIntro': {
+          immediate: true,
+          handler: function(){
+            if (this.productPlacePage.editorDataPlaceIntro == ''){
+              this.productPlacePageCheck.placeIntroError = true;
+              this.productPlacePageCheck.placeIntroErrorMsg = '景點介紹不可為空白'
+            }
+            else{
+              this.productPlacePageCheck.placeIntroError = false;
+              this.productPlacePageCheck.placeIntroErrorMsg = ''
+            }
+            this.productPlacePageCheckVerify()
+          }
+        },
+        // 場次檢查
+        'normalTicketInfo.normalTicket': {
+          immediate: true,
+          deep: true,
+          handler: function(){
+            console.log('check');
             
-        //     let result = []
-        //     this.placeEdit.placeImagesDetails.forEach(item => {
-        //       result.push(item.image)
-        //     });
-        //     console.log(result);
-        //     this.placeEdit.defaultImage = result[0];
-        //     console.log(this.placeEdit.defaultImage);
-        //     // console.log(this.placeEdit.placeImages);
-        //     // this.placeEdit.placeImages = result
-        //     return result
-        //     // console.log(this.placeEdit.placeImages);
-        //   }
-        // }
+            if (this.normalTicketInfo.normalTicket.length == 0){
+              this.productTicketCheck.productTicketError = true;
+              this.productTicketCheck.productTicketErrorMsg = '票券選項的"一般"必須至少一項'
+            }
+            else{
+              this.productTicketCheck.productTicketError = false;
+              this.productTicketCheck.productTicketErrorMsg = ''
+            }
+            this.productTicketCheckVerify();
+          }
+        },
+        // 場次檢查
+        'productPolicyPage.editorDataPolicy': {
+          immediate: true,
+          handler: function(){
+            console.log('asd');
+            
+            if (this.productPolicyPage.editorDataPolicy == ''){
+              this.productPolicyCheck.productPolicyError = true;
+              this.productPolicyCheck.productPolicyErrorMsg = '注意事項不可為空白'
+            }
+            else{
+              this.productPolicyCheck.productPolicyError = false;
+              this.productPolicyCheck.productPolicyErrorMsg = ''
+            }
+            this.productPolicyCheckVerify();
+          }
+        },
+        "pageVerify": {
+          immediate: true,
+          deep: true,
+          handler: function(){
+            console.log('check!!!!!!!!!!!');
+            
+            for(let prop in this.pageVerify){
+              if (this.pageVerify[prop] == false){
+                this.publishStateVerify = true
+                return
+              }
+            }
+            this.publishStateVerify = false
+          }
+        }
       },
       mounted() {
         this.init();
         this.initMap()
         this.refreshPlaceImage()
-        
       },
       
     })

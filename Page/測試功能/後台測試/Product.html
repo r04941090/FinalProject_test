@@ -397,9 +397,9 @@
                 </button>
               </div>
               <b-tabs card fill v-model="tabIndex" v-click="readProductData()">
-                <b-tab title="上架中行程" active>
+                <b-tab title="上架中商品" active>
                   <template #title>
-                    <strong><b-icon-cloud-upload class="mr-1"></b-icon-cloud-upload>上架中行程</strong>
+                    <strong><b-icon-cloud-upload class="mr-1"></b-icon-cloud-upload>上架中商品</strong>
                   </template>
                   <b-card-text>
                     <b-table :items="tableItems" :fields="fields" :current-page="currentPage" :per-page="perPage" stacked="md" show-empty small >
@@ -411,10 +411,10 @@
                       </template>
                       <template #cell(actions)="row">
                         <b-button size="sm" class="mr-2">
-                          行程明細
+                          商品明細
                         </b-button>
                         <b-button class="off-shelf-btn" size="sm" v-on:click="showOffShelf(row.item)" v-b-modal.modal-center-down style="background-color: #f99a00; border: none;">
-                          行程下架
+                          商品下架
                         </b-button> 
                       </template>
                     </b-table>
@@ -447,9 +447,9 @@
                     </div>
                   </div>
                 </b-tab>
-                <b-tab title="已下架行程" >
+                <b-tab title="已下架商品" >
                   <template #title>
-                    <strong><b-icon-cloud-download class="mr-2"></b-icon-cloud-download>已下架行程</strong>
+                    <strong><b-icon-cloud-download class="mr-2"></b-icon-cloud-download>已下架商品</strong>
                   </template>
                   <b-card-text>
                     <b-table :items="offTableItems" :fields="offFields" :current-page="currentPage" :per-page="perPage" stacked="md" show-empty small empty-html='<div class="d-flex justify-content-center flex-column align-items-center" style="height: 300px"><img src="https://res.cloudinary.com/ditncduk1/image/upload/v1634886133/Blogger/evzfcaqrzw2bgpwshlij.png" style="height: 100px; width="100px" alt="" /><span style="margin-top: 10px">尚無任何下架商品</span></div>'>
@@ -461,10 +461,10 @@
                       </template>
                       <template #cell(actions)="row">
                         <b-button size="sm" class="mr-2">
-                          行程編輯
+                          商品編輯
                         </b-button>
                         <b-button class="off-shelf-btn" size="sm" v-on:click="showPutShelf(row.item)" v-b-modal.modal-center-up style="background-color: #f99a00; border: none;">
-                          行程上架
+                          商品上架
                         </b-button> 
                       </template>
                     </b-table>
@@ -954,19 +954,19 @@
           },
         ],
         fields: [
-          { key: 'Number', label: '行程編號', sortable: true, sortDirection: 'desc', class: 'text-center' },
-          { key: 'Title', label: '行程名稱', sortable: true, class: 'text-center'},
-          { key: 'CoverImage', label: '行程封面', class: 'text-center'},
-          { key: 'Type', label: '行程分類', sortable: true, class: 'text-center'},
+          { key: 'Number', label: '商品編號', sortable: true, sortDirection: 'desc', class: 'text-center' },
+          { key: 'Title', label: '商品名稱', sortable: true, class: 'text-center'},
+          { key: 'CoverImage', label: '商品封面', class: 'text-center'},
+          { key: 'Type', label: '商品分類', sortable: true, class: 'text-center'},
           { key: 'UnitPrice', label: '單價', sortable: true, class: 'text-center' },
           { key: 'PostDate', label: '上架日期', sortable: true, class: 'text-center' },
           { key: 'actions', label: '商品管理', class: 'text-center' }
         ],
         offFields: [
-          { key: 'Number', label: '行程編號', sortable: true, sortDirection: 'desc', class: 'text-center' },
-          { key: 'Title', label: '行程名稱', sortable: true, class: 'text-center'},
-          { key: 'CoverImage', label: '行程封面', class: 'text-center'},
-          { key: 'Type', label: '行程分類', sortable: true, class: 'text-center'},
+          { key: 'Number', label: '商品編號', sortable: true, sortDirection: 'desc', class: 'text-center' },
+          { key: 'Title', label: '商品名稱', sortable: true, class: 'text-center'},
+          { key: 'CoverImage', label: '商品封面', class: 'text-center'},
+          { key: 'Type', label: '商品分類', sortable: true, class: 'text-center'},
           { key: 'UnitPrice', label: '單價', sortable: true, class: 'text-center' },
           { key: 'OffDate', label: '下架日期', sortable: true, class: 'text-center' },
           { key: 'actions', label: '商品管理', class: 'text-center' }
@@ -982,7 +982,7 @@
             href: '#'
           },
           {
-            text: '行程列表',
+            text: '商品列表',
             href: '#',
             active: true
           },
@@ -1000,7 +1000,7 @@
         },
         OffShelf(TripId){
           console.log(TripId);
-          // api - 行程下架
+          // api - 商品下架
           this.$refs['off-shef'].hide();
         },
         hideOffShelf(){
@@ -1008,7 +1008,7 @@
         },
         PutShelf(TripId){
           console.log(TripId);
-          // api - 行程下架
+          // api - 商品下架
           this.$refs['put-shef'].hide();
         },
         hidePutShelf(){
