@@ -40,6 +40,8 @@
   <!-- google map -->
   <script
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCW6Ekw5sZ0JUZfzpMeSteJ6_8aoQRwfws&libraries=places"></script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue-sweetalert2@5.0.2/dist/vue-sweetalert.umd.min.js"></script>
   <style>
     .breadcrumb {
       background: none;
@@ -105,6 +107,10 @@
     }
     .delete-img:hover{
       color: #ee3c77 !important;
+    }
+    .el-image-viewer__canvas img{
+      max-height: 500px !important;
+      max-width: 600px !important;
     }
   </style>
 </head>
@@ -457,26 +463,24 @@
                   <template #title>
                     <strong><b-icon-geo-alt-fill class="mr-2"></b-icon-geo-alt-fill>景點編輯</strong>
                   </template>
-                  <b-card-text>
-                    <i class="fa fa-times-rectangle" aria-hidden="true"></i>
-                  </b-card-text>
-                  <div class="row d-flex justify-content-center mt-3 border">
+                  <div class="row d-flex justify-content-center mt-2 ">
                     <div class="col-10">
                       <div class="row">
                         <div class="col-6">
                           <div class="d-flex flex-column">
-                            <p style="margin-bottom: 0;">景點名稱</p>
+                            <p style="margin-bottom: 7px; ">景點名稱</p>
                             <input type="text" style=" padding: 4px 7px;" placeholder="請輸入景點名稱" ref="searchBox" v-model="placeEdit.placeName">
                           </div>
                         </div>
                         <div class="col-6">
-                          <p style="margin-bottom: 0;">停留時間</p>
+                          <p style="margin-bottom: 7px;">停留時間</p>
                               <el-time-picker
                                 v-model="placeEdit.stayTime"
                                 :clearable="false"
                                 value-format="HH:mm"
                                 format="HH:mm"
-                                style="width: 100%;">
+                                style="width: 100%;"
+                                v-on:change="changeStayTime">
                               </el-time-picker>
                         </div>
                       </div>
@@ -486,12 +490,12 @@
                         </div>
                       </div>
                       <hr>
-                      <div class="row">
+                      <div class="row mb-2">
                         <div class="col-6" style="height: 340px;;">
                           <div style="border-radius: 5px; height: calc(100% - 40px); overflow: hidden;">
-                            <div class="demo-image__preview h-100" v-if="placeEdit.placeImages.length !== 0">
+                            <div class="demo-image__preview" v-if="placeEdit.placeImages.length !== 0">
                               <el-image 
-                                style="width: 100%; height: 100%"
+                                style="width: 100%;"
                                 :src="placeEdit.defaultImage" 
                                 :preview-src-list="placeEdit.placeImages">
                               </el-image>
@@ -502,14 +506,16 @@
                               <span class="mt-2">尚無任何圖片</span>
                             </div>
                           </div>
-                          <input type="file" ref="fileImage" v-on:change="GetImg" class="d-none" multiple>
+                          <input type="file" ref="fileImage" v-on:change="getImg" class="d-none" multiple>
                           <b-button style="height: 40px; width: 100%; margin-top: 5px;" v-on:click="uploadImg">
                             <i class="fas fa-cloud-upload-alt me-1"></i>
                             上傳圖片
                           </b-button>
                         </div>
                         <div class="col-6">
-                          <p style="margin-bottom: 10px; font-size: 18px; font-weight: bold;">上傳圖片清單 (最多 10 張)</p>
+                          <p style="margin-bottom: 10px; font-size: 18px; font-weight: bold;">
+                            上傳圖片清單 ( {{ placeEdit.placeImages.length }} / 10 )
+                          </p>
                           <ul style="width: 100%;" class="image-list">
                             <li class="d-flex align-items-center" style="cursor: pointer;" v-for="item in placeEdit.placeImagesDetails" :title="item.image" v-on:click="placeEdit.defaultImage = item.image">
                               <i class="fas fa-image" style="margin-right: 10px;"></i>
@@ -546,6 +552,7 @@
                           <div>
                             <b-table :items="sessionInfo.session" :fields="sessionInfo.sessionField" >
                               <template #cell(actions)="row">
+                                <!-- 場次與票券資訊 編輯 -->
                                 <b-button size="sm" class="mr-2" v-b-modal.modal-session-info v-on:click="editSessionItem(row.item)">
                                   <i class="fas fa-pencil-alt" ></i>
                                   編輯
@@ -656,7 +663,7 @@
                         <b-button size="sm" style="background: #fff; color: #666; padding: 5px 15px; border: 1px solid #ccc;" v-on:click="hideSessionInfo()">
                           取消
                         </b-button>
-                        <b-button size="sm" v-on:click="updateSession(sessionItem)" style="background: #409eff; color: #fff; border: none; padding: 5px 15px;" :disabled="!sessionIsVerify">
+                        <b-button size="sm" v-on:click="updateSession()" style="background: #409eff; color: #fff; border: none; padding: 5px 15px;" :disabled="!sessionIsVerify">
                           確認
                         </b-button>
                       </template>
@@ -684,7 +691,7 @@
                         <b-button size="sm" style="background: #fff; color: #666; padding: 5px 15px; border: 1px solid #ccc;" v-on:click="hideTicketInfo()">
                           取消
                         </b-button>
-                        <b-button size="sm" v-on:click="updateTicket(ticketItem)" style="background: #409eff; color: #fff; border: none; padding: 5px 15px;" :disabled="!ticketIsVerify">
+                        <b-button size="sm" v-on:click="updateTicket()" style="background: #409eff; color: #fff; border: none; padding: 5px 15px;" :disabled="!ticketIsVerify">
                           確認
                         </b-button>
                       </template>
@@ -860,13 +867,13 @@
           imageFolder: 'testAAA',
           placeImages: [],
           placeImagesDetails: [
-            { tripImageDetailsId: 1, image: 'https://picsum.photos/200/300/?random=1' },
-            { tripImageDetailsId: 2, image: 'https://picsum.photos/200/300/?random=2' },
-            { tripImageDetailsId: 3, image: 'https://picsum.photos/200/300/?random=3' },
-            { tripImageDetailsId: 4, image: 'https://picsum.photos/200/300/?random=4' },
-            { tripImageDetailsId: 5, image: 'https://picsum.photos/200/300/?random=5' },
-            { tripImageDetailsId: 6, image: 'https://picsum.photos/200/300/?random=6' },
-            { tripImageDetailsId: 7, image: 'https://picsum.photos/200/300/?random=7' },
+            { tripImageDetailsId: 1, image: 'https://picsum.photos/500/600/?random=1' },
+            { tripImageDetailsId: 2, image: 'https://picsum.photos/500/600/?random=2' },
+            { tripImageDetailsId: 3, image: 'https://picsum.photos/500/600/?random=3' },
+            { tripImageDetailsId: 4, image: 'https://picsum.photos/500/600/?random=4' },
+            { tripImageDetailsId: 5, image: 'https://picsum.photos/500/600/?random=5' },
+            { tripImageDetailsId: 6, image: 'https://picsum.photos/500/600/?random=6' },
+            { tripImageDetailsId: 7, image: 'https://picsum.photos/500/600/?random=7' },
           ]
         },
         ckEditor: {
@@ -1040,6 +1047,10 @@
             })
           })
         },
+        changeStayTime(){
+          console.log(this.placeEdit.stayTime);
+          // api - 更新景點停留時間
+        },
         getInfo(){
           this.placeEdit.mapInfo.placesService = new google.maps.places.PlacesService(this.placeEdit.mapInfo.map);
           console.dir(this.placeEdit.mapInfo.placesService); // 看出PlacesService可用的方法
@@ -1077,6 +1088,7 @@
           if(this.ckEditor.editorDataIntro !== this.ckEditor.editorDataIntroOrgin){
             // api - 更新行程介紹
             console.log('updateIntro', this.ckEditor.editorDataIntro);
+            this.notification('更新成功', 'success')
           }
         },
         updatePlaceIntro(){
@@ -1112,7 +1124,7 @@
         },
         editSessionItem(item){
           // 紀錄初始值
-          this.sessionItem = item;
+          this.sessionItem = {...item};
           this.originSessionItem = {...item}
         },
         hideTicket(){
@@ -1127,7 +1139,7 @@
         },
         editTicketItem(item){
           // 紀錄初始值
-          this.ticketItem = item;
+          this.ticketItem = {...item};
           this.originTicketItem = {...item}
         },
         hideSessionInfo(){
@@ -1138,19 +1150,45 @@
           // ticket cancel
           this.$refs['ticket-info'].hide();
         },
-        updateSession(item){
-          if (this.originSessionItem.Time == item.Time && this.originSessionItem.Title == item.Title){}
+        updateSession(){
+          if (this.originSessionItem.Time == this.sessionItem.Time && this.originSessionItem.Title == this.sessionItem.Title){}
           else{
             // api - 新增/更新Ticket
             console.log('change', this.sessionItem);
+            this.sessionInfo.session.forEach(session => {
+              if (session.SessionId == this.sessionItem.SessionId){
+                session.Title = this.sessionItem.Title
+                session.Time = this.sessionItem.Time
+              }
+            })
           }
           this.$refs['session-info'].hide();
         },
-        updateTicket(item){
-          if (this.originTicketItem.Price == item.Price && this.originTicketItem.Title == item.Title && this.originTicketItem.MaxNumber == item.MaxNumber){}
+        updateTicket(){
+          if (this.originTicketItem.Price == this.ticketItem.Price && this.originTicketItem.Title == this.ticketItem.Title && this.originTicketItem.MaxNumber == this.ticketItem.MaxNumber){}
           else{
             // api - 新增/更新Ticket
             console.log('change', this.ticketItem);
+            if (item.Type == 0){
+              // 加選項目
+              this.additionalTicketInfo.additionalTicket.forEach(ticket => {
+                if (ticket.ProductDetailsId == this.ticketItem.ProductDetailsId){
+                  ticket.Title = this.ticketItem.Title
+                  ticket.Price = this.ticketItem.Price
+                  ticket.MaxNumber = this.ticketItem.MaxNumber
+                }
+              })
+            }
+            else if(item.Type == 1){
+              // 一般
+              this.normalTicketInfo.normalTicket.forEach(ticket => {
+                if (ticket.ProductDetailsId == this.ticketItem.ProductDetailsId){
+                  ticket.Title = this.ticketItem.Title
+                  ticket.Price = this.ticketItem.Price
+                  ticket.MaxNumber = this.ticketItem.MaxNumber
+                }
+              })
+            }
           }
           this.$refs['ticket-info'].hide();
         },
@@ -1204,27 +1242,63 @@
         deleteImage(item){
           // api - 移除圖片
           console.log('deleteImage', item);
+          this.placeEdit.placeImagesDetails = this.placeEdit.placeImagesDetails.filter(x => x.tripImageDetailsId != item.tripImageDetailsId)
+          console.log(this.placeEdit.placeImagesDetails);
+          this.refreshPlaceImage()
         },
-        GetImg(e){
+        getImg(e){
           console.log(e.target.files);
-          
-          this.fileReader.readAsDataURL(e.target.files[0])
+          let convertFiles = Array.from(e.target.files)
+          // 判斷總共是否有超過10張
+          if (this.placeEdit.placeImagesDetails.length + convertFiles.length > 10)
+          {
+            this.notification('上傳圖片超過10張', 'error')
+          }
+          convertFiles.forEach(file => {
+            console.log(file);
+            let reader = new FileReader();
+            reader.readAsDataURL(file)
+            reader.onload = () => {
+              this.sendImage(reader.result)
+            }
+          })
+          // this.fileReader.readAsDataURL(e.target.files[0])
         },
         uploadImg(){
           console.log('uploadImage');
           this.$refs.fileImage.click()
         },
-        sendImage(){
+        sendImage(result){
           let request = {
-            Image: this.fileReader.result,
-            Folder: this.placeEdit.folder
+            Image: result,
+            // this.fileReader.result,
+            Folder: this.placeEdit.imageFolder
           }
+          console.log(request);
+          
           console.log('done');
           // api - 上傳圖片
           // axios.post(this.urls.url_uploadImage, request).then(res => {
           //   console.log(res);
           // })
         },
+        notification(message, type) {
+          const Toast = Swal.mixin({
+              toast: true,
+              position: 'top',
+              showConfirmButton: false,
+              timer: 2500,
+              // timerProgressBar: true,
+              didOpen: (toast) => {
+                  toast.addEventListener('mouseenter', Swal.stopTimer)
+                  toast.addEventListener('mouseleave', Swal.resumeTimer)
+              }
+          })
+          Toast.fire({
+              icon: type,
+              title: message
+          })
+      },
       },
       watch:{
         'sessionItem.Title': {
