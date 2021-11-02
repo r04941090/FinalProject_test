@@ -1,0 +1,27 @@
+.breadcrumb {
+  background: none;
+}
+.breadcrumb-item a{
+  text-decoration: none;
+}
+.tab-content{
+  border: 1px solid #dee2e6;
+  border-top: none;
+}
+.card-header{
+  padding: 0 0.5em 0.5em 0.5em;
+  background-color: none;
+
+}
+.tab-pane{
+  background-color: #fff;
+}
+.off-shelf-btn:focus{
+  box-shadow: 0 0 0 0.2rem rgb(249 154 0 / 50%) !important;
+}
+.card-header-tabs .nav-link{
+  color: #666 !important;
+}
+.card-header-tabs .nav-link.active{
+  color: #0d6efd !important;
+}

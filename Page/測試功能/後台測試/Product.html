@@ -26,6 +26,8 @@
   <!-- Load the following for BootstrapVueIcons support -->
   <script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue-icons.min.js"></script>
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.3/css/all.css" integrity="sha384-SZXxX4whJ79/gErwcOYf+zWLeJdY/qpuqC4cAa9rOGUstPomtqpuNWT9wdPEn2fk" crossorigin="anonymous">
+  <!-- axios -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
   <style>
     .breadcrumb {
       background: none;
@@ -406,13 +408,13 @@
                       <template #cell(UnitPrice)="row">
                         NT$ {{ row.value.toLocaleString() }}
                       </template>
-                      <template #cell(CoverImage)="row">
+                      <template #cell(Image)="row">
                         <img :src="row.value" alt="" style="width: 50px; height: 50px;">
                       </template>
                       <template #cell(actions)="row">
-                        <b-button size="sm" class="mr-2">
+                        <!-- <b-button size="sm" class="mr-2">
                           商品明細
-                        </b-button>
+                        </b-button> -->
                         <b-button class="off-shelf-btn" size="sm" v-on:click="showOffShelf(row.item)" v-b-modal.modal-center-down style="background-color: #f99a00; border: none;">
                           商品下架
                         </b-button> 
@@ -452,11 +454,11 @@
                     <strong><b-icon-cloud-download class="mr-2"></b-icon-cloud-download>已下架商品</strong>
                   </template>
                   <b-card-text>
-                    <b-table :items="offTableItems" :fields="offFields" :current-page="currentPage" :per-page="perPage" stacked="md" show-empty small empty-html='<div class="d-flex justify-content-center flex-column align-items-center" style="height: 300px"><img src="https://res.cloudinary.com/ditncduk1/image/upload/v1634886133/Blogger/evzfcaqrzw2bgpwshlij.png" style="height: 100px; width="100px" alt="" /><span style="margin-top: 10px">尚無任何下架商品</span></div>'>
+                    <b-table :items="offTableItems" :fields="offFields" :current-page="currentPage" :per-page="perPage" stacked="md" empty-html='<div class="d-flex justify-content-center flex-column align-items-center" style="height: 300px"><img src="https://res.cloudinary.com/ditncduk1/image/upload/v1634886133/Blogger/evzfcaqrzw2bgpwshlij.png" style="height: 100px; width="100px" alt="" /><span style="margin-top: 10px">尚無任何下架商品</span></div>'>
                       <template #cell(UnitPrice)="row">
                         NT$ {{ row.value.toLocaleString() }}
                       </template>
-                      <template #cell(CoverImage)="row">
+                      <template #cell(Image)="row">
                         <img :src="row.value" alt="" style="width: 50px; height: 50px;">
                       </template>
                       <template #cell(actions)="row">
@@ -547,416 +549,420 @@
 
     </div>
   </div>
-  <script>
+  <script type="module">
+    import { req } from "../後台測試/js/api.js";
     let app = new Vue({
       el: '#product',
       data: {
+        urls: {
+          url_getProductList: 'http://localhost:5000/api/productapi/GetProductList'
+        },
         selectItem: {},
         empty: '<div class="d-flex"><img src="https://res.cloudinary.com/ditncduk1/image/upload/v1634886133/Blogger/evzfcaqrzw2bgpwshlij.png" alt="" /></div>',
         offTableItems: [
-          { 
-            CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1634543705/User/v1ybhqdxwvvaky41pil2.png", 
-            TripId: 1,
-            Title: 'A',
-            Number: 1, 
-            Type: '海',
-            UnitPrice: 1000,
-            OffDate: '2021-10-11',
-          },
-          { 
-            CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765878/User/ps8ou4xqesp6keeqyjaa.jpg", 
-            TripId: 2,
-            Title: 'B', 
-            Number: 2, 
-            Type: '海',
-            UnitPrice: 50,
-            OffDate: '2021-10-10',
-          },
-          { 
-            CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1634543705/User/v1ybhqdxwvvaky41pil2.png", 
-            TripId: 1,
-            Title: 'A',
-            Number: 1, 
-            Type: '海',
-            UnitPrice: 1000,
-            OffDate: '2021-10-11',
-          },
-          { 
-            CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765878/User/ps8ou4xqesp6keeqyjaa.jpg", 
-            TripId: 2,
-            Title: 'B', 
-            Number: 2, 
-            Type: '海',
-            UnitPrice: 50,
-            OffDate: '2021-10-10',
-          },
-          { 
-            CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1634543705/User/v1ybhqdxwvvaky41pil2.png", 
-            TripId: 1,
-            Title: 'A',
-            Number: 1, 
-            Type: '海',
-            UnitPrice: 1000,
-            OffDate: '2021-10-11',
-          },
-          { 
-            CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765878/User/ps8ou4xqesp6keeqyjaa.jpg", 
-            TripId: 2,
-            Title: 'B', 
-            Number: 2, 
-            Type: '海',
-            UnitPrice: 50,
-            OffDate: '2021-10-10',
-          },
-          { 
-            CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1634543705/User/v1ybhqdxwvvaky41pil2.png", 
-            TripId: 1,
-            Title: 'A',
-            Number: 1, 
-            Type: '海',
-            UnitPrice: 100,
-            OffDate: '2021-10-11',
-          },
-          { 
-            CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765878/User/ps8ou4xqesp6keeqyjaa.jpg", 
-            TripId: 2,
-            Title: 'B', 
-            Number: 2, 
-            Type: '海',
-            UnitPrice: 500,
-            OffDate: '2021-10-10',
-          },
-          { 
-            CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1634543705/User/v1ybhqdxwvvaky41pil2.png", 
-            TripId: 1,
-            Title: 'A',
-            Number: 1, 
-            Type: '海',
-            UnitPrice: 1000,
-            OffDate: '2021-10-11',
-          },
-          { 
-            CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765878/User/ps8ou4xqesp6keeqyjaa.jpg", 
-            TripId: 2,
-            Title: 'B', 
-            Number: 2, 
-            Type: '海',
-            UnitPrice: 50,
-            OffDate: '2021-10-10',
-          },
-          { 
-            CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1634543705/User/v1ybhqdxwvvaky41pil2.png", 
-            TripId: 1,
-            Title: 'A',
-            Number: 1, 
-            Type: '海',
-            UnitPrice: 1000,
-            OffDate: '2021-10-11',
-          },
-          { 
-            CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765878/User/ps8ou4xqesp6keeqyjaa.jpg", 
-            TripId: 2,
-            Title: 'B', 
-            Number: 2, 
-            Type: '海',
-            UnitPrice: 50,
-            OffDate: '2021-10-10',
-          },
-          { 
-            CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1634543705/User/v1ybhqdxwvvaky41pil2.png", 
-            TripId: 1,
-            Title: 'A',
-            Number: 1, 
-            Type: '海',
-            UnitPrice: 1000,
-            OffDate: '2021-10-11',
-          },
-          { 
-            CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765878/User/ps8ou4xqesp6keeqyjaa.jpg", 
-            TripId: 2,
-            Title: 'B', 
-            Number: 2, 
-            Type: '海',
-            UnitPrice: 50,
-            OffDate: '2021-10-10',
-          }
+          // { 
+          //   CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1634543705/User/v1ybhqdxwvvaky41pil2.png", 
+          //   TripId: 1,
+          //   Title: 'A',
+          //   Number: 1, 
+          //   Type: '海',
+          //   UnitPrice: 1000,
+          //   OffDate: '2021-10-11',
+          // },
+          // { 
+          //   CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765878/User/ps8ou4xqesp6keeqyjaa.jpg", 
+          //   TripId: 2,
+          //   Title: 'B', 
+          //   Number: 2, 
+          //   Type: '海',
+          //   UnitPrice: 50,
+          //   OffDate: '2021-10-10',
+          // },
+          // { 
+          //   CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1634543705/User/v1ybhqdxwvvaky41pil2.png", 
+          //   TripId: 1,
+          //   Title: 'A',
+          //   Number: 1, 
+          //   Type: '海',
+          //   UnitPrice: 1000,
+          //   OffDate: '2021-10-11',
+          // },
+          // { 
+          //   CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765878/User/ps8ou4xqesp6keeqyjaa.jpg", 
+          //   TripId: 2,
+          //   Title: 'B', 
+          //   Number: 2, 
+          //   Type: '海',
+          //   UnitPrice: 50,
+          //   OffDate: '2021-10-10',
+          // },
+          // { 
+          //   CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1634543705/User/v1ybhqdxwvvaky41pil2.png", 
+          //   TripId: 1,
+          //   Title: 'A',
+          //   Number: 1, 
+          //   Type: '海',
+          //   UnitPrice: 1000,
+          //   OffDate: '2021-10-11',
+          // },
+          // { 
+          //   CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765878/User/ps8ou4xqesp6keeqyjaa.jpg", 
+          //   TripId: 2,
+          //   Title: 'B', 
+          //   Number: 2, 
+          //   Type: '海',
+          //   UnitPrice: 50,
+          //   OffDate: '2021-10-10',
+          // },
+          // { 
+          //   CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1634543705/User/v1ybhqdxwvvaky41pil2.png", 
+          //   TripId: 1,
+          //   Title: 'A',
+          //   Number: 1, 
+          //   Type: '海',
+          //   UnitPrice: 100,
+          //   OffDate: '2021-10-11',
+          // },
+          // { 
+          //   CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765878/User/ps8ou4xqesp6keeqyjaa.jpg", 
+          //   TripId: 2,
+          //   Title: 'B', 
+          //   Number: 2, 
+          //   Type: '海',
+          //   UnitPrice: 500,
+          //   OffDate: '2021-10-10',
+          // },
+          // { 
+          //   CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1634543705/User/v1ybhqdxwvvaky41pil2.png", 
+          //   TripId: 1,
+          //   Title: 'A',
+          //   Number: 1, 
+          //   Type: '海',
+          //   UnitPrice: 1000,
+          //   OffDate: '2021-10-11',
+          // },
+          // { 
+          //   CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765878/User/ps8ou4xqesp6keeqyjaa.jpg", 
+          //   TripId: 2,
+          //   Title: 'B', 
+          //   Number: 2, 
+          //   Type: '海',
+          //   UnitPrice: 50,
+          //   OffDate: '2021-10-10',
+          // },
+          // { 
+          //   CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1634543705/User/v1ybhqdxwvvaky41pil2.png", 
+          //   TripId: 1,
+          //   Title: 'A',
+          //   Number: 1, 
+          //   Type: '海',
+          //   UnitPrice: 1000,
+          //   OffDate: '2021-10-11',
+          // },
+          // { 
+          //   CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765878/User/ps8ou4xqesp6keeqyjaa.jpg", 
+          //   TripId: 2,
+          //   Title: 'B', 
+          //   Number: 2, 
+          //   Type: '海',
+          //   UnitPrice: 50,
+          //   OffDate: '2021-10-10',
+          // },
+          // { 
+          //   CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1634543705/User/v1ybhqdxwvvaky41pil2.png", 
+          //   TripId: 1,
+          //   Title: 'A',
+          //   Number: 1, 
+          //   Type: '海',
+          //   UnitPrice: 1000,
+          //   OffDate: '2021-10-11',
+          // },
+          // { 
+          //   CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765878/User/ps8ou4xqesp6keeqyjaa.jpg", 
+          //   TripId: 2,
+          //   Title: 'B', 
+          //   Number: 2, 
+          //   Type: '海',
+          //   UnitPrice: 50,
+          //   OffDate: '2021-10-10',
+          // }
         ],
         tableItems: [
-          { 
-            CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1634543705/User/v1ybhqdxwvvaky41pil2.png", 
-            TripId: 1,
-            Title: 'A',
-            Number: 1, 
-            Type: '海',
-            UnitPrice: 1000,
-            PostDate: '2021-10-10',
-          },
-          { 
-            CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765878/User/ps8ou4xqesp6keeqyjaa.jpg", 
-            TripId: 2,
-            Title: 'B', 
-            Number: 2, 
-            Type: '海',
-            UnitPrice: 50,
-            PostDate: '2021-10-09',
-          },
-          { 
-            CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765878/User/qodddv0obpwj778c9dyg.jpg", 
-            TripId: 3,
-            Title: 'C', 
-            Number: 3, 
-            Type: '海',
-            UnitPrice: 80,
-            PostDate: '2021-10-08'
-          },
-          { 
-            CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765878/User/yjro82g51zzjlw2nwzcz.jpg", 
-            TripId: 4,
-            Title: 'D', 
-            Number: 4, 
-            Type: '海',
-            UnitPrice: 60,
-            PostDate: '2021-10-07',
-          },
-          { 
-            CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765878/User/ueeplpeutbfznjcfjcgq.jpg", 
-            TripId: 5,
-            Title: 'E', 
-            Number: 5, 
-            Type: '海',
-            UnitPrice: 20,
-            PostDate: '2021-10-12',
-          },
-          { 
-            CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765873/User/e2qmuwkxojwgkrxcvakp.jpg", 
-            TripId: 6,
-            Title: 'F', 
-            Number: 6, 
-            Type: '海',
-            UnitPrice: 500,
-            PostDate: '2021-10-06',
-          },
-          { 
-            CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1634543705/User/v1ybhqdxwvvaky41pil2.png", 
-            TripId: 1,
-            Title: 'A',
-            Number: 1, 
-            Type: '海',
-            UnitPrice: 1000,
-            PostDate: '2021-10-10',
-          },
-          { 
-            CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765878/User/ps8ou4xqesp6keeqyjaa.jpg", 
-            TripId: 2,
-            Title: 'B', 
-            Number: 2, 
-            Type: '海',
-            UnitPrice: 50,
-            PostDate: '2021-10-09',
-          },
-          { 
-            CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765878/User/qodddv0obpwj778c9dyg.jpg", 
-            TripId: 3,
-            Title: 'C', 
-            Number: 3, 
-            Type: '海',
-            UnitPrice: 80,
-            PostDate: '2021-10-08'
-          },
-          { 
-            CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765878/User/yjro82g51zzjlw2nwzcz.jpg", 
-            TripId: 4,
-            Title: 'D', 
-            Number: 4, 
-            Type: '海',
-            UnitPrice: 60,
-            PostDate: '2021-10-07',
-          },
-          { 
-            CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765878/User/ueeplpeutbfznjcfjcgq.jpg", 
-            TripId: 5,
-            Title: 'E', 
-            Number: 5, 
-            Type: '海',
-            UnitPrice: 20,
-            PostDate: '2021-10-12',
-          },
-          { 
-            CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765873/User/e2qmuwkxojwgkrxcvakp.jpg", 
-            TripId: 6,
-            Title: 'F', 
-            Number: 6, 
-            Type: '海',
-            UnitPrice: 500,
-            PostDate: '2021-10-06',
-          },
-          { 
-            CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1634543705/User/v1ybhqdxwvvaky41pil2.png", 
-            TripId: 1,
-            Title: 'A',
-            Number: 1, 
-            Type: '海',
-            UnitPrice: 1000,
-            PostDate: '2021-10-10',
-          },
-          { 
-            CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765878/User/ps8ou4xqesp6keeqyjaa.jpg", 
-            TripId: 2,
-            Title: 'B', 
-            Number: 2, 
-            Type: '海',
-            UnitPrice: 50,
-            PostDate: '2021-10-09',
-          },
-          { 
-            CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765878/User/qodddv0obpwj778c9dyg.jpg", 
-            TripId: 3,
-            Title: 'C', 
-            Number: 3, 
-            Type: '海',
-            UnitPrice: 80,
-            PostDate: '2021-10-08'
-          },
-          { 
-            CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765878/User/yjro82g51zzjlw2nwzcz.jpg", 
-            TripId: 4,
-            Title: 'D', 
-            Number: 4, 
-            Type: '海',
-            UnitPrice: 60,
-            PostDate: '2021-10-07',
-          },
-          { 
-            CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765878/User/ueeplpeutbfznjcfjcgq.jpg", 
-            TripId: 5,
-            Title: 'E', 
-            Number: 5, 
-            Type: '海',
-            UnitPrice: 20,
-            PostDate: '2021-10-12',
-          },
-          { 
-            CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765873/User/e2qmuwkxojwgkrxcvakp.jpg", 
-            TripId: 6,
-            Title: 'F', 
-            Number: 6, 
-            Type: '海',
-            UnitPrice: 500,
-            PostDate: '2021-10-06',
-          },
-          { 
-            CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1634543705/User/v1ybhqdxwvvaky41pil2.png", 
-            TripId: 1,
-            Title: 'A',
-            Number: 1, 
-            Type: '海',
-            UnitPrice: 1000,
-            PostDate: '2021-10-10',
-          },
-          { 
-            CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765878/User/ps8ou4xqesp6keeqyjaa.jpg", 
-            TripId: 2,
-            Title: 'B', 
-            Number: 2, 
-            Type: '海',
-            UnitPrice: 50,
-            PostDate: '2021-10-09',
-          },
-          { 
-            CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765878/User/qodddv0obpwj778c9dyg.jpg", 
-            TripId: 3,
-            Title: 'C', 
-            Number: 3, 
-            Type: '海',
-            UnitPrice: 80,
-            PostDate: '2021-10-08'
-          },
-          { 
-            CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765878/User/yjro82g51zzjlw2nwzcz.jpg", 
-            TripId: 4,
-            Title: 'D', 
-            Number: 4, 
-            Type: '海',
-            UnitPrice: 60,
-            PostDate: '2021-10-07',
-          },
-          { 
-            CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765878/User/ueeplpeutbfznjcfjcgq.jpg", 
-            TripId: 5,
-            Title: 'E', 
-            Number: 5, 
-            Type: '海',
-            UnitPrice: 20,
-            PostDate: '2021-10-12',
-          },
-          { 
-            CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765873/User/e2qmuwkxojwgkrxcvakp.jpg", 
-            TripId: 6,
-            Title: 'F', 
-            Number: 6, 
-            Type: '海',
-            UnitPrice: 500,
-            PostDate: '2021-10-06',
-          },
-          { 
-            CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1634543705/User/v1ybhqdxwvvaky41pil2.png", 
-            TripId: 1,
-            Title: 'A',
-            Number: 1, 
-            Type: '海',
-            UnitPrice: 1000,
-            PostDate: '2021-10-10',
-          },
-          { 
-            CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765878/User/ps8ou4xqesp6keeqyjaa.jpg", 
-            TripId: 2,
-            Title: 'B', 
-            Number: 2, 
-            Type: '海',
-            UnitPrice: 50,
-            PostDate: '2021-10-09',
-          },
-          { 
-            CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765878/User/qodddv0obpwj778c9dyg.jpg", 
-            TripId: 3,
-            Title: 'C', 
-            Number: 3, 
-            Type: '海',
-            UnitPrice: 80,
-            PostDate: '2021-10-08'
-          },
-          { 
-            CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765878/User/yjro82g51zzjlw2nwzcz.jpg", 
-            TripId: 4,
-            Title: 'D', 
-            Number: 4, 
-            Type: '海',
-            UnitPrice: 60,
-            PostDate: '2021-10-07',
-          },
-          { 
-            CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765878/User/ueeplpeutbfznjcfjcgq.jpg", 
-            TripId: 5,
-            Title: 'E', 
-            Number: 5, 
-            Type: '海',
-            UnitPrice: 20,
-            PostDate: '2021-10-12',
-          },
-          { 
-            CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765873/User/e2qmuwkxojwgkrxcvakp.jpg", 
-            TripId: 6,
-            Title: 'F', 
-            Number: 6, 
-            Type: '海',
-            UnitPrice: 500,
-            PostDate: '2021-10-06',
-          },
+          // { 
+          //   CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1634543705/User/v1ybhqdxwvvaky41pil2.png", 
+          //   TripId: 1,
+          //   Title: 'A',
+          //   Number: 1, 
+          //   Type: '海',
+          //   UnitPrice: 1000,
+          //   PostDate: '2021-10-10',
+          // },
+          // { 
+          //   CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765878/User/ps8ou4xqesp6keeqyjaa.jpg", 
+          //   TripId: 2,
+          //   Title: 'B', 
+          //   Number: 2, 
+          //   Type: '海',
+          //   UnitPrice: 50,
+          //   PostDate: '2021-10-09',
+          // },
+          // { 
+          //   CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765878/User/qodddv0obpwj778c9dyg.jpg", 
+          //   TripId: 3,
+          //   Title: 'C', 
+          //   Number: 3, 
+          //   Type: '海',
+          //   UnitPrice: 80,
+          //   PostDate: '2021-10-08'
+          // },
+          // { 
+          //   CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765878/User/yjro82g51zzjlw2nwzcz.jpg", 
+          //   TripId: 4,
+          //   Title: 'D', 
+          //   Number: 4, 
+          //   Type: '海',
+          //   UnitPrice: 60,
+          //   PostDate: '2021-10-07',
+          // },
+          // { 
+          //   CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765878/User/ueeplpeutbfznjcfjcgq.jpg", 
+          //   TripId: 5,
+          //   Title: 'E', 
+          //   Number: 5, 
+          //   Type: '海',
+          //   UnitPrice: 20,
+          //   PostDate: '2021-10-12',
+          // },
+          // { 
+          //   CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765873/User/e2qmuwkxojwgkrxcvakp.jpg", 
+          //   TripId: 6,
+          //   Title: 'F', 
+          //   Number: 6, 
+          //   Type: '海',
+          //   UnitPrice: 500,
+          //   PostDate: '2021-10-06',
+          // },
+          // { 
+          //   CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1634543705/User/v1ybhqdxwvvaky41pil2.png", 
+          //   TripId: 1,
+          //   Title: 'A',
+          //   Number: 1, 
+          //   Type: '海',
+          //   UnitPrice: 1000,
+          //   PostDate: '2021-10-10',
+          // },
+          // { 
+          //   CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765878/User/ps8ou4xqesp6keeqyjaa.jpg", 
+          //   TripId: 2,
+          //   Title: 'B', 
+          //   Number: 2, 
+          //   Type: '海',
+          //   UnitPrice: 50,
+          //   PostDate: '2021-10-09',
+          // },
+          // { 
+          //   CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765878/User/qodddv0obpwj778c9dyg.jpg", 
+          //   TripId: 3,
+          //   Title: 'C', 
+          //   Number: 3, 
+          //   Type: '海',
+          //   UnitPrice: 80,
+          //   PostDate: '2021-10-08'
+          // },
+          // { 
+          //   CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765878/User/yjro82g51zzjlw2nwzcz.jpg", 
+          //   TripId: 4,
+          //   Title: 'D', 
+          //   Number: 4, 
+          //   Type: '海',
+          //   UnitPrice: 60,
+          //   PostDate: '2021-10-07',
+          // },
+          // { 
+          //   CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765878/User/ueeplpeutbfznjcfjcgq.jpg", 
+          //   TripId: 5,
+          //   Title: 'E', 
+          //   Number: 5, 
+          //   Type: '海',
+          //   UnitPrice: 20,
+          //   PostDate: '2021-10-12',
+          // },
+          // { 
+          //   CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765873/User/e2qmuwkxojwgkrxcvakp.jpg", 
+          //   TripId: 6,
+          //   Title: 'F', 
+          //   Number: 6, 
+          //   Type: '海',
+          //   UnitPrice: 500,
+          //   PostDate: '2021-10-06',
+          // },
+          // { 
+          //   CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1634543705/User/v1ybhqdxwvvaky41pil2.png", 
+          //   TripId: 1,
+          //   Title: 'A',
+          //   Number: 1, 
+          //   Type: '海',
+          //   UnitPrice: 1000,
+          //   PostDate: '2021-10-10',
+          // },
+          // { 
+          //   CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765878/User/ps8ou4xqesp6keeqyjaa.jpg", 
+          //   TripId: 2,
+          //   Title: 'B', 
+          //   Number: 2, 
+          //   Type: '海',
+          //   UnitPrice: 50,
+          //   PostDate: '2021-10-09',
+          // },
+          // { 
+          //   CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765878/User/qodddv0obpwj778c9dyg.jpg", 
+          //   TripId: 3,
+          //   Title: 'C', 
+          //   Number: 3, 
+          //   Type: '海',
+          //   UnitPrice: 80,
+          //   PostDate: '2021-10-08'
+          // },
+          // { 
+          //   CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765878/User/yjro82g51zzjlw2nwzcz.jpg", 
+          //   TripId: 4,
+          //   Title: 'D', 
+          //   Number: 4, 
+          //   Type: '海',
+          //   UnitPrice: 60,
+          //   PostDate: '2021-10-07',
+          // },
+          // { 
+          //   CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765878/User/ueeplpeutbfznjcfjcgq.jpg", 
+          //   TripId: 5,
+          //   Title: 'E', 
+          //   Number: 5, 
+          //   Type: '海',
+          //   UnitPrice: 20,
+          //   PostDate: '2021-10-12',
+          // },
+          // { 
+          //   CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765873/User/e2qmuwkxojwgkrxcvakp.jpg", 
+          //   TripId: 6,
+          //   Title: 'F', 
+          //   Number: 6, 
+          //   Type: '海',
+          //   UnitPrice: 500,
+          //   PostDate: '2021-10-06',
+          // },
+          // { 
+          //   CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1634543705/User/v1ybhqdxwvvaky41pil2.png", 
+          //   TripId: 1,
+          //   Title: 'A',
+          //   Number: 1, 
+          //   Type: '海',
+          //   UnitPrice: 1000,
+          //   PostDate: '2021-10-10',
+          // },
+          // { 
+          //   CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765878/User/ps8ou4xqesp6keeqyjaa.jpg", 
+          //   TripId: 2,
+          //   Title: 'B', 
+          //   Number: 2, 
+          //   Type: '海',
+          //   UnitPrice: 50,
+          //   PostDate: '2021-10-09',
+          // },
+          // { 
+          //   CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765878/User/qodddv0obpwj778c9dyg.jpg", 
+          //   TripId: 3,
+          //   Title: 'C', 
+          //   Number: 3, 
+          //   Type: '海',
+          //   UnitPrice: 80,
+          //   PostDate: '2021-10-08'
+          // },
+          // { 
+          //   CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765878/User/yjro82g51zzjlw2nwzcz.jpg", 
+          //   TripId: 4,
+          //   Title: 'D', 
+          //   Number: 4, 
+          //   Type: '海',
+          //   UnitPrice: 60,
+          //   PostDate: '2021-10-07',
+          // },
+          // { 
+          //   CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765878/User/ueeplpeutbfznjcfjcgq.jpg", 
+          //   TripId: 5,
+          //   Title: 'E', 
+          //   Number: 5, 
+          //   Type: '海',
+          //   UnitPrice: 20,
+          //   PostDate: '2021-10-12',
+          // },
+          // { 
+          //   CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765873/User/e2qmuwkxojwgkrxcvakp.jpg", 
+          //   TripId: 6,
+          //   Title: 'F', 
+          //   Number: 6, 
+          //   Type: '海',
+          //   UnitPrice: 500,
+          //   PostDate: '2021-10-06',
+          // },
+          // { 
+          //   CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1634543705/User/v1ybhqdxwvvaky41pil2.png", 
+          //   TripId: 1,
+          //   Title: 'A',
+          //   Number: 1, 
+          //   Type: '海',
+          //   UnitPrice: 1000,
+          //   PostDate: '2021-10-10',
+          // },
+          // { 
+          //   CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765878/User/ps8ou4xqesp6keeqyjaa.jpg", 
+          //   TripId: 2,
+          //   Title: 'B', 
+          //   Number: 2, 
+          //   Type: '海',
+          //   UnitPrice: 50,
+          //   PostDate: '2021-10-09',
+          // },
+          // { 
+          //   CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765878/User/qodddv0obpwj778c9dyg.jpg", 
+          //   TripId: 3,
+          //   Title: 'C', 
+          //   Number: 3, 
+          //   Type: '海',
+          //   UnitPrice: 80,
+          //   PostDate: '2021-10-08'
+          // },
+          // { 
+          //   CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765878/User/yjro82g51zzjlw2nwzcz.jpg", 
+          //   TripId: 4,
+          //   Title: 'D', 
+          //   Number: 4, 
+          //   Type: '海',
+          //   UnitPrice: 60,
+          //   PostDate: '2021-10-07',
+          // },
+          // { 
+          //   CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765878/User/ueeplpeutbfznjcfjcgq.jpg", 
+          //   TripId: 5,
+          //   Title: 'E', 
+          //   Number: 5, 
+          //   Type: '海',
+          //   UnitPrice: 20,
+          //   PostDate: '2021-10-12',
+          // },
+          // { 
+          //   CoverImage: "https://res.cloudinary.com/ditncduk1/image/upload/v1633765873/User/e2qmuwkxojwgkrxcvakp.jpg", 
+          //   TripId: 6,
+          //   Title: 'F', 
+          //   Number: 6, 
+          //   Type: '海',
+          //   UnitPrice: 500,
+          //   PostDate: '2021-10-06',
+          // },
         ],
         fields: [
           { key: 'Number', label: '商品編號', sortable: true, sortDirection: 'desc', class: 'text-center' },
           { key: 'Title', label: '商品名稱', sortable: true, class: 'text-center'},
-          { key: 'CoverImage', label: '商品封面', class: 'text-center'},
+          { key: 'Image', label: '商品封面', class: 'text-center'},
           { key: 'Type', label: '商品分類', sortable: true, class: 'text-center'},
           { key: 'UnitPrice', label: '單價', sortable: true, class: 'text-center' },
           { key: 'PostDate', label: '上架日期', sortable: true, class: 'text-center' },
@@ -965,7 +971,7 @@
         offFields: [
           { key: 'Number', label: '商品編號', sortable: true, sortDirection: 'desc', class: 'text-center' },
           { key: 'Title', label: '商品名稱', sortable: true, class: 'text-center'},
-          { key: 'CoverImage', label: '商品封面', class: 'text-center'},
+          { key: 'Image', label: '商品封面', class: 'text-center'},
           { key: 'Type', label: '商品分類', sortable: true, class: 'text-center'},
           { key: 'UnitPrice', label: '單價', sortable: true, class: 'text-center' },
           { key: 'OffDate', label: '下架日期', sortable: true, class: 'text-center' },
@@ -989,6 +995,46 @@
         ]
       },
       methods: {
+        getData(){
+          req('get', this.urls.url_getProductList).then(res => {
+            // 上架商品
+            let putShelfTotal = []
+            res.data.result.productPutShelfListModels.forEach(item => {
+              
+              console.log(item);
+              let select = {
+                Image: item.coverImage, 
+                TripId: item.tripId,
+                Title: item.title, 
+                Number: item.tripId, 
+                Type: item.productType,
+                UnitPrice: item.unitPrice,
+                PostDate: item.publishTime
+              }
+              putShelfTotal.push({...select})
+            });
+            this.tableItems = putShelfTotal
+            console.log(this.tableItems);
+            // 下架商品
+            let offShelfTotal = []
+            res.data.result.productOffShelfListModels.forEach(item => {
+              console.log(item);
+              let select = {
+                Image: item.coverImage, 
+                TripId: item.tripId,
+                Title: item.title, 
+                Number: item.tripId, 
+                Type: item.productType,
+                UnitPrice: item.unitPrice,
+                PostDate: item.publishTime
+              }
+              offShelfTotal.push({...select})
+            })
+            this.offTableItems = offShelfTotal
+            console.log(this.offTableItems);
+            this.totalRows = this.tableItems.length
+          })
+        },
         test(text) {
           console.log(text);
         },
@@ -1027,9 +1073,7 @@
       },
       mounted() {
         // Set the initial number of items
-        this.totalRows = this.tableItems.length
-        console.log(this.totalRows );
-        
+        this.getData();
       },
     })
   </script>
